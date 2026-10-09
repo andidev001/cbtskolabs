@@ -89,6 +89,8 @@ Route::prefix('admin')->group(function () {
                 'destroy' => 'admin.jurusan.destroy',
             ]);
 
+                        Route::post('subject/import', [SubjectController::class, 'import'])->name('admin.subject.import');
+            Route::get('subject/template', [SubjectController::class, 'downloadTemplate'])->name('admin.subject.template');
             Route::resource('subject', SubjectController::class)->except(['show'])->names([
                 'index' => 'admin.subject.index',
                 'create' => 'admin.subject.create',
@@ -97,6 +99,11 @@ Route::prefix('admin')->group(function () {
                 'update' => 'admin.subject.update',
                 'destroy' => 'admin.subject.destroy',
             ]);
+
+                        // Guru Import
+            Route::get('guru/import', [GuruController::class, 'importView'])->name('admin.guru.import.view');
+            Route::post('guru/import', [GuruController::class, 'import'])->name('admin.guru.import');
+            Route::get('guru/template', [GuruController::class, 'downloadTemplate'])->name('admin.guru.template');
 
             // Guru Management
             Route::resource('guru', GuruController::class)->except(['show'])->names([
