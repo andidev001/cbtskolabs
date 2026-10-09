@@ -1,0 +1,596 @@
+<?php
+
+namespace App\Http\Controllers\Admin;
+
+use App\Http\Controllers\Controller;
+use App\Models\ExamSchedule;
+use App\Models\ExamResult;
+use App\Models\ExamAnswer;
+use App\Models\Siswa;
+use App\Models\Group;
+use App\Models\BankSoal;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+
+class ExamProcessingController extends Controller
+{
+    /** ── Koreksi Esai ── */
+    public function koreksiIndex(Request $request)
+    {
+        if ($request->ajax()) {
+            $data = ExamSchedule::with(['examEvent', 'bankSoal'])
+                ->whereHas('bankSoal.questions', function ($q) {
+                $q->where('type', 'Essay');
+            })
+                ->select('exam_schedules.*');
+
+            return \Yajra\DataTables\Facades\DataTables::of($data)
+                ->addIndexColumn()
+                ->addColumn('event_name', fn($row) => $row->examEvent->name ?? '-')
+                ->addColumn('bank_soal_name', fn($row) => $row->bankSoal->name ?? '-')
+                ->addColumn('action', function ($row) {
+                return '<div class="text-center">
+                                <a href="' . route('admin.processing.koreksi.show', $row->id) . '" class="btn btn-sm btn-primary">
+                                    <i class="align-middle" data-feather="check-square"></i> Mulai Koreksi
+                                </a>
+                            </div>';
+            })
+                ->rawColumns(['action'])
+                ->make(true);
+        }
+
+        return view('admin.processing.koreksi-index');
+    }
+
+    public function koreksiShow($scheduleId)
+    {
+        $schedule = ExamSchedule::with(['bankSoal'])->findOrFail($scheduleId);
+
+        // Ambil hasil ujian peserta yang sudah selesai
+        $participants = ExamResult::where('exam_schedule_id', $scheduleId)
+            ->with(['siswa.group'])
+            ->get();
+
+        return view('admin.processing.koreksi-show', compact('schedule', 'participants'));
+    }
+
+    public function koreksiSiswa($scheduleId, $siswaId)
+    {
+        $schedule = ExamSchedule::with(['bankSoal'])->findOrFail($scheduleId);
+        $siswa = Siswa::findOrFail($siswaId);
+        $result = ExamResult::where('exam_schedule_id', $scheduleId)->where('siswa_id', $siswaId)->firstOrFail();
+        
+        $questions = \App\Models\Question::where('bank_soal_id', $schedule->bank_soal_id)
+            ->whereIn('type', ['Essay', 'UR'])
+            ->get();
+            
+        $answers = ExamAnswer::where('exam_schedule_id', $scheduleId)
+            ->where('siswa_id', $siswaId)
+            ->whereIn('question_id', $questions->pluck('id'))
+            ->get()
+            ->keyBy('question_id');
+
+        return view('admin.processing.koreksi-siswa', compact('schedule', 'siswa', 'result', 'questions', 'answers'));
+    }
+
+    public function koreksiStore(Request $request, $scheduleId, $siswaId)
+    {
+        $request->validate([
+            'scores' => 'required|array',
+            'scores.*' => 'numeric|min:0|max:100',
+        ]);
+
+        foreach ($request->scores as $questionId => $score) {
+            ExamAnswer::updateOrCreate(
+                [
+                    'exam_schedule_id' => $scheduleId,
+                    'siswa_id' => $siswaId,
+                    'question_id' => $questionId
+                ],
+                [
+                    'score' => $score
+                ]
+            );
+        }
+
+        $this->recalculateScore($scheduleId, $siswaId);
+
+        return redirect()->route('admin.processing.koreksi.show', $scheduleId)->with('success', 'Nilai esai berhasil disimpan.');
+    }
+
+    private function recalculateScore($scheduleId, $siswaId)
+    {
+        $schedule = ExamSchedule::with('bankSoal')->findOrFail($scheduleId);
+        $result = ExamResult::where('exam_schedule_id', $scheduleId)->where('siswa_id', $siswaId)->first();
+        if (!$result) return;
+
+        $questions = \App\Models\Question::where('bank_soal_id', $schedule->bank_soal_id)
+            ->leftJoin('exam_answers', function ($j) use ($scheduleId, $siswaId) {
+                $j->on('questions.id', '=', 'exam_answers.question_id')
+                  ->where('exam_answers.exam_schedule_id', $scheduleId)
+                  ->where('exam_answers.siswa_id', $siswaId);
+            })->select('questions.id', 'questions.type', 'questions.answer as cor_ans', 'questions.complex_options', 'exam_answers.answer as stu_ans', 'exam_answers.score as es_score')->get();
+
+        $totalScore = 0;
+        $correctPG = 0;
+        $totalQ = $questions->count();
+        $grouped = $questions->groupBy('type');
+        
+        $typePercentMap = [
+            'PG' => 'pg_percent', 'PGK' => 'pgk_percent', 'LS' => 'ls_percent',
+            'MJ' => 'mj_percent', 'IS' => 'is_percent', 'UR' => 'ur_percent',
+            'Essay' => 'ur_percent', 'MT' => 'mt_percent', 'BS' => 'bs_percent', 'ST' => 'st_percent'
+        ];
+
+        foreach ($grouped as $type => $qs) {
+            $count = $qs->count();
+            if ($count === 0) continue;
+            
+            $pctField = $typePercentMap[$type] ?? null;
+            $percent = $pctField ? ($schedule->bankSoal->$pctField ?? 0) : 0;
+            $earned = 0;
+            
+            foreach ($qs as $q) {
+                $stuAns = $q->stu_ans ?? '';
+                $corAns = $q->cor_ans ?? '';
+                
+                if (in_array($type, ['PG', 'LS', 'BS', 'ST'])) {
+                    if (strtoupper($stuAns) === strtoupper($corAns) && $stuAns !== '') {
+                        $earned++;
+                        if ($type == 'PG') $correctPG++;
+                    }
+                } elseif ($type == 'IS') {
+                    if (strtolower(trim($stuAns)) === strtolower(trim($corAns)) && $stuAns !== '') {
+                        $earned++;
+                    }
+                } elseif ($type == 'PGK') {
+                    $stuArr = json_decode($stuAns, true) ?: [];
+                    $corArr = json_decode($corAns, true) ?: [];
+                    if (count($stuArr) > 0 && empty(array_diff($corArr, $stuArr)) && empty(array_diff($stuArr, $corArr))) {
+                        $earned++;
+                    }
+                } elseif ($type == 'MJ') {
+                    $stuMap = json_decode($stuAns, true) ?: [];
+                    $corOpts = json_decode($q->complex_options ?? '{}', true);
+                    $corLeft = $corOpts['left'] ?? [];
+                    $corRight = $corOpts['right'] ?? [];
+                    $correctPairs = 0;
+                    $totalPairs = count($corLeft);
+                    
+                    if ($totalPairs > 0 && count($stuMap) > 0) {
+                        foreach ($corLeft as $idx => $leftItem) {
+                            if (isset($stuMap[$idx]) && $stuMap[$idx] === ($corRight[$idx] ?? '')) {
+                                $correctPairs++;
+                            }
+                        }
+                        $earned += ($correctPairs / $totalPairs);
+                    }
+                } elseif ($type == 'MT') {
+                    $stuItems = json_decode($stuAns, true) ?: [];
+                    $corOpts = json_decode($q->complex_options ?? '{}', true);
+                    $corItems = $corOpts['items'] ?? [];
+                    
+                    if (count($stuItems) > 0 && $stuItems === $corItems) {
+                        $earned++;
+                    }
+                } elseif (in_array($type, ['UR', 'Essay'])) {
+                    $earned += ((float) ($q->es_score ?: 0)) / 100;
+                }
+            }
+            
+            if ($percent > 0) {
+                $totalScore += ($earned / $count) * $percent;
+            }
+        }
+
+        $result->update([
+            'total_questions' => $totalQ,
+            'correct_answers' => $correctPG,
+            'score' => round($totalScore, 1)
+        ]);
+    }
+
+    /** ── Hasil Ujian ── */
+    public function hasilIndex(Request $request)
+    {
+        if ($request->ajax()) {
+            $data = ExamSchedule::with(['examEvent', 'bankSoal'])->select('exam_schedules.*');
+
+            return \Yajra\DataTables\Facades\DataTables::of($data)
+                ->addIndexColumn()
+                ->addColumn('event_name', fn($row) => $row->examEvent->name ?? '-')
+                ->addColumn('bank_soal_name', fn($row) => $row->bankSoal->name ?? '-')
+                ->addColumn('action', function ($row) {
+                return '<div class="text-center">
+                                <a href="' . route('admin.processing.hasil.show', $row->id) . '" class="btn btn-sm btn-info text-white" title="Nilai" data-bs-toggle="tooltip"><i class="align-middle" data-feather="file-text"></i></a>
+                            </div>';
+            })
+                ->rawColumns(['action'])
+                ->make(true);
+        }
+        return view('admin.processing.hasil-index');
+    }
+
+    public function hasilShow(Request $request, $scheduleId)
+    {
+        $schedule = ExamSchedule::with(['bankSoal', 'examEvent'])->findOrFail($scheduleId);
+        
+        if ($request->ajax()) {
+            $query = ExamResult::where('exam_schedule_id', $scheduleId)
+                ->with(['siswa.group'])
+                ->select('exam_results.*');
+                
+            if ($request->group_id) {
+                $query->whereHas('siswa', function($q) use ($request) {
+                    $q->where('group_id', $request->group_id);
+                });
+            }
+            
+            return \Yajra\DataTables\Facades\DataTables::of($query)
+                ->addIndexColumn()
+                ->addColumn('nomer_ujian', fn($row) => $row->siswa->nomer_ujian ?? '-')
+                ->addColumn('nama_siswa', fn($row) => $row->siswa->name ?? '-')
+                ->addColumn('grup_kelas', fn($row) => $row->siswa->group->name ?? '-')
+                ->addColumn('benar', fn($row) => '<span class="text-success fw-bold">'.$row->correct_answers.'</span>')
+                ->addColumn('salah', fn($row) => '<span class="text-danger fw-bold">'.($row->total_questions - $row->correct_answers).'</span>')
+                ->addColumn('skor', fn($row) => '<span class="text-primary fw-bold">'.$row->score.'</span>')
+                ->addColumn('status', function($row) {
+                    if($row->finished_at) {
+                        return '<span class="badge bg-success">Selesai</span><br><small class="text-muted">'.$row->finished_at->format('d/m/Y H:i').'</small>';
+                    }
+                    return '<span class="badge bg-warning">Berlangsung</span>';
+                })
+                ->addColumn('action', function($row) {
+                    $delUrl = route('admin.processing.hasil.destroy', $row->id);
+                    $csrf = csrf_field();
+                    $method = method_field('DELETE');
+                    return '<form action="'.$delUrl.'" method="POST" class="d-inline" onsubmit="return confirm(\'Yakin hapus data ini?\')">
+                                '.$csrf.$method.'
+                                <button type="submit" class="btn btn-sm btn-outline-danger"><i data-feather="trash-2" style="width: 14px; height: 14px;"></i></button>
+                            </form>';
+                })
+                ->rawColumns(['benar', 'salah', 'skor', 'status', 'action'])
+                ->make(true);
+        }
+            
+        $groups = $schedule->groups; // Ambil grup yang di-assign ke jadwal ujian ini
+
+        return view('admin.processing.hasil-show', compact('schedule', 'groups'));
+    }
+
+    public function hasilDestroy($resultId)
+    {
+        $result = ExamResult::findOrFail($resultId);
+
+        // Hapus juga jawaban detail siswa tersebut agar tidak memenuhi storage
+        ExamAnswer::where('exam_schedule_id', $result->exam_schedule_id)
+            ->where('siswa_id', $result->siswa_id)
+            ->delete();
+
+        $result->delete();
+
+        return back()->with('success', 'Hasil ujian siswa berhasil dihapus.');
+    }
+
+    public function hasilReset($scheduleId)
+    {
+        // Hapus semua jawaban (jawaban detail)
+        ExamAnswer::where('exam_schedule_id', $scheduleId)->delete();
+
+        // Hapus semua rangkuman hasil (skor)
+        ExamResult::where('exam_schedule_id', $scheduleId)->delete();
+
+        return back()->with('success', 'Semua hasil ujian pada jadwal ini berhasil dihapus/direset.');
+    }
+
+    public function hasilExportExcel(Request $request, $scheduleId)
+    {
+        $schedule = ExamSchedule::findOrFail($scheduleId);
+        $fileName = 'Hasil_Ujian_' . str_replace(' ', '_', $schedule->name) . '_' . date('YmdHis') . '.xlsx';
+
+        return \Maatwebsite\Excel\Facades\Excel::download(new \App\Exports\ExamResultExport($scheduleId, $request->group_id), $fileName);
+    }
+
+    /** ── Leger Peserta ── */
+    public function legerIndex(Request $request)
+    {
+        $groups = Group::all();
+        $examEvents = \App\Models\ExamEvent::all();
+
+        $siswa = collect();
+        $schedules = collect();
+        $results = collect();
+        $selectedGroup = null;
+        $selectedEvent = null;
+
+        if ($request->has('group_id') && $request->has('exam_event_id')) {
+            $groupId = $request->group_id;
+            $eventId = $request->exam_event_id;
+
+            $selectedGroup = Group::find($groupId);
+            $selectedEvent = \App\Models\ExamEvent::find($eventId);
+
+            if ($selectedGroup && $selectedEvent) {
+                // Siswa dalam grup ini
+                $siswa = Siswa::where('group_id', $groupId)->orderBy('name')->get();
+
+                // Jadwal ujian dalam event ini yang di-assign ke grup ini
+                $schedules = ExamSchedule::where('exam_event_id', $eventId)
+                    ->whereHas('groups', function ($q) use ($groupId) {
+                    $q->where('groups.id', $groupId);
+                })
+                    ->with('bankSoal')
+                    ->get();
+
+                // Ambil semua hasil ujian untuk siswa dan jadwal terpilih
+                $results = ExamResult::whereIn('exam_schedule_id', $schedules->pluck('id'))
+                    ->whereIn('siswa_id', $siswa->pluck('id'))
+                    ->get()
+                    ->groupBy('siswa_id');
+            }
+        }
+
+        return view('admin.processing.leger-index', compact(
+            'groups', 'examEvents', 'siswa', 'schedules', 'results', 'selectedGroup', 'selectedEvent'
+        ));
+    }
+
+    public function legerExportExcel(Request $request)
+    {
+        $groupId = $request->group_id;
+        $eventId = $request->exam_event_id;
+
+        $selectedGroup = Group::findOrFail($groupId);
+        $selectedEvent = \App\Models\ExamEvent::findOrFail($eventId);
+
+        $fileName = 'Leger_Nilai_' . str_replace(' ', '_', $selectedGroup->name) . '_' . date('YmdHis') . '.xlsx';
+
+        return \Maatwebsite\Excel\Facades\Excel::download(new \App\Exports\LegerExport($groupId, $eventId), $fileName);
+    }
+
+    public function legerExportPdf(Request $request)
+    {
+        $groupId = $request->group_id;
+        $eventId = $request->exam_event_id;
+
+        $selectedGroup = Group::findOrFail($groupId);
+        $selectedEvent = \App\Models\ExamEvent::findOrFail($eventId);
+
+        $siswa = collect();
+        $schedules = collect();
+        $results = collect();
+
+        $siswa = Siswa::where('group_id', $groupId)->orderBy('name')->get();
+
+        $schedules = ExamSchedule::where('exam_event_id', $eventId)
+            ->whereHas('groups', function ($q) use ($groupId) {
+                $q->where('groups.id', $groupId);
+            })
+            ->with('bankSoal')
+            ->get();
+
+        $results = ExamResult::whereIn('exam_schedule_id', $schedules->pluck('id'))
+            ->whereIn('siswa_id', $siswa->pluck('id'))
+            ->get()
+            ->groupBy('siswa_id');
+
+        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('admin.processing.leger-export', [
+            'selectedGroup' => $selectedGroup,
+            'selectedEvent' => $selectedEvent,
+            'siswa' => $siswa,
+            'schedules' => $schedules,
+            'results' => $results,
+            'isPdf' => true
+        ]);
+        
+        $pdf->setPaper('a4', 'landscape');
+
+        $fileName = 'Leger_Nilai_' . str_replace(' ', '_', $selectedGroup->name) . '_' . date('YmdHis') . '.pdf';
+        
+        return $pdf->download($fileName);
+    }
+
+    /** ── Analisis Butir Soal ── */
+    public function analisisIndex(Request $request)
+    {
+        if ($request->ajax()) {
+            $data = ExamSchedule::with(['examEvent', 'bankSoal'])->select('exam_schedules.*');
+            return \Yajra\DataTables\Facades\DataTables::of($data)
+                ->addIndexColumn()
+                ->addColumn('event_name', fn($row) => $row->examEvent->name ?? '-')
+                ->addColumn('bank_soal_name', fn($row) => $row->bankSoal->name ?? '-')
+                ->addColumn('action', function ($row) {
+                return '<div class="text-center">
+                                <a href="' . route('admin.processing.analisis.show', $row->id) . '" class="btn btn-sm btn-success">
+                                    <i class="align-middle" data-feather="bar-chart-2"></i> Analisis
+                                </a>
+                            </div>';
+            })
+                ->rawColumns(['action'])
+                ->make(true);
+        }
+        return view('admin.processing.analisis-index');
+    }
+
+    public function analisisShow(Request $request, $scheduleId)
+    {
+        $schedule = ExamSchedule::with(['bankSoal.questions', 'examEvent'])->findOrFail($scheduleId);
+
+        if ($request->ajax()) {
+            $groupId = $request->input('group_id');
+            $questions = $schedule->bankSoal->questions;
+
+            // Base query for participants
+            $resultQuery = ExamResult::where('exam_schedule_id', $scheduleId);
+            if ($groupId) {
+                $resultQuery->whereHas('siswa', function ($q) use ($groupId) {
+                    $q->where('group_id', $groupId);
+                });
+            }
+            $results = $resultQuery->orderBy('score', 'desc')->get();
+            $totalParticipants = $results->count();
+
+            // Calculate Upper and Lower Group sizes for Discrimination Index (DP)
+            $groupSize = $totalParticipants < 10 ? (int) floor($totalParticipants / 2) : (int) round($totalParticipants * 0.27);
+            $upperSiswaIds = $results->take($groupSize)->pluck('siswa_id')->toArray();
+            $lowerSiswaIds = $results->reverse()->take($groupSize)->pluck('siswa_id')->toArray();
+
+            // Fetch answers optimized
+            $answersQuery = ExamAnswer::where('exam_schedule_id', $scheduleId);
+            if ($groupId) {
+                $answersQuery->whereHas('siswa', function ($sq) use ($groupId) {
+                    $sq->where('group_id', $groupId);
+                });
+            }
+            $allAnswers = $answersQuery->get()->groupBy('question_id');
+
+            $correctCounts = [];
+            $dpData = [];
+            
+            foreach ($questions as $q) {
+                $ansForQ = $allAnswers->get($q->id) ?? collect();
+                
+                $c = 0;
+                $upperCorrect = 0;
+                $lowerCorrect = 0;
+
+                foreach ($ansForQ as $a) {
+                    $isCorrect = (strtoupper($a->answer) === strtoupper($q->answer) || $a->score > 0);
+                    if ($isCorrect) {
+                        $c++;
+                        if (in_array($a->siswa_id, $upperSiswaIds)) {
+                            $upperCorrect++;
+                        } elseif (in_array($a->siswa_id, $lowerSiswaIds)) {
+                            $lowerCorrect++;
+                        }
+                    }
+                }
+                
+                $correctCounts[$q->id] = $c;
+
+                // Calculate DP
+                $dp = 0;
+                if ($groupSize > 0) {
+                    $dp = ($upperCorrect - $lowerCorrect) / $groupSize;
+                }
+                $dpData[$q->id] = round($dp, 2);
+            }
+
+            return \Yajra\DataTables\Facades\DataTables::of($questions)
+                ->addIndexColumn()
+                ->addColumn('cuplikan', function ($q) {
+                    return \Illuminate\Support\Str::limit(strip_tags($q->question_text), 100);
+                })
+                ->addColumn('cognitive_level', function ($q) {
+                    return $q->cognitive_level ?? '-';
+                })
+                ->addColumn('correct_count', function ($q) use ($correctCounts) {
+                    return $correctCounts[$q->id] ?? 0;
+                })
+                ->addColumn('total_participants', function ($q) use ($totalParticipants) {
+                    return $totalParticipants;
+                })
+                ->addColumn('difficulty_ratio', function ($q) use ($correctCounts, $totalParticipants) {
+                    $c = $correctCounts[$q->id] ?? 0;
+                    return $totalParticipants > 0 ? round($c / $totalParticipants, 2) : 0;
+                })
+                ->addColumn('difficulty_level', function ($q) use ($correctCounts, $totalParticipants) {
+                    $c = $correctCounts[$q->id] ?? 0;
+                    $ratio = $totalParticipants > 0 ? $c / $totalParticipants : 0;
+
+                    if ($ratio < 0.3) return '<span class="badge bg-danger">Sukar</span>';
+                    if ($ratio > 0.7) return '<span class="badge bg-success">Mudah</span>';
+                    return '<span class="badge bg-warning">Sedang</span>';
+                })
+                ->addColumn('discrimination_index', function ($q) use ($dpData) {
+                    return $dpData[$q->id] ?? 0;
+                })
+                ->addColumn('discrimination_category', function ($q) use ($dpData) {
+                    $dp = $dpData[$q->id] ?? 0;
+                    if ($dp > 0.40) return '<span class="badge bg-success">Sangat Baik</span>';
+                    if ($dp >= 0.30) return '<span class="badge bg-primary">Baik</span>';
+                    if ($dp >= 0.20) return '<span class="badge bg-warning">Cukup</span>';
+                    if ($dp > 0) return '<span class="badge bg-danger">Jelek</span>';
+                    return '<span class="badge bg-dark">Sangat Jelek</span>';
+                })
+                ->rawColumns(['difficulty_level', 'discrimination_category'])
+                ->make(true);
+        }
+
+        $groupIds = ExamResult::where('exam_schedule_id', $scheduleId)
+            ->join('siswas', 'siswas.id', '=', 'exam_results.siswa_id')
+            ->pluck('siswas.group_id')
+            ->unique();
+        $groups = \App\Models\Group::whereIn('id', $groupIds)->get();
+
+        return view('admin.processing.analisis-show', compact('schedule', 'groups'));
+    }
+
+    public function analisisExportExcel(Request $request, $scheduleId)
+    {
+        $schedule = ExamSchedule::findOrFail($scheduleId);
+        $groupId = $request->input('group_id');
+        $groupName = '';
+        if ($groupId) {
+            $groupName = '_' . \App\Models\Group::find($groupId)->name;
+        }
+
+        $fileName = 'Analisis_Butir_Soal_' . str_replace(' ', '_', $schedule->name) . $groupName . '_' . date('YmdHis') . '.xlsx';
+
+        return \Maatwebsite\Excel\Facades\Excel::download(new \App\Exports\ItemAnalysisExport($scheduleId, $groupId), $fileName);
+    }
+
+    /** ── Setting Ujian ── */
+    public function settingIndex(Request $request)
+    {
+        if ($request->ajax()) {
+            $data = ExamSchedule::with(['examEvent', 'bankSoal'])->select('exam_schedules.*');
+            return \Yajra\DataTables\Facades\DataTables::of($data)
+                ->addIndexColumn()
+                ->addColumn('event_name', fn($row) => $row->examEvent->name ?? '-')
+                ->addColumn('bank_soal_name', fn($row) => $row->bankSoal->name ?? '-')
+                ->addColumn('action', function ($row) {
+                return '<div class="text-center">
+                                <button type="button" class="btn btn-sm btn-warning text-white" data-bs-toggle="modal" data-bs-target="#settingModal' . $row->id . '" title="Pengaturan" data-bs-toggle="tooltip"><i class="align-middle" data-feather="settings"></i></button>
+                            </div>';
+            })
+                ->rawColumns(['action'])
+                ->make(true);
+        }
+        $schedules = ExamSchedule::with(['examEvent', 'bankSoal'])->latest()->get();
+        return view('admin.processing.setting-index', compact('schedules'));
+    }
+
+    public function settingUpdate(Request $request, $id)
+    {
+        $schedule = ExamSchedule::findOrFail($id);
+
+        $data = [];
+        if ($request->has('is_ajax_toggle')) {
+            // Handle AJAX toggle which sends specific field and boolean value
+            $fields = ['show_score', 'show_percentage', 'show_answer', 'enforce_focus'];
+            foreach ($fields as $field) {
+                if ($request->has($field)) {
+                    $data[$field] = $request->input($field);
+                }
+            }
+        }
+        else {
+            // Handle normal form submit (checkboxes)
+            $data = [
+                'show_score' => $request->has('show_score'),
+                'show_percentage' => $request->has('show_percentage'),
+                'show_answer' => $request->has('show_answer'),
+                'enforce_focus' => $request->has('enforce_focus'),
+            ];
+        }
+
+        $schedule->update($data);
+
+        if ($request->ajax()) {
+            return response()->json(['success' => true]);
+        }
+
+        return back()->with('success', 'Pengaturan berhasil diperbarui.');
+    }
+}
