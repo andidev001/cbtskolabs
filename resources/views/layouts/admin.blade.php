@@ -399,7 +399,7 @@
 					<li class="sidebar-header">Akun</li>
 					<li class="sidebar-item">
 						<form id="logout-form" action="{{ route('admin.logout') }}" method="POST" style="display: none;">@csrf</form>
-						<a class="sidebar-link" href="#" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
+						<a class="sidebar-link" href="#" onclick="confirmLogout(event)">
 							<i class="align-middle" data-feather="log-out"></i> <span class="align-middle">Logout</span>
 						</a>
 					</li>
@@ -424,7 +424,7 @@
 							<div class="dropdown-menu dropdown-menu-end">
 								<a class="dropdown-item" href="{{ route('admin.profile.edit') }}"><i class="align-middle me-1" data-feather="user"></i> Edit Profil</a>
 								<div class="dropdown-divider"></div>
-								<a class="dropdown-item" href="#" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">Log out</a>
+								<a class="dropdown-item" href="#" onclick="confirmLogout(event)">Log out</a>
 							</div>
 						</li>
 					</ul>
@@ -457,6 +457,24 @@
     <!-- SweetAlert2 -->
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
+    function confirmLogout(e) {
+        if(e) e.preventDefault();
+        Swal.fire({
+            title: 'Yakin ingin keluar?',
+            text: 'Sesi Anda akan diakhiri.',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#6c757d',
+            confirmButtonText: 'Ya, Keluar!',
+            cancelButtonText: 'Batal'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                document.getElementById('logout-form').submit();
+            }
+        });
+    }
+
     // Global Success Notification
     @if(session('success'))
     Swal.fire({

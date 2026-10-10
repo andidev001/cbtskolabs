@@ -537,7 +537,7 @@
         </div>
         <div class="modal-btns">
             <button type="button" class="btn-cancel" onclick="document.getElementById('finishModal').classList.remove('show')">Kembali</button>
-            <button type="button" class="btn-confirm" onclick="document.getElementById('finishForm').submit()">Ya, Selesai</button>
+            <button type="button" class="btn-confirm" onclick="if(typeof cheatDetectorActive !== 'undefined') cheatDetectorActive = false; document.getElementById('finishForm').submit()">Ya, Selesai</button>
         </div>
     </div>
 </div>
@@ -627,6 +627,7 @@
         if (remaining <= 300) timerBox.style.borderColor = '#dc3545';
         if (remaining <= 0) {
             clearInterval(timerInterval);
+            if(typeof cheatDetectorActive !== 'undefined') cheatDetectorActive = false;
             document.getElementById('finishForm').submit();
         }
     }, 1000);

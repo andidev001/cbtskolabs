@@ -315,7 +315,7 @@
 					</li>
 					<li class="sidebar-item">
 						<form id="guru-logout-form" action="{{ route('guru.logout') }}" method="POST" style="display:none">@csrf</form>
-						<a class="sidebar-link" href="#" onclick="document.getElementById('guru-logout-form').submit()">
+						<a class="sidebar-link" href="#" onclick="confirmLogout(event)">
 							<i class="align-middle" data-feather="log-out"></i> <span class="align-middle">Keluar</span>
 						</a>
 					</li>
@@ -340,7 +340,7 @@
                                     <i data-feather="user" class="align-middle me-1"></i> Profil
                                 </a>
                                 <div class="dropdown-divider"></div>
-								<a class="dropdown-item" href="#" onclick="document.getElementById('guru-logout-form').submit()">
+								<a class="dropdown-item" href="#" onclick="confirmLogout(event)">
 									<i data-feather="log-out" class="align-middle me-1"></i> Keluar
 								</a>
 							</div>
@@ -376,6 +376,24 @@
     <!-- SweetAlert2 -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
+        function confirmLogout(e) {
+            if(e) e.preventDefault();
+            Swal.fire({
+                title: 'Yakin ingin keluar?',
+                text: 'Sesi Anda akan diakhiri.',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: 'Ya, Keluar!',
+                cancelButtonText: 'Batal'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    document.getElementById('guru-logout-form').submit();
+                }
+            });
+        }
+        
         // Global Success Notification
         @if(session('success'))
         Swal.fire({
