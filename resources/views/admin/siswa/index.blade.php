@@ -187,8 +187,26 @@ $(function() {
 </script>
 
 <script>
-$(document).on("click", ".btn-edit", function() {
-    var id = $(this).data("id");
+$(document).on('click', '.btn-view', function() {
+    $('#view_nomer_ujian').text($(this).data('nomer') || '-');
+    $('#view_name').text($(this).data('name') || '-');
+    $('#view_username').text($(this).data('username') || '-');
+    $('#view_password').text($(this).data('password') || '-');
+    $('#view_religion').text($(this).data('religion') || '-');
+    $('#view_jurusan').text($(this).data('jurusan') || '-');
+    $('#view_group').text($(this).data('group') || '-');
+    $('#view_sesi').text($(this).data('sesi') ? 'Sesi ' + $(this).data('sesi') : '-');
+    $('#view_status').text($(this).data('status') || '-');
+    var viewModalElement = document.getElementById('viewSiswaModal');
+    var viewModal = bootstrap.Modal.getInstance(viewModalElement);
+    if (!viewModal) {
+        viewModal = new bootstrap.Modal(viewModalElement);
+    }
+    viewModal.show();
+});
+
+$(document).on('click', '.btn-edit', function() {
+    var id = $(this).data('id');
     var nomer = $(this).data("nomer");
     var name = $(this).data("name");
     var username = $(this).data("username");
@@ -465,6 +483,7 @@ $(function() {
 </div>
 
 @endsection
+
 
 
 
