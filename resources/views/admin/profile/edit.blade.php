@@ -13,7 +13,7 @@
             </div>
             <div class="card-body text-center">
                 @if(auth('admin')->user()->photo)
-                    <img src="{{ asset(auth('admin')->user()->photo) }}" alt="" class="img-fluid rounded-circle mb-2" width="128" height="128" style="object-fit: cover;" onerror="this.onerror=null; this.outerHTML='<div class=\'d-inline-flex align-items-center justify-content-center text-white rounded-circle shadow-sm mb-2\' style=\'width:128px;height:128px; font-weight:bold; font-size:3rem; background: linear-gradient(135deg, #4361ee, #3a0ca3);\'>{{ strtoupper(substr(auth(\'admin\')->user()->name, 0, 1)) }}</div>';" />
+                    <img src="{{ asset(auth('admin')->user()->photo) }}" alt="" class="img-fluid rounded-circle mb-2" width="128" height="128" style="object-fit: cover;" onerror="this.onerror=null; this.outerHTML='<div class=\'d-inline-flex align-items-center justify-content-center text-white rounded-circle shadow-sm mb-2\' style=\'width:128px;height:128px; font-weight:bold; font-size:3rem; background: linear-gradient(135deg, #4361ee, #3a0ca3);\'>{{ strtoupper(substr(auth('admin')->user()->name, 0, 1)) }}</div>';" />
                 @else
                     <img src="{{ asset('assets/adminkit/img/avatars/avatar.jpg') }}" alt="Default Avatar" class="img-fluid rounded-circle mb-2" width="128" height="128" />
                 @endif
