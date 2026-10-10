@@ -112,3 +112,4 @@ $(function() {
     .table tbody td { font-size: 0.85rem; }
 </style>
 @endsection
+

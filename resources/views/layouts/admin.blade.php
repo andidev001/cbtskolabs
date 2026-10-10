@@ -347,7 +347,7 @@
 							<li class="sidebar-item {{ request()->routeIs('admin.exam-event.*') ? 'active' : '' }}">
 								<a class="sidebar-link" href="{{ route('admin.exam-event.index') }}"><i class="align-middle" data-feather="calendar"></i> <span class="align-middle">Event Ujian</span></a>
 							</li>
-							<li class="sidebar-item {{ request()->routeIs('admin.exam-schedule.*', 'admin.berita-acara.*') ? 'active' : '' }}">
+							<li class="sidebar-item {{ request()->routeIs('admin.exam-schedule.*') ? 'active' : '' }}">
 								<a class="sidebar-link" href="{{ route('admin.exam-schedule.index') }}"><i class="align-middle" data-feather="clock"></i> <span class="align-middle">Jadwal Ujian</span></a>
 							</li>
 							<li class="sidebar-item {{ request()->routeIs('admin.berita-acara.*') ? 'active' : '' }}">

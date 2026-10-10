@@ -22,3 +22,4 @@ HTML;
     file_put_contents($file, $content);
     echo "$file cleaned.\n";
 }
+

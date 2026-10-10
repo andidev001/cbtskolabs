@@ -29,3 +29,4 @@ foreach ($files as $file) {
     file_put_contents($file, $content);
     echo "$file updated.\n";
 }
+

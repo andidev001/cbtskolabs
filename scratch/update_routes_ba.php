@@ -26,3 +26,4 @@ $content = preg_replace('/Route::get\(\'monitoring\/\{schedule\}\/berita-acara\'
 
 file_put_contents('routes/web.php', $content);
 echo "Routes updated.\n";
+

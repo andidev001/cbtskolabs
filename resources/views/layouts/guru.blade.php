@@ -275,7 +275,7 @@
 							<li class="sidebar-item {{ request()->routeIs('guru.exam-event.*') ? 'active' : '' }}">
 								<a class="sidebar-link" href="{{ route('guru.exam-event.index') }}"><i class="align-middle" data-feather="calendar"></i> <span class="align-middle">Event Ujian</span></a>
 							</li>
-							<li class="sidebar-item {{ request()->routeIs('guru.exam-schedule.*', 'guru.berita-acara.*') ? 'active' : '' }}">
+							<li class="sidebar-item {{ request()->routeIs('guru.exam-schedule.*') ? 'active' : '' }}">
 								<a class="sidebar-link" href="{{ route('guru.exam-schedule.index') }}"><i class="align-middle" data-feather="clock"></i> <span class="align-middle">Jadwal Ujian</span></a>
 							</li>
 							<li class="sidebar-item {{ request()->routeIs('guru.berita-acara.*') ? 'active' : '' }}">
