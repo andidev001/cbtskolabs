@@ -34,6 +34,7 @@
     </div>
 </div>
 
+@push('modals')
 <!-- Modal Berita Acara -->
 <div class="modal fade" id="modalBeritaAcara" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog">
@@ -73,6 +74,7 @@
         </div>
     </div>
 </div>
+@endpush
 
 @push('scripts')
 <script>
