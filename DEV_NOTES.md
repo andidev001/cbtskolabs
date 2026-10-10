@@ -42,3 +42,4 @@ Catatan ini dibuat untuk merekam progres terakhir sebelum jeda pengembangan, aga
    - Ingat bahwa Admin menggunakan `layouts.admin`, Guru menggunakan `layouts.guru`, dan Pengawas menggunakan `layouts.pengawas`. Pastikan *controller* mengembalikan *view* yang di-*extend* dengan *layout* yang sesuai dengan role yang login.
 
 *Selamat beristirahat! Anda bisa melanjutkan pengembangan kapan saja dengan aman. Cukup hapus atau perbarui catatan ini jika sudah tidak relevan di masa depan.*
+

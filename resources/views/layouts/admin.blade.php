@@ -415,19 +415,16 @@
 				<div class="navbar-collapse collapse">
 					<ul class="navbar-nav navbar-align">
 						<li class="nav-item dropdown">
-							<a class="nav-link dropdown-toggle d-none d-sm-inline-block d-flex align-items-center gap-2" href="#" data-bs-toggle="dropdown" style="padding-top:0; padding-bottom:0;">
-                                
+							<a class="nav-link dropdown-toggle d-none d-sm-inline-block" href="#" data-bs-toggle="dropdown">
 								@if(auth('admin')->user()->photo)
-									<img src="{{ asset(auth('admin')->user()->photo) }}" class="avatar img-fluid rounded-circle" alt="{{ auth('admin')->user()->name }}" style="width:36px; height:36px; object-fit:cover;" /> 
+									<img src="{{ asset(auth('admin')->user()->photo) }}" class="avatar img-fluid rounded-circle me-1" alt="{{ auth('admin')->user()->name }}" style="width:36px; height:36px; object-fit:cover;" /> 
 								@else
-									<div class="text-white d-flex align-items-center justify-content-center rounded-circle shadow-sm" style="width:36px;height:36px; font-weight:bold; background: linear-gradient(135deg, #4361ee, #3a0ca3);">
+									<div class="d-inline-flex align-items-center justify-content-center text-white rounded-circle shadow-sm me-1" style="width:36px;height:36px; font-weight:bold; background: linear-gradient(135deg, #4361ee, #3a0ca3); vertical-align:middle;">
                                         {{ substr(auth('admin')->user()->name, 0, 1) }}
                                     </div>
 								@endif
-                                <div class="text-start ms-1 me-2 d-none d-md-block" style="line-height:1.2;">
-                                    <div class="text-dark fw-bold" style="font-size:0.85rem;">{{ auth('admin')->user()->name }}</div>
-                                    <div class="text-muted" style="font-size:0.7rem;">Admin Sistem</div>
-                                </div>
+                                <span class="text-dark fw-bold ms-1" style="vertical-align:middle;">{{ auth('admin')->user()->name }}</span>
+                                <span class="text-muted small ms-1" style="vertical-align:middle;">(Admin Sistem)</span>
 							</a>
 							<div class="dropdown-menu dropdown-menu-end">
 								<a class="dropdown-item" href="{{ route('admin.profile.edit') }}"><i class="align-middle me-1" data-feather="user"></i> Edit Profil</a>
