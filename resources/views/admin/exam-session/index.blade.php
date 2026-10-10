@@ -35,7 +35,7 @@
                 </div>
 
                 <div class="table-responsive">
-                    <table id="dataTable" class="table table-bordered table-hover mb-0">
+                    <table id="dataTable" class="table table-sm table-bordered table-hover mb-0">
                         <thead class="bg-light">
                             <tr>
                                 <th width="50" class="text-center">No</th>
@@ -53,7 +53,7 @@
                                 <td class="text-center align-middle">{{ \Carbon\Carbon::parse($sesi->start_time)->format('H:i') }}</td>
                                 <td class="text-center align-middle">{{ \Carbon\Carbon::parse($sesi->end_time)->format('H:i') }}</td>
                                 <td class="text-center align-middle">
-                                    <button class="btn btn-sm btn-warning text-white" data-bs-toggle="modal" data-bs-target="#modalEditSesi{{ $sesi->id }}" title="Edit Sesi" data-bs-toggle="tooltip">
+                                    <button class="btn btn-sm btn-primary text-white" data-bs-toggle="modal" data-bs-target="#modalEditSesi{{ $sesi->id }}" title="Edit Sesi" data-bs-toggle="tooltip">
                                         <i data-feather="edit-2"></i>
                                     </button>
                                     <form action="{{ route('admin.exam-session.destroy', $sesi->id) }}" method="POST" class="d-inline">
