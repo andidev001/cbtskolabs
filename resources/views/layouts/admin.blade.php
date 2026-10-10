@@ -48,7 +48,7 @@
 
         .sidebar-item.active .sidebar-link { background: rgba(67, 97, 238, 0.08) !important; color: var(--sidebar-item-active) !important; border-left: none !important; border-radius: 8px; margin: 0 1rem; padding-left: 1rem !important; font-weight: 600 !important; }
 
-        .sidebar-item.active i, .sidebar-item.active span {
+        .sidebar-item.active i, .sidebar-item.active svg, .sidebar-item.active span {
             color: var(--sidebar-item-active) !important;
         }
 
@@ -63,11 +63,12 @@
 
         .sidebar-link:hover { color: var(--sidebar-link-hover) !important; background: #f8fafc !important; border-radius: 8px; margin: 0 1rem; padding-left: 1rem !important; }
 
-        .sidebar-link i {
+        .sidebar-link i, .sidebar-link svg {
             width: 18px;
             height: 18px;
             margin-right: 12px;
             opacity: 0.7;
+            color: var(--sidebar-link-color) !important;
         }
 
         .sidebar-nav {
@@ -76,9 +77,9 @@
 
                         .sidebar-dropdown .sidebar-item { padding: 0.2rem 1rem 0.2rem 2.5rem; }
         .sidebar-dropdown .sidebar-link { font-size: 0.8rem; font-weight: 500 !important; opacity: 0.85; padding: 0.5rem 1rem !important; margin: 0 1rem; border-radius: 8px; border-radius: 6px; border-left: none !important; transition: all 0.2s; }
-        .sidebar-dropdown .sidebar-link i { width: 14px; height: 14px; margin-right: 8px; opacity: 0.8; }
+        .sidebar-dropdown .sidebar-link i, .sidebar-dropdown .sidebar-link svg { width: 14px; height: 14px; margin-right: 8px; opacity: 0.8; }
         .sidebar-dropdown .sidebar-item.active .sidebar-link { background: rgba(67, 97, 238, 0.08) !important; color: var(--sidebar-item-active) !important; border-left: none !important; border-radius: 8px; margin: 0 1rem; padding-left: 1rem !important; font-weight: 600 !important; }
-        .sidebar-dropdown .sidebar-item.active .sidebar-link i { color: #1e293b !important; opacity: 1; }
+        .sidebar-dropdown .sidebar-item.active .sidebar-link i, .sidebar-dropdown .sidebar-item.active .sidebar-link svg { color: var(--sidebar-item-active) !important; opacity: 1; }
         .sidebar-link[data-bs-toggle="collapse"] { position: relative; }
         .sidebar-link[data-bs-toggle="collapse"]::after {
             content: " ";
@@ -283,8 +284,8 @@
 				<a class="sidebar-brand d-flex align-items-center" href="{{ route('admin.dashboard') }}" style="padding:1.5rem 1rem !important;">
 					<img src="{{ $favicon }}" alt="Logo" style="height: 38px; margin-right: 12px; border-radius: 8px;">
 					<div style="line-height:1.2;">
-                        <div style="font-size:1.2rem; font-weight:800; color:#1e293b; letter-spacing:-0.5px;">{{ \App\Models\Setting::get('app_name', 'SMKN 2') }}</div>
-                        <div style="font-size:0.75rem; font-weight:500; color:#64748b;">{{ \App\Models\Setting::get('nama_instansi', 'Kab. Tangerang') }}</div>
+                        <div style="font-size:1.2rem; font-weight:800; color:#1e293b; letter-spacing:-0.5px;">CBTSKOLABS</div>
+                        <div style="font-size:0.75rem; font-weight:500; color:#64748b;">{{ \App\Models\Setting::get('nama_instansi', 'Nama Sekolah') }}</div>
                     </div>
 				</a>
 
