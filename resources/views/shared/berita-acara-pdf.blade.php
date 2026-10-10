@@ -25,8 +25,9 @@
 </head>
 <body>
     @php
-        $app_logo = \App\Models\Setting::get('app_logo');
-        $favicon = $app_logo ? public_path('storage/' . $app_logo) : public_path('logoskolabs.png');
+        // Prepare Logo
+        $logo_setting = \App\Models\Setting::get('logo');
+        $favicon = $logo_setting ? public_path($logo_setting) : public_path('logoskolabs.png');
         if(!file_exists($favicon)) {
             $favicon = '';
         } else {
@@ -34,7 +35,20 @@
             $data = file_get_contents($favicon);
             $favicon = 'data:image/' . $type . ';base64,' . base64_encode($data);
         }
-        $app_name = \App\Models\Setting::get('app_name', 'SKOLABS CBT');
+        
+        // Prepare Kop Surat
+        $kop_setting = \App\Models\Setting::get('kop_surat');
+        $kop_surat = $kop_setting ? public_path($kop_setting) : '';
+        if(file_exists($kop_surat) && is_file($kop_surat)) {
+            $type = pathinfo($kop_surat, PATHINFO_EXTENSION);
+            $data = file_get_contents($kop_surat);
+            $kop_surat = 'data:image/' . $type . ';base64,' . base64_encode($data);
+        } else {
+            $kop_surat = '';
+        }
+
+        $app_name = \App\Models\Setting::get('nama_instansi', \App\Models\Setting::get('app_name', 'SKOLABS CBT'));
+        $app_address = \App\Models\Setting::get('alamat', '______________________________________________________________');
         
         $ba = $schedule->beritaAcara;
         $ruang = $ba ? $ba->ruang : '_____';
@@ -44,22 +58,28 @@
         $catatan = $ba ? $ba->catatan : 'Ujian berjalan dengan tertib dan lancar.';
     @endphp
 
-    <table class="kop-surat">
-        <tr>
-            <td class="logo-cell">
-                @if($favicon)
-                    <img src="{{ $favicon }}" alt="Logo" class="logo">
-                @endif
-            </td>
-            <td class="text-cell">
-                <div class="kop-text">
-                    <h2>PANITIA PELAKSANAAN UJIAN</h2>
-                    <h3>{{ strtoupper($app_name) }}</h3>
-                    <p>Alamat: ______________________________________________________________</p>
-                </div>
-            </td>
-        </tr>
-    </table>
+    @if($kop_surat)
+        <div style="text-align: center; border-bottom: 3px solid #000; padding-bottom: 10px; margin-bottom: 20px;">
+            <img src="{{ $kop_surat }}" style="max-width: 100%; height: auto; max-height: 150px;" alt="Kop Surat">
+        </div>
+    @else
+        <table class="kop-surat">
+            <tr>
+                <td class="logo-cell">
+                    @if($favicon)
+                        <img src="{{ $favicon }}" alt="Logo" class="logo">
+                    @endif
+                </td>
+                <td class="text-cell">
+                    <div class="kop-text">
+                        <h2>PANITIA PELAKSANAAN UJIAN</h2>
+                        <h3>{{ strtoupper($app_name) }}</h3>
+                        <p>Alamat: {{ $app_address }}</p>
+                    </div>
+                </td>
+            </tr>
+        </table>
+    @endif
 
     <div class="title">BERITA ACARA PELAKSANAAN UJIAN</div>
     <p>Pada hari ini <strong>{{ \Carbon\Carbon::now()->translatedFormat('l') }}</strong> tanggal <strong>{{ \Carbon\Carbon::now()->format('d') }}</strong> bulan <strong>{{ \Carbon\Carbon::now()->translatedFormat('F') }}</strong> tahun <strong>{{ \Carbon\Carbon::now()->format('Y') }}</strong>, telah dilaksanakan ujian untuk mata pelajaran <strong>{{ $schedule->bankSoal->subject->name ?? $schedule->bankSoal->name }}</strong> dari pukul <strong>{{ \Carbon\Carbon::parse($schedule->start_at)->format('H:i') }}</strong> sampai dengan <strong>{{ \Carbon\Carbon::parse($schedule->end_at)->format('H:i') }}</strong>.</p>

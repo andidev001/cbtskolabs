@@ -20,6 +20,7 @@ class SettingController extends Controller
             'jenjang' => Setting::get('jenjang'),
             'status' => Setting::get('status'),
             'logo' => Setting::get('logo'),
+            'kop_surat' => Setting::get('kop_surat'),
         ];
         return view('admin.settings.index', compact('settings'));
     }
@@ -36,6 +37,7 @@ class SettingController extends Controller
             'jenjang' => 'nullable|string|max:50',
             'status' => 'nullable|string|max:50',
             'logo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'kop_surat' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
 
         foreach ($data as $key => $value) {
@@ -44,6 +46,13 @@ class SettingController extends Controller
                 $filename = 'logo_' . time() . '.' . $file->getClientOriginalExtension();
                 $file->move(public_path('uploads'), $filename);
                 Setting::set('logo', 'uploads/' . $filename);
+                continue;
+            }
+            if ($key == 'kop_surat' && $request->hasFile('kop_surat')) {
+                $file = $request->file('kop_surat');
+                $filename = 'kop_surat_' . time() . '.' . $file->getClientOriginalExtension();
+                $file->move(public_path('uploads'), $filename);
+                Setting::set('kop_surat', 'uploads/' . $filename);
                 continue;
             }
             Setting::set($key, $value);

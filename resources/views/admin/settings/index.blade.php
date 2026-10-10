@@ -56,6 +56,17 @@
                             <input type="file" class="form-control" name="logo">
                         </div>
                     </div>
+                    
+                    <div class="row">
+                        <div class="col-md-12 mb-3">
+                            <label class="form-label">Upload Kop Surat (opsional)</label>
+                            <input type="file" class="form-control" name="kop_surat" accept="image/*">
+                            <small class="text-muted d-block mt-1">Digunakan sebagai gambar kop surat penuh pada hasil cetak Berita Acara. Biarkan kosong untuk menggunakan kop surat teks default.</small>
+                            @if(!empty($settings['kop_surat']))
+                                <small class="text-success fw-bold d-block mt-1"><i class="align-middle me-1" data-feather="check-circle" style="width: 14px; height: 14px;"></i> Kop Surat kustom telah diatur.</small>
+                            @endif
+                        </div>
+                    </div>
 
                     <hr>
                     <h5 class="mb-3">Pejabat Berwenang</h5>
