@@ -3,73 +3,75 @@
 @section('title', 'Master Pengaturan Sesi')
 
 @section('content')
-<div class="row">
-    <div class="col-12">
-        <div class="card shadow-sm border-0">
-            <div class="card-body pt-4">
-                @if(session('success'))
-                <div class="alert alert-success alert-dismissible fade show" role="alert">
-                    {{ session('success') }}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                </div>
-                @endif
-                @if($errors->any())
-                <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                    <ul class="mb-0">
-                        @foreach($errors->all() as $error)
-                            <li>{{ $error }}</li>
-                        @endforeach
-                    </ul>
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                </div>
-                @endif
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+        <h1 class="h4 fw-bold mb-0">Master Pengaturan Sesi</h1>
+        <p class="text-muted small mb-0">Atur jam mulai dan selesai untuk masing-masing Sesi (1, 2, 3, dsb)</p>
+    </div>
+    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalAddSesi">
+        <i data-feather="plus" class="align-middle me-1"></i> Tambah Sesi
+    </button>
+</div>
 
-                <div class="d-flex justify-content-between align-items-center mb-4">
-                    <div>
-                        <h4 class="mb-1"><strong>Master Pengaturan Sesi</strong></h4>
-                        <p class="text-muted small mb-0">Atur jam mulai dan selesai untuk masing-masing Sesi (1, 2, 3, dsb)</p>
-                    </div>
-                    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalAddSesi">
-                        <i data-feather="plus" class="align-middle me-1"></i> Tambah Sesi
-                    </button>
-                </div>
+@if(session('success'))
+<div class="alert alert-success alert-dismissible fade show" role="alert">
+    {{ session('success') }}
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+</div>
+@endif
+@if($errors->any())
+<div class="alert alert-danger alert-dismissible fade show" role="alert">
+    <ul class="mb-0">
+        @foreach($errors->all() as $error)
+            <li>{{ $error }}</li>
+        @endforeach
+    </ul>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+</div>
+@endif
 
-                <div class="table-responsive">
-                    <table id="dataTable" class="table table-sm table-bordered table-hover mb-0">
-                        <thead class="bg-light">
-                            <tr>
-                                <th width="50" class="text-center">No</th>
-                                <th>Nama Sesi</th>
-                                <th class="text-center">Jam Mulai</th>
-                                <th class="text-center">Jam Selesai</th>
-                                <th width="150" class="text-center">Aksi</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach($sessions as $sesi)
-                            <tr>
-                                <td class="text-center align-middle">{{ $loop->iteration }}</td>
-                                <td class="align-middle fw-bold">Sesi {{ $sesi->name }}</td>
-                                <td class="text-center align-middle">{{ \Carbon\Carbon::parse($sesi->start_time)->format('H:i') }}</td>
-                                <td class="text-center align-middle">{{ \Carbon\Carbon::parse($sesi->end_time)->format('H:i') }}</td>
-                                <td class="text-center align-middle">
-                                    <button class="btn btn-sm btn-primary text-white" data-bs-toggle="modal" data-bs-target="#modalEditSesi{{ $sesi->id }}" title="Edit Sesi" data-bs-toggle="tooltip">
-                                        <i data-feather="edit-2"></i>
-                                    </button>
-                                    <form action="{{ route('admin.exam-session.destroy', $sesi->id) }}" method="POST" class="d-inline">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="button" class="btn btn-sm btn-danger btn-delete" title="Hapus Sesi" data-bs-toggle="tooltip">
-                                            <i data-feather="trash-2"></i>
-                                        </button>
-                                    </form>
-                                </td>
-                            </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
-                </div>
-            </div>
+<div class="card shadow-sm border-0">
+    <div class="card-body p-3">
+        <div class="table-responsive">
+            <table id="dataTable" class="table table-hover mb-0 w-100">
+                <thead class="bg-light">
+                    <tr>
+                        <th width="50" class="text-center">No</th>
+                        <th>Nama Sesi</th>
+                        <th class="text-center">Jam Mulai</th>
+                        <th class="text-center">Jam Selesai</th>
+                        <th width="150" class="text-center">Aksi</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach($sessions as $sesi)
+                    <tr>
+                        <td class="text-center align-middle">{{ $loop->iteration }}</td>
+                        <td class="align-middle fw-bold">
+                            <div class="fw-bold"><i data-feather="clock" class="me-2 text-muted" style="width:14px;height:14px;"></i>Sesi {{ $sesi->name }}</div>
+                        </td>
+                        <td class="text-center align-middle">
+                            <span class="badge rounded-pill bg-light text-dark border">{{ \Carbon\Carbon::parse($sesi->start_time)->format('H:i') }}</span>
+                        </td>
+                        <td class="text-center align-middle">
+                            <span class="badge rounded-pill bg-light text-dark border">{{ \Carbon\Carbon::parse($sesi->end_time)->format('H:i') }}</span>
+                        </td>
+                        <td class="text-center align-middle">
+                            <button class="btn btn-sm btn-primary text-white" data-bs-toggle="modal" data-bs-target="#modalEditSesi{{ $sesi->id }}" title="Edit Sesi" data-bs-toggle="tooltip">
+                                <i data-feather="edit-2"></i>
+                            </button>
+                            <form action="{{ route('admin.exam-session.destroy', $sesi->id) }}" method="POST" class="d-inline">
+                                @csrf
+                                @method('DELETE')
+                                <button type="button" class="btn btn-sm btn-danger btn-delete" title="Hapus Sesi" data-bs-toggle="tooltip">
+                                    <i data-feather="trash-2"></i>
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                    @endforeach
+                </tbody>
+            </table>
         </div>
     </div>
 </div>
