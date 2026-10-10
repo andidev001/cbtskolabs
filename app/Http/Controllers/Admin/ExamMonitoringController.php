@@ -149,6 +149,10 @@ class ExamMonitoringController extends Controller
                         $url = route('admin.monitoring.reset', [$schedule->id, $row->id]);
                         $btn .= '<form action="'.$url.'" method="POST" class="form-reset">'.csrf_field().'<button type="button" class="btn btn-sm btn-danger py-0 px-2 btn-reset" title="Reset Total Ujian"><i data-feather="rotate-ccw" style="width: 12px; height: 12px;"></i> Reset Total</button></form>';
                     }
+                    
+                    $resetLoginUrl = route('admin.peserta.reset-login', $row->id);
+                    $btn .= '<form action="'.$resetLoginUrl.'" method="POST" class="form-reset-login d-inline" onsubmit="return confirm(\'Reset login siswa ini?\')">'.csrf_field().'<button type="submit" class="btn btn-sm btn-dark py-0 px-2 btn-reset-login" title="Reset Login"><i data-feather="refresh-cw" style="width: 12px; height: 12px;"></i> Reset Login</button></form>';
+
                     $btn .= '</div>';
                     return $btn;
                 })

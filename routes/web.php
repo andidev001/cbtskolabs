@@ -63,6 +63,7 @@ Route::prefix('admin')->group(function () {
                 'update' => 'admin.peserta.update',
                 'destroy' => 'admin.peserta.destroy',
             ]);
+            Route::post('peserta/{id}/reset-login', [SiswaController::class , 'resetLogin'])->name('admin.peserta.reset-login');
             Route::get('peserta/export-template', [SiswaController::class , 'exportTemplate'])->name('admin.peserta.export-template');
             Route::post('peserta/import', [SiswaController::class , 'import'])->name('admin.peserta.import');
             Route::get('peserta/card-preview', [SiswaController::class , 'cardPreview'])->name('admin.peserta.card-preview');

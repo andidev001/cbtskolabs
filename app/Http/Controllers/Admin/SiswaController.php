@@ -33,6 +33,10 @@ class SiswaController extends Controller
             })
                 ->addColumn('action', function ($row) {
                 $btn = '<div class="text-center d-flex justify-content-center align-items-center gap-1">';
+                $btn .= '<form action="' . route('admin.peserta.reset-login', $row->id) . '" method="POST" class="d-inline mb-0" onsubmit="return confirm(\'Reset login siswa ini supaya bisa login kembali?\')">
+                                ' . csrf_field() . '
+                                <button type="submit" class="btn btn-sm btn-warning text-dark" title="Reset Login"><i class="align-middle" data-feather="refresh-cw"></i></button>
+                            </form>';
                 $btn .= '<button type="button" class="btn btn-sm btn-info text-white btn-edit" data-id="'.htmlspecialchars($row->id ?? '').'" data-nomer="'.htmlspecialchars($row->nomer_ujian ?? '').'" data-name="'.htmlspecialchars($row->name ?? '').'" data-username="'.htmlspecialchars($row->username ?? '').'" data-religion="'.htmlspecialchars($row->religion_id ?? '').'" data-jurusan="'.htmlspecialchars($row->jurusan_id ?? '').'" data-group="'.htmlspecialchars($row->group_id ?? '').'" data-sesi="'.htmlspecialchars($row->sesi ?? '').'" data-status="'.htmlspecialchars($row->status ?? '').'" title="Edit" data-bs-toggle="tooltip"><i class="align-middle" data-feather="edit-2"></i></button>';
                 $btn .= '<form action="' . route('admin.peserta.destroy', $row->id) . '" method="POST" class="d-inline mb-0">
                                 ' . csrf_field() . '
@@ -184,5 +188,15 @@ class SiswaController extends Controller
 
         $pdf = Pdf::loadView('admin.siswa.cards', compact('siswas', 'setting', 'title'))->setPaper('a4', 'portrait');
         return $pdf->stream('kartu_peserta.pdf');
+    }
+
+    public function resetLogin($id)
+    {
+        $siswa = \App\Models\Siswa::findOrFail($id);
+        $siswa->update([
+            'is_logged_in' => false,
+            'session_id' => null
+        ]);
+        return redirect()->back()->with('success', 'Status login siswa berhasil direset.');
     }
 }

@@ -22,6 +22,8 @@ class Siswa extends Authenticatable
         'status',
         'password',
         'password_raw',
+        'is_logged_in',
+        'session_id',
     ];
 
     public function religion()
