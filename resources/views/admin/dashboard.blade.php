@@ -73,7 +73,7 @@
                 </div>
                 <h2 class="fw-bolder mb-2" style="color: #1e293b; font-size: 1.8rem;">{{ auth('admin')->user()->name }}</h2>
                 <p class="text-muted mb-0" style="max-width: 400px; font-size:0.9rem;">
-                    Kelola dan pantau seluruh data dan aktivitas sistem CBT {{ \App\Models\Setting::get('app_name', 'SMKN 2') }} {{ \App\Models\Setting::get('nama_instansi', 'Kab. Tangerang') }} dengan mudah dan cepat.
+                    Kelola dan pantau seluruh data dan aktivitas sistem CBT SKOLABS {{ \App\Models\Setting::get('nama_instansi', 'Kab. Tangerang') }} dengan mudah dan cepat.
                 </p>
             </div>
             <!-- Illustration placeholder, could use an SVG or image -->

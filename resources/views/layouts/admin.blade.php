@@ -107,7 +107,7 @@
             background: rgba(255,255,255,0.1);
             border-radius: 10px;
         }
-    
+
         /* SweetAlert Tweaks (Smaller & Smoother) */
         .swal2-popup { font-size: 0.85rem !important; padding: 1.5rem !important; width: auto !important; min-width: 300px !important; max-width: 380px !important; border-radius: 12px !important; }
         .swal2-title { font-size: 1.3rem !important; margin-bottom: 0.25rem !important; font-weight: 600 !important; }
@@ -133,7 +133,7 @@
         body > .modal .modal-footer { display: flex; justify-content: flex-end; align-items: center; gap: 0.5rem; padding: 1rem 1.5rem; border-top: 1px solid #f0f2f5; background-color: #fcfcfc; }
 </style>
 
-    
+
     <style>
         /* custom fine ui */
         body { font-size: 0.875rem; background-color: #f5f7fb; }
@@ -141,17 +141,17 @@
         .card-header { border-bottom: 1px solid #f0f2f5; background-color: #fff; border-radius: 8px 8px 0 0 !important; padding: 1rem 1.25rem; }
         .card-body { padding: 1.25rem; }
         .form-control, .form-select, .btn { font-size: 0.85rem !important; border-radius: 5px !important; }
-        
+
         /* Table & DataTables refinements */
         .table { font-size: 0.8rem; color: #495057; margin-bottom: 0 !important; }
         .table > :not(caption) > * > * { padding: 0.6rem 0.75rem; vertical-align: middle; border-bottom-color: #f0f2f5; }
         .table thead th { font-weight: 600; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px; background-color: #f8f9fa; color: #6c757d; border-bottom: 2px solid #eef2f7 !important; padding-top: 0.75rem; padding-bottom: 0.75rem; }
         .table tbody tr:hover { background-color: rgba(0,0,0,0.015); }
-        
+
         /* Buttons inside table */
         .table .btn { padding: 0.25rem 0.5rem !important; font-size: 0.75rem !important; line-height: 1.2; margin-bottom: 0.2rem; }
         .table .btn i, .table .btn svg { width: 14px; height: 14px; }
-        
+
         /* DataTables wrapper spacing & fixes */
         .dataTables_wrapper .row { align-items: center; margin-bottom: 0.5rem; }
         div.dataTables_wrapper div.dataTables_length select { width: auto; display: inline-block; padding: 0.25rem 1.5rem 0.25rem 0.5rem; font-size: 0.8rem; border-radius: 4px; }
@@ -161,19 +161,19 @@
         .pagination { margin-bottom: 0; justify-content: flex-end; display: flex !important; flex-wrap: wrap; list-style: none !important; padding-left: 0; }
         .page-item .page-link { font-size: 0.8rem; padding: 0.3rem 0.75rem; border-radius: 4px; margin: 0 2px; border: 1px solid #eef2f7; color: #495057; }
         .page-item.active .page-link { background-color: var(--sidebar-bg, #0d3a85); border-color: var(--sidebar-bg, #0d3a85); color: #fff; }
-    
+
     /* Fix Breadcrumbs globally */
     ol.breadcrumb { list-style: none !important; display: flex !important; flex-wrap: wrap; padding-left: 0 !important; margin-bottom: 0 !important; gap: 0.5rem; }
     ol.breadcrumb li { display: flex; align-items: center; }
     .breadcrumb-item + .breadcrumb-item::before { content: '/'; margin-right: 0.5rem; color: #6c757d; }
-        
+
         /* Badges */
         .badge { padding: 0.35em 0.65em; font-weight: 500; border-radius: 4px; }
-        
+
         .sidebar-link { font-size: 0.85rem; padding: 0.65rem 1.5rem !important; margin: 0 1rem; border-radius: 8px; }
         .sidebar-header { font-size: 0.65rem !important; padding: 1.2rem 1.5rem 0.5rem !important; }
         .navbar { padding: 0.5rem 1rem !important; min-height: 50px; border-bottom: 1px solid #f0f2f5; box-shadow: none; }
-    
+
         /* SweetAlert Tweaks (Smaller & Smoother) */
         .swal2-popup { font-size: 0.85rem !important; padding: 1.5rem !important; width: auto !important; min-width: 300px !important; max-width: 380px !important; border-radius: 12px !important; }
         .swal2-title { font-size: 1.3rem !important; margin-bottom: 0.25rem !important; font-weight: 600 !important; }
@@ -199,7 +199,7 @@
         /* Button overrides for elegant look */
         .btn-primary { background-color: #4361ee !important; border-color: #4361ee !important; color: #fff !important; }
         .btn-primary:hover { background-color: #3a0ca3 !important; border-color: #3a0ca3 !important; }
-        
+
         .btn-success { background-color: #10b981 !important; border-color: #10b981 !important; color: #fff !important; }
         .btn-success:hover { background-color: #059669 !important; border-color: #059669 !important; }
 
@@ -211,7 +211,7 @@
 
         .btn-danger { background-color: #ef4444 !important; border-color: #ef4444 !important; color: #fff !important; }
         .btn-danger:hover { background-color: #dc2626 !important; border-color: #dc2626 !important; }
-        
+
         .btn-secondary { background-color: #64748b !important; border-color: #64748b !important; color: #fff !important; }
         .btn-secondary:hover { background-color: #475569 !important; border-color: #475569 !important; }
 </style>
@@ -225,7 +225,7 @@
         .table tbody tr:last-child td { border-bottom: none !important; }
         .table tbody tr { transition: all 0.2s ease !important; }
         .table tbody tr:hover { background-color: #f1f5f9 !important; transform: scale(1.001) !important; }
-        
+
         /* DataTables wrapper spacing & fixes */
         .dataTables_wrapper { padding: 0.5rem 0 !important; }
         .dataTables_wrapper .row { align-items: center !important; margin-bottom: 0.75rem !important; }
@@ -234,7 +234,7 @@
         div.dataTables_wrapper div.dataTables_filter label { font-weight: 500 !important; color: #64748b !important; font-size: 0.8rem !important; }
         div.dataTables_wrapper div.dataTables_filter input { margin-left: 0.5em !important; display: inline-block !important; width: 200px !important; padding: 0.4rem 0.85rem !important; font-size: 0.8rem !important; border-radius: 20px !important; border: 1px solid #cbd5e1 !important; outline: none !important; transition: all 0.2s !important; box-shadow: 0 1px 2px 0 rgba(0,0,0,0.05) !important; }
         div.dataTables_wrapper div.dataTables_filter input:focus { border-color: #3b82f6 !important; box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1) !important; width: 230px !important; }
-        
+
         /* Modern Pagination */
         .pagination { margin-bottom: 0 !important; justify-content: flex-end !important; display: flex !important; flex-wrap: wrap !important; list-style: none !important; gap: 4px !important; padding-left: 0 !important; }
         .page-item .page-link { font-size: 0.8rem !important; font-weight: 500 !important; padding: 0.3rem 0.75rem !important; border-radius: 6px !important; margin: 0 !important; border: none !important; color: #64748b !important; background: transparent !important; transition: all 0.2s !important; }
@@ -243,28 +243,28 @@
         .page-item.disabled .page-link { color: #cbd5e1 !important; background: transparent !important; }
 
         /* Icon ONLY Buttons inside table - Small and Smooth */
-        .table .btn { 
-            padding: 0 !important; 
+        .table .btn {
+            padding: 0 !important;
             font-size: 0 !important; /* Hide Text */
-            border-radius: 6px !important; 
-            box-shadow: none !important; 
-            transition: all 0.2s !important; 
-            display: inline-flex !important; 
-            align-items: center !important; 
-            justify-content: center !important; 
+            border-radius: 6px !important;
+            box-shadow: none !important;
+            transition: all 0.2s !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            justify-content: center !important;
             margin-right: 4px !important;
             width: 28px !important;
             height: 28px !important;
         }
-        .table .btn i, .table .btn svg { 
-            width: 14px !important; 
-            height: 14px !important; 
-            font-size: 14px !important; 
-            margin: 0 !important; 
+        .table .btn i, .table .btn svg {
+            width: 14px !important;
+            height: 14px !important;
+            font-size: 14px !important;
+            margin: 0 !important;
         }
-        .table .btn:hover { 
-            transform: translateY(-1px) !important; 
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1) !important; 
+        .table .btn:hover {
+            transform: translateY(-1px) !important;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1) !important;
             background-color: rgba(0,0,0,0.05); /* Slight darkening for better feedback */
         }
 
@@ -301,7 +301,7 @@
 				<a class="sidebar-brand d-flex align-items-center" href="{{ route('admin.dashboard') }}" style="padding:1.5rem 1rem !important;">
 					<img src="{{ $favicon }}" alt="Logo" style="height: 38px; margin-right: 12px; border-radius: 8px;">
 					<div style="line-height:1.2;">
-                        <div style="font-size:1.2rem; font-weight:800; color:#1e293b; letter-spacing:-0.5px;">CBTSKOLABS</div>
+                        <div style="font-size:1.2rem; font-weight:800; color:#1e293b; letter-spacing:-0.5px;">CBT SKOLABS</div>
                         <div style="font-size:0.75rem; font-weight:500; color:#64748b;">{{ \App\Models\Setting::get('nama_instansi', 'Nama Sekolah') }}</div>
                     </div>
 				</a>
@@ -435,7 +435,7 @@
 						<li class="nav-item dropdown">
 							<a class="nav-link dropdown-toggle d-none d-sm-inline-block" href="#" data-bs-toggle="dropdown">
 								@if(auth('admin')->user()->photo)
-									<img src="{{ asset(auth('admin')->user()->photo) }}" class="avatar img-fluid rounded-circle me-1" alt="{{ auth('admin')->user()->name }}" style="width:36px; height:36px; object-fit:cover;" /> 
+									<img src="{{ asset(auth('admin')->user()->photo) }}" class="avatar img-fluid rounded-circle me-1" alt="{{ auth('admin')->user()->name }}" style="width:36px; height:36px; object-fit:cover;" />
 								@else
 									<div class="d-inline-flex align-items-center justify-content-center text-white rounded-circle shadow-sm me-1" style="width:36px;height:36px; font-weight:bold; background: linear-gradient(135deg, #4361ee, #3a0ca3); vertical-align:middle;">
                                         {{ substr(auth('admin')->user()->name, 0, 1) }}
@@ -537,10 +537,10 @@
             if (el) {
                 e.preventDefault();
                 e.stopImmediatePropagation();
-                
+
                 var form = el.closest('form');
                 var href = el.getAttribute('href');
-                
+
                 Swal.fire({
                     title: 'Apakah Anda Yakin?',
                     text: 'Data yang dihapus tidak dapat dikembalikan!',
@@ -560,7 +560,7 @@
                         }
                     }
                 });
-                
+
                 if(typeof feather !== 'undefined') {
                     setTimeout(function() { feather.replace(); }, 10);
                 }
@@ -574,7 +574,7 @@
             if (onsubmit && onsubmit.includes('confirm(')) {
                 e.preventDefault();
                 e.stopImmediatePropagation();
-                
+
                 Swal.fire({
                     title: 'Apakah Anda Yakin?',
                     text: 'Aksi ini tidak dapat dibatalkan!',
@@ -603,7 +603,7 @@
             return new bootstrap.Tooltip(tooltipTriggerEl);
         });
     }
-    
+
     document.addEventListener('DOMContentLoaded', function() {
         initTooltips();
     });
