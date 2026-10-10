@@ -46,9 +46,9 @@
             letter-spacing: 1px;
         }
 
-        .sidebar-item.active .sidebar-link { background: rgba(67, 97, 238, 0.08) !important; color: var(--sidebar-item-active) !important; border-left: none !important; border-radius: 8px; margin: 0 1rem; padding-left: 1rem !important; font-weight: 600 !important; }
+        .sidebar-item.active > .sidebar-link { background: rgba(67, 97, 238, 0.08) !important; color: var(--sidebar-item-active) !important; border-left: none !important; border-radius: 8px; margin: 0 1rem; padding-left: 1rem !important; font-weight: 600 !important; }
 
-        .sidebar-item.active i, .sidebar-item.active svg, .sidebar-item.active span {
+        .sidebar-item.active > .sidebar-link i, .sidebar-item.active > .sidebar-link svg, .sidebar-item.active > .sidebar-link span {
             color: var(--sidebar-item-active) !important;
         }
 
