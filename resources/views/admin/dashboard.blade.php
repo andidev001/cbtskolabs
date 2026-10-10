@@ -29,13 +29,13 @@
         transform: translateY(-3px);
     }
     .icon-box {
-        width: 48px;
-        height: 48px;
-        border-radius: 14px;
+        width: 40px;
+        height: 40px;
+        border-radius: 10px;
         display: flex;
         align-items: center;
         justify-content: center;
-        margin-bottom: 1rem;
+        margin-bottom: 0.5rem;
     }
     .text-success-custom { color: #10b981; }
     .text-primary-custom { color: #3b82f6; }
@@ -91,60 +91,60 @@
     </div>
 </div>
 
-<div class="row g-4 mb-4">
+<div class="row g-3 mb-4">
     <div class="col-6 col-xl-3">
-        <div class="stat-card p-4">
+        <div class="stat-card p-3">
             <div class="d-flex justify-content-between align-items-start mb-2">
                 <div class="icon-box text-white" style="background: #4361ee;">
-                    <i data-feather="users"></i>
+                    <i data-feather="users" style="width: 18px; height: 18px;"></i>
                 </div>
-                <i data-feather="trending-up" class="text-primary-custom" style="width:18px;"></i>
+                <i data-feather="trending-up" class="text-primary-custom" style="width:16px; height:16px;"></i>
             </div>
-            <div class="text-muted fw-bold mb-1" style="font-size:0.9rem;">Total Siswa</div>
-            <h3 class="fw-bolder text-dark mb-2" style="font-size:2rem;">{{ $countSiswa }}</h3>
-            <div class="text-success-custom" style="font-size:0.8rem; font-weight:600;"><i data-feather="arrow-up" style="width:12px;"></i> Data Terkini</div>
+            <div class="text-muted fw-bold mb-1" style="font-size:0.85rem;">Total Siswa</div>
+            <h3 class="fw-bolder text-dark mb-1" style="font-size:1.6rem;">{{ $countSiswa }}</h3>
+            <div class="text-success-custom" style="font-size:0.75rem; font-weight:600;"><i data-feather="arrow-up" style="width:12px;"></i> Data Terkini</div>
         </div>
     </div>
     
     <div class="col-6 col-xl-3">
-        <div class="stat-card p-4">
+        <div class="stat-card p-3">
             <div class="d-flex justify-content-between align-items-start mb-2">
                 <div class="icon-box text-white" style="background: #10b981;">
-                    <i data-feather="database"></i>
+                    <i data-feather="database" style="width: 18px; height: 18px;"></i>
                 </div>
-                <i data-feather="file-text" class="text-muted" style="width:18px;"></i>
+                <i data-feather="file-text" class="text-muted" style="width:16px; height:16px;"></i>
             </div>
-            <div class="text-muted fw-bold mb-1" style="font-size:0.9rem;">Bank Soal</div>
-            <h3 class="fw-bolder text-dark mb-2" style="font-size:2rem;">{{ $countBankSoal }}</h3>
-            <div class="text-muted" style="font-size:0.8rem; font-weight:500;">— Tidak ada perubahan</div>
+            <div class="text-muted fw-bold mb-1" style="font-size:0.85rem;">Bank Soal</div>
+            <h3 class="fw-bolder text-dark mb-1" style="font-size:1.6rem;">{{ $countBankSoal }}</h3>
+            <div class="text-muted" style="font-size:0.75rem; font-weight:500;">— Tidak ada perubahan</div>
         </div>
     </div>
 
     <div class="col-6 col-xl-3">
-        <div class="stat-card p-4">
+        <div class="stat-card p-3">
             <div class="d-flex justify-content-between align-items-start mb-2">
                 <div class="icon-box text-white" style="background: #f59e0b;">
-                    <i data-feather="calendar"></i>
+                    <i data-feather="calendar" style="width: 18px; height: 18px;"></i>
                 </div>
-                <i data-feather="calendar" class="text-muted" style="width:18px;"></i>
+                <i data-feather="calendar" class="text-muted" style="width:16px; height:16px;"></i>
             </div>
-            <div class="text-muted fw-bold mb-1" style="font-size:0.9rem;">Event Ujian</div>
-            <h3 class="fw-bolder text-dark mb-2" style="font-size:2rem;">{{ $countEvent }}</h3>
-            <div class="text-muted" style="font-size:0.8rem; font-weight:500;">— Tidak ada perubahan</div>
+            <div class="text-muted fw-bold mb-1" style="font-size:0.85rem;">Event Ujian</div>
+            <h3 class="fw-bolder text-dark mb-1" style="font-size:1.6rem;">{{ $countEvent }}</h3>
+            <div class="text-muted" style="font-size:0.75rem; font-weight:500;">— Tidak ada perubahan</div>
         </div>
     </div>
 
     <div class="col-6 col-xl-3">
-        <div class="stat-card p-4">
+        <div class="stat-card p-3">
             <div class="d-flex justify-content-between align-items-start mb-2">
                 <div class="icon-box text-white" style="background: #ef4444;">
-                    <i data-feather="activity"></i>
+                    <i data-feather="activity" style="width: 18px; height: 18px;"></i>
                 </div>
-                <i data-feather="trending-up" class="text-primary-custom" style="width:18px;"></i>
+                <i data-feather="trending-up" class="text-primary-custom" style="width:16px; height:16px;"></i>
             </div>
-            <div class="text-muted fw-bold mb-1" style="font-size:0.9rem;">Jadwal Aktif</div>
-            <h3 class="fw-bolder text-dark mb-2" style="font-size:2rem;">{{ $countOngoing }}</h3>
-            <div class="text-success-custom" style="font-size:0.8rem; font-weight:600;"><i data-feather="arrow-up" style="width:12px;"></i> Real-time</div>
+            <div class="text-muted fw-bold mb-1" style="font-size:0.85rem;">Jadwal Aktif</div>
+            <h3 class="fw-bolder text-dark mb-1" style="font-size:1.6rem;">{{ $countOngoing }}</h3>
+            <div class="text-success-custom" style="font-size:0.75rem; font-weight:600;"><i data-feather="arrow-up" style="width:12px;"></i> Real-time</div>
         </div>
     </div>
 </div>
@@ -169,7 +169,7 @@
                 </div>
             </div>
             <div class="card-body px-4 pb-4">
-                <div class="chart chart-lg" style="height: 300px;">
+                <div class="chart chart-lg" style="height: 220px;">
                     <canvas id="chartjs-siswa-group"></canvas>
                 </div>
             </div>
