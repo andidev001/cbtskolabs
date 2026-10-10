@@ -3,118 +3,218 @@
 @section('title', 'Admin Dashboard')
 
 @section('content')
+<style>
+    .welcome-card {
+        background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+        border-radius: 16px;
+        position: relative;
+        overflow: hidden;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+    }
+    .welcome-bg {
+        position: absolute;
+        right: -20px;
+        bottom: -20px;
+        opacity: 0.8;
+        width: 300px;
+    }
+    .stat-card {
+        border-radius: 16px;
+        box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
+        border: 1px solid #f1f5f9;
+        transition: transform 0.2s;
+        background: #fff;
+    }
+    .stat-card:hover {
+        transform: translateY(-3px);
+    }
+    .icon-box {
+        width: 48px;
+        height: 48px;
+        border-radius: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 1rem;
+    }
+    .text-success-custom { color: #10b981; }
+    .text-primary-custom { color: #3b82f6; }
+</style>
 
-{{-- Stat Cards --}}
 <div class="row g-4 mb-4">
-    <div class="col-sm-6 col-xl-3">
-        <div class="card border-0 shadow-sm h-100 card-hover" style="border-radius:20px;overflow:hidden;">
-            <div class="card-body d-flex align-items-center gap-3 p-3">
-                <div style="width:44px;height:44px;border-radius:14px;background:linear-gradient(135deg,#3b82f6,#1d4ed8);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-                    <i data-feather="users" style="width:20px;height:20px;color:white;"></i>
+    <div class="col-12 col-xl-8">
+        <div class="welcome-card p-4 h-100 d-flex align-items-center">
+            <div style="z-index: 1;">
+                <div class="d-flex align-items-center mb-2">
+                    <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-2" style="width:40px; height:40px; background:#4361ee !important;">
+                        <i data-feather="book-open" style="width:20px; height:20px;"></i>
+                    </div>
+                    <span class="text-muted fw-bold">Selamat Datang,</span>
                 </div>
-                <div>
-                    <div style="font-size:1.4rem;font-weight:800;line-height:1;">{{ $countSiswa }}</div>
-                    <div class="text-muted" style="font-size:0.75rem;">Total Siswa</div>
-                </div>
+                <h2 class="fw-bolder mb-2" style="color: #1e293b; font-size: 1.8rem;">{{ auth('admin')->user()->name }}</h2>
+                <p class="text-muted mb-0" style="max-width: 400px; font-size:0.9rem;">
+                    Kelola dan pantau seluruh data dan aktivitas sistem CBT {{ \App\Models\Setting::get('app_name', 'SMKN 2') }} {{ \App\Models\Setting::get('nama_instansi', 'Kab. Tangerang') }} dengan mudah dan cepat.
+                </p>
             </div>
+            <!-- Illustration placeholder, could use an SVG or image -->
+            <svg class="welcome-bg d-none d-md-block" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" style="right: 20px; bottom: 0px; width: 220px; opacity: 1;">
+                <path fill="#e0e7ff" d="M47.7,-57.2C59.4,-47.3,64.8,-29.3,66.8,-11.7C68.8,5.9,67.5,23,59.3,37.3C51,51.6,35.9,63.1,18.8,68.6C1.7,74.1,-17.4,73.5,-32.8,66C-48.2,58.4,-60,43.8,-67.2,26.7C-74.4,9.6,-77,-10,-70.5,-26.4C-64.1,-42.9,-48.7,-56,-32.8,-63.3C-16.8,-70.5,-0.3,-71.9,16,-68.8C32.4,-65.7,47.7,-57.2,47.7,-57.2Z" transform="translate(100 100)" />
+                <rect x="50" y="50" width="100" height="70" rx="5" fill="#4361ee" />
+                <rect x="55" y="55" width="90" height="50" rx="3" fill="#fff" />
+                <circle cx="100" cy="80" r="15" fill="#e0e7ff" />
+                <path d="M90 80 L97 87 L115 70" stroke="#4361ee" stroke-width="3" fill="none" />
+                <rect x="70" y="120" width="60" height="5" rx="2" fill="#94a3b8" />
+            </svg>
         </div>
     </div>
-    <div class="col-sm-6 col-xl-3">
-        <div class="card border-0 shadow-sm h-100 card-hover" style="border-radius:20px;overflow:hidden;">
-            <div class="card-body d-flex align-items-center gap-3 p-3">
-                <div style="width:44px;height:44px;border-radius:14px;background:linear-gradient(135deg,#10b981,#059669);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-                    <i data-feather="database" style="width:20px;height:20px;color:white;"></i>
+    
+    <div class="col-12 col-xl-4">
+        <div class="stat-card p-4 h-100 d-flex flex-column justify-content-center">
+            <div class="d-flex align-items-center mb-3">
+                <div class="icon-box" style="background: rgba(100, 116, 139, 0.1); color: #64748b; width:40px; height:40px;">
+                    <i data-feather="calendar" style="width:18px;"></i>
                 </div>
-                <div>
-                    <div style="font-size:1.4rem;font-weight:800;line-height:1;">{{ $countBankSoal }}</div>
-                    <div class="text-muted" style="font-size:0.75rem;">Bank Soal</div>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="col-sm-6 col-xl-3">
-        <div class="card border-0 shadow-sm h-100 card-hover" style="border-radius:20px;overflow:hidden;">
-            <div class="card-body d-flex align-items-center gap-3 p-3">
-                <div style="width:44px;height:44px;border-radius:14px;background:linear-gradient(135deg,#f59e0b,#d97706);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-                    <i data-feather="calendar" style="width:20px;height:20px;color:white;"></i>
-                </div>
-                <div>
-                    <div style="font-size:1.4rem;font-weight:800;line-height:1;">{{ $countEvent }}</div>
-                    <div class="text-muted" style="font-size:0.75rem;">Event Ujian</div>
+                <div class="ms-3">
+                    <div class="fw-bold text-dark" style="font-size: 1.1rem;">{{ \Carbon\Carbon::now()->locale('id')->translatedFormat('l, d F Y') }}</div>
+                    <div class="text-muted" style="font-size: 0.85rem;">{{ \Carbon\Carbon::now()->format('H:i') }} WIB</div>
                 </div>
             </div>
-        </div>
-    </div>
-    <div class="col-sm-6 col-xl-3">
-        <div class="card border-0 shadow-sm h-100 card-hover" style="border-radius:20px;overflow:hidden;">
-            <div class="card-body d-flex align-items-center gap-3 p-3">
-                <div style="width:44px;height:44px;border-radius:14px;background:linear-gradient(135deg,#ef4444,#dc2626);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-                    <i data-feather="activity" style="width:20px;height:20px;color:white;"></i>
+            
+            <div class="mt-3 p-3 rounded" style="background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.2);">
+                <div class="d-flex align-items-center">
+                    <span class="bg-success rounded-circle me-2" style="width: 10px; height: 10px; display:inline-block;"></span>
+                    <span class="text-success fw-bold" style="font-size: 0.95rem;">Sistem Berjalan Normal</span>
                 </div>
-                <div>
-                    <div style="font-size:1.4rem;font-weight:800;line-height:1;">{{ $countOngoing }}</div>
-                    <div class="text-muted" style="font-size:0.75rem;">Jadwal Aktif</div>
-                </div>
+                <div class="text-muted ms-3 mt-1" style="font-size: 0.8rem; padding-left:4px;">Semua layanan aktif</div>
             </div>
         </div>
     </div>
 </div>
 
-
-<div class="row mt-2">
-    <div class="col-12 col-lg-8 col-xxl-9 d-flex">
-        <div class="card flex-fill shadow-sm border-0">
-            <div class="card-header bg-white border-0 pb-0">
-                <h5 class="card-title mb-0 fw-bold">Statistik Siswa per Grup</h5>
+<div class="row g-4 mb-4">
+    <div class="col-6 col-xl-3">
+        <div class="stat-card p-4">
+            <div class="d-flex justify-content-between align-items-start mb-2">
+                <div class="icon-box text-white" style="background: #4361ee;">
+                    <i data-feather="users"></i>
+                </div>
+                <i data-feather="trending-up" class="text-primary-custom" style="width:18px;"></i>
             </div>
-            <div class="card-body">
-                <div class="chart chart-lg">
+            <div class="text-muted fw-bold mb-1" style="font-size:0.9rem;">Total Siswa</div>
+            <h3 class="fw-bolder text-dark mb-2" style="font-size:2rem;">{{ $countSiswa }}</h3>
+            <div class="text-success-custom" style="font-size:0.8rem; font-weight:600;"><i data-feather="arrow-up" style="width:12px;"></i> Data Terkini</div>
+        </div>
+    </div>
+    
+    <div class="col-6 col-xl-3">
+        <div class="stat-card p-4">
+            <div class="d-flex justify-content-between align-items-start mb-2">
+                <div class="icon-box text-white" style="background: #10b981;">
+                    <i data-feather="database"></i>
+                </div>
+                <i data-feather="file-text" class="text-muted" style="width:18px;"></i>
+            </div>
+            <div class="text-muted fw-bold mb-1" style="font-size:0.9rem;">Bank Soal</div>
+            <h3 class="fw-bolder text-dark mb-2" style="font-size:2rem;">{{ $countBankSoal }}</h3>
+            <div class="text-muted" style="font-size:0.8rem; font-weight:500;">— Tidak ada perubahan</div>
+        </div>
+    </div>
+
+    <div class="col-6 col-xl-3">
+        <div class="stat-card p-4">
+            <div class="d-flex justify-content-between align-items-start mb-2">
+                <div class="icon-box text-white" style="background: #f59e0b;">
+                    <i data-feather="calendar"></i>
+                </div>
+                <i data-feather="calendar" class="text-muted" style="width:18px;"></i>
+            </div>
+            <div class="text-muted fw-bold mb-1" style="font-size:0.9rem;">Event Ujian</div>
+            <h3 class="fw-bolder text-dark mb-2" style="font-size:2rem;">{{ $countEvent }}</h3>
+            <div class="text-muted" style="font-size:0.8rem; font-weight:500;">— Tidak ada perubahan</div>
+        </div>
+    </div>
+
+    <div class="col-6 col-xl-3">
+        <div class="stat-card p-4">
+            <div class="d-flex justify-content-between align-items-start mb-2">
+                <div class="icon-box text-white" style="background: #ef4444;">
+                    <i data-feather="activity"></i>
+                </div>
+                <i data-feather="trending-up" class="text-primary-custom" style="width:18px;"></i>
+            </div>
+            <div class="text-muted fw-bold mb-1" style="font-size:0.9rem;">Jadwal Aktif</div>
+            <h3 class="fw-bolder text-dark mb-2" style="font-size:2rem;">{{ $countOngoing }}</h3>
+            <div class="text-success-custom" style="font-size:0.8rem; font-weight:600;"><i data-feather="arrow-up" style="width:12px;"></i> Real-time</div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4">
+    <div class="col-12 col-xl-8">
+        <div class="card h-100 border-0 shadow-sm" style="border-radius:16px;">
+            <div class="card-header bg-white border-0 pt-4 pb-0 px-4 d-flex justify-content-between align-items-center">
+                <div class="d-flex align-items-center">
+                    <div class="bg-primary-soft text-primary rounded p-2 me-2">
+                        <i data-feather="bar-chart-2" style="width:18px;"></i>
+                    </div>
+                    <h5 class="card-title mb-0 fw-bold" style="color:#1e293b;">Statistik Siswa per Grup</h5>
+                </div>
+                <div class="dropdown">
+                    <button class="btn btn-sm btn-light dropdown-toggle" type="button" data-bs-toggle="dropdown" style="border-radius:20px; font-weight:600; padding:4px 12px;">
+                        Semua Grup
+                    </button>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="#">Semua Grup</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="card-body px-4 pb-4">
+                <div class="chart chart-lg" style="height: 300px;">
                     <canvas id="chartjs-siswa-group"></canvas>
                 </div>
             </div>
         </div>
     </div>
-    <div class="col-12 col-lg-4 col-xxl-3 d-flex">
-        <div class="card flex-fill w-100 shadow-sm border-0">
-            <div class="card-header bg-white border-0">
-                <h5 class="card-title mb-0 fw-bold">Ujian Mendatang</h5>
+    <div class="col-12 col-xl-4">
+        <div class="card h-100 border-0 shadow-sm" style="border-radius:16px;">
+            <div class="card-header bg-white border-0 pt-4 pb-0 px-4 d-flex align-items-center">
+                <div class="bg-primary-soft text-primary rounded p-2 me-2" style="background: rgba(139, 92, 246, 0.1); color: #8b5cf6 !important;">
+                    <i data-feather="clock" style="width:18px;"></i>
+                </div>
+                <h5 class="card-title mb-0 fw-bold" style="color:#1e293b;">Ujian Mendatang</h5>
             </div>
-            <div class="card-body p-3">
-                @forelse ($upcomingExams as $exam)
-                <div class="d-flex align-items-center mb-4">
-                    <div class="flex-shrink-0">
-                        <div class="bg-primary-soft text-primary rounded p-2 text-center" style="min-width: 50px;">
-                            <div class="fw-bold h5 mb-0">{{ $exam->start_at->format('d') }}</div>
-                            <div class="small fw-bold">{{ strtoupper($exam->start_at->translatedFormat('M')) }}</div>
+            <div class="card-body p-4 d-flex flex-column">
+                @if(count($upcomingExams) > 0)
+                    @foreach ($upcomingExams as $exam)
+                    <div class="d-flex align-items-center mb-4 p-3 rounded" style="background:#f8fafc; border:1px solid #f1f5f9;">
+                        <div class="flex-shrink-0">
+                            <div class="bg-white text-primary border rounded text-center" style="min-width: 55px; box-shadow:0 2px 4px rgba(0,0,0,0.02);">
+                                <div class="small fw-bold text-muted border-bottom py-1" style="font-size:0.7rem; background:#f8fafc;">{{ strtoupper($exam->start_at->translatedFormat('M')) }}</div>
+                                <div class="fw-bolder h4 mb-0 py-1" style="color:#4361ee;">{{ $exam->start_at->format('d') }}</div>
+                            </div>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <h6 class="mb-1 fw-bold text-dark">{{ $exam->name }}</h6>
+                            <div class="small text-muted d-flex align-items-center">
+                                <i data-feather="clock" style="width:12px; margin-right:4px;"></i> 
+                                {{ $exam->start_at->format('H:i') }} WIB
+                            </div>
                         </div>
                     </div>
-                    <div class="flex-grow-1 ms-3">
-                        <h6 class="mb-0 fw-bold">{{ $exam->name }}</h6>
-                        <small class="text-muted">{{ $exam->start_at->format('H:i') }} WIB</small>
+                    @endforeach
+                @else
+                    <div class="flex-grow-1 d-flex flex-column justify-content-center align-items-center text-center py-4">
+                        <div style="background: #f8fafc; width: 120px; height: 120px; border-radius:50%; display:flex; align-items:center; justify-content:center; margin-bottom:1rem;">
+                            <i data-feather="calendar" style="width:50px; height:50px; color:#cbd5e1;"></i>
+                        </div>
+                        <h6 class="fw-bold text-dark mb-1">Tidak ada jadwal terdekat</h6>
+                        <p class="text-muted small px-3">Saat ini tidak ada ujian yang dijadwalkan.</p>
                     </div>
-                </div>
-                @empty
-                <div class="text-center py-5 text-muted">
-                    <small>Tidak ada jadwal terdekat</small>
-                </div>
-                @endforelse
-                <div class="d-grid mt-2">
-                    <a href="{{ route('admin.exam-schedule.index') }}" class="btn btn-primary btn-sm rounded-3">Buka Semua Jadwal</a>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<div class="row mt-2">
-    <div class="col-12">
-        <div class="card flex-fill w-100 shadow-sm border-0">
-            <div class="card-header bg-white border-0 pb-0">
-                <h5 class="card-title mb-0 fw-bold">Sebaran Siswa per Jurusan</h5>
-            </div>
-            <div class="card-body">
-                <div class="chart chart-md">
-                    <canvas id="chartjs-siswa-jurusan"></canvas>
+                @endif
+                <div class="mt-auto">
+                    <a href="{{ route('admin.exam-schedule.index') }}" class="btn btn-primary w-100 fw-bold" style="border-radius:10px; padding:0.6rem; background:#4361ee; border:none;">
+                        <i data-feather="calendar" style="width:16px; margin-right:6px;"></i> Buka Semua Jadwal
+                    </a>
                 </div>
             </div>
         </div>
@@ -130,13 +230,13 @@
                 labels: {!! json_encode($chartData['labels']) !!},
                 datasets: [{
                     label: "Jumlah Siswa",
-                    backgroundColor: "#1a4da1",
-                    borderColor: "#1a4da1",
-                    hoverBackgroundColor: "#0d3a85",
-                    hoverBorderColor: "#0d3a85",
+                    backgroundColor: "#4361ee",
+                    borderColor: "#4361ee",
+                    hoverBackgroundColor: "#3a0ca3",
+                    borderRadius: 6,
                     data: {!! json_encode($chartData['data']) !!},
-                    barPercentage: .5,
-                    categoryPercentage: .5
+                    barPercentage: 0.5,
+                    categoryPercentage: 0.5
                 }]
             },
             options: {
@@ -144,37 +244,13 @@
                 legend: { display: false },
                 scales: {
                     yAxes: [{
-                        gridLines: { display: true, color: "rgba(0,0,0,0.05)", drawBorder: false },
-                        ticks: { stepSize: 10, beginAtZero: true }
+                        gridLines: { display: true, color: "#f1f5f9", drawBorder: false, zeroLineColor: "#f1f5f9" },
+                        ticks: { stepSize: 10, beginAtZero: true, fontColor: "#94a3b8", padding: 10 }
                     }],
-                    xAxes: [{ gridLines: { display: false } }]
-                }
-            }
-        });
-
-        // Jurusan Chart
-        new Chart(document.getElementById("chartjs-siswa-jurusan"), {
-            type: "horizontalBar",
-            data: {
-                labels: {!! json_encode($jurusanChartData['labels']) !!},
-                datasets: [{
-                    label: "Jumlah Siswa",
-                    backgroundColor: "#10b981",
-                    borderColor: "#10b981",
-                    data: {!! json_encode($jurusanChartData['data']) !!},
-                    barPercentage: .5,
-                    categoryPercentage: .5
-                }]
-            },
-            options: {
-                maintainAspectRatio: false,
-                legend: { display: false },
-                scales: {
-                    xAxes: [{
-                        gridLines: { display: true, color: "rgba(0,0,0,0.05)", drawBorder: false },
-                        ticks: { stepSize: 10, beginAtZero: true }
-                    }],
-                    yAxes: [{ gridLines: { display: false } }]
+                    xAxes: [{ 
+                        gridLines: { display: false, drawBorder: false },
+                        ticks: { fontColor: "#64748b", fontStyle: "600" }
+                    }]
                 }
             }
         });
@@ -182,20 +258,6 @@
 </script>
 
 <style>
-    .card-hover:hover { transform: translateY(-3px); transition: all 0.2s ease; }
-    .bg-primary-light { background: rgba(26, 77, 161, 0.1) !important; }
-    .bg-success-light { background: rgba(16, 185, 129, 0.1) !important; }
-    .bg-info-light { background: rgba(59, 130, 246, 0.1) !important; }
-    .bg-danger-light { background: rgba(239, 68, 68, 0.1) !important; }
-    
-    .bg-primary-soft { background: #eef2f6; }
-    .bg-success-soft { background: #d1fae5; }
-    .bg-warning-soft { background: #fef3c7; }
-    .bg-danger-soft { background: #fee2e2; }
-    
-    .text-success { color: #10b981 !important; }
-    .text-warning { color: #f59e0b !important; }
-    .text-danger { color: #ef4444 !important; }
+    .bg-primary-soft { background: rgba(67, 97, 238, 0.1) !important; color: #4361ee !important; }
 </style>
 @endsection
-

@@ -17,11 +17,11 @@
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap5.min.css">
     <style>
         :root {
-            --sidebar-bg: #0d3a85;       /* Biru tua � sama dengan header siswa & guru */
-            --sidebar-item-active: #60a5fa;
-            --sidebar-link-color: #bfdbfe;
-            --sidebar-link-hover: #ffffff;
-            --sidebar-header: #93c5fd;
+            --sidebar-bg: #ffffff;       /* Biru tua � sama dengan header siswa & guru */
+            --sidebar-item-active: #4361ee;
+            --sidebar-link-color: #475569;
+            --sidebar-link-hover: #1e293b;
+            --sidebar-header: #94a3b8;
         }
 
         .sidebar, .sidebar-content {
@@ -29,12 +29,12 @@
         }
 
         .sidebar-brand {
-            background: rgba(0,0,0,0.1);
+            background: #ffffff;
             padding: 1.5rem 1.5rem !important;
             font-weight: 800 !important;
             letter-spacing: -0.5px;
-            color: #fff !important;
-            border-bottom: 1px solid rgba(255,255,255,0.05);
+            color: #1e293b !important;
+            border-bottom: 1px solid #f1f5f9;
         }
 
         .sidebar-header {
@@ -46,11 +46,7 @@
             letter-spacing: 1px;
         }
 
-        .sidebar-item.active .sidebar-link {
-            background: linear-gradient(90deg, rgba(96, 165, 250, 0.2) 0%, rgba(96, 165, 250, 0) 100%) !important;
-            color: var(--sidebar-item-active) !important;
-            border-left: 3px solid var(--sidebar-item-active);
-        }
+        .sidebar-item.active .sidebar-link { background: rgba(67, 97, 238, 0.08) !important; color: var(--sidebar-item-active) !important; border-left: none !important; border-radius: 8px; margin: 0 1rem; padding-left: 1rem !important; font-weight: 600 !important; }
 
         .sidebar-item.active i, .sidebar-item.active span {
             color: var(--sidebar-item-active) !important;
@@ -65,10 +61,7 @@
             border-left: 3px solid transparent;
         }
 
-        .sidebar-link:hover {
-            color: var(--sidebar-link-hover) !important;
-            background: rgba(255,255,255,0.03) !important;
-        }
+        .sidebar-link:hover { color: var(--sidebar-link-hover) !important; background: #f8fafc !important; border-radius: 8px; margin: 0 1rem; padding-left: 1rem !important; }
 
         .sidebar-link i {
             width: 18px;
@@ -81,10 +74,10 @@
             padding-bottom: 2rem;
         }
 
-                        .sidebar-dropdown .sidebar-item { padding: 0.2rem 1.5rem 0.2rem 2.5rem; }
-        .sidebar-dropdown .sidebar-link { font-size: 0.8rem; font-weight: 500 !important; opacity: 0.85; padding: 0.5rem 1rem !important; border-radius: 6px; border-left: none !important; transition: all 0.2s; }
+                        .sidebar-dropdown .sidebar-item { padding: 0.2rem 1rem 0.2rem 2.5rem; }
+        .sidebar-dropdown .sidebar-link { font-size: 0.8rem; font-weight: 500 !important; opacity: 0.85; padding: 0.5rem 1rem !important; margin: 0 1rem; border-radius: 8px; border-radius: 6px; border-left: none !important; transition: all 0.2s; }
         .sidebar-dropdown .sidebar-link i { width: 14px; height: 14px; margin-right: 8px; opacity: 0.8; }
-        .sidebar-dropdown .sidebar-item.active .sidebar-link { opacity: 1; font-weight: 600 !important; color: #1e293b !important; background: #ffffff !important; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+        .sidebar-dropdown .sidebar-item.active .sidebar-link { background: rgba(67, 97, 238, 0.08) !important; color: var(--sidebar-item-active) !important; border-left: none !important; border-radius: 8px; margin: 0 1rem; padding-left: 1rem !important; font-weight: 600 !important; }
         .sidebar-dropdown .sidebar-item.active .sidebar-link i { color: #1e293b !important; opacity: 1; }
         .sidebar-link[data-bs-toggle="collapse"] { position: relative; }
         .sidebar-link[data-bs-toggle="collapse"]::after {
@@ -176,7 +169,7 @@
         /* Badges */
         .badge { padding: 0.35em 0.65em; font-weight: 500; border-radius: 4px; }
         
-        .sidebar-link { font-size: 0.85rem; padding: 0.65rem 1.5rem !important; }
+        .sidebar-link { font-size: 0.85rem; padding: 0.65rem 1.5rem !important; margin: 0 1rem; border-radius: 8px; }
         .sidebar-header { font-size: 0.65rem !important; padding: 1.2rem 1.5rem 0.5rem !important; }
         .navbar { padding: 0.5rem 1rem !important; min-height: 50px; border-bottom: 1px solid #f0f2f5; box-shadow: none; }
     
@@ -228,7 +221,7 @@
         .pagination { margin-bottom: 0 !important; justify-content: flex-end !important; display: flex !important; flex-wrap: wrap !important; list-style: none !important; gap: 4px !important; padding-left: 0 !important; }
         .page-item .page-link { font-size: 0.8rem !important; font-weight: 500 !important; padding: 0.3rem 0.75rem !important; border-radius: 6px !important; margin: 0 !important; border: none !important; color: #64748b !important; background: transparent !important; transition: all 0.2s !important; }
         .page-item .page-link:hover { background-color: #f1f5f9 !important; color: #334155 !important; }
-        .page-item.active .page-link { background-color: #3b82f6 !important; color: #fff !important; box-shadow: 0 4px 6px -1px rgba(59, 130, 246, 0.3) !important; }
+        .page-item.active .page-link { background-color: #3b82f6 !important; color: #1e293b !important; box-shadow: 0 4px 6px -1px rgba(59, 130, 246, 0.3) !important; }
         .page-item.disabled .page-link { color: #cbd5e1 !important; background: transparent !important; }
 
         /* Icon ONLY Buttons inside table - Small and Smooth */
@@ -287,9 +280,12 @@
 	<div class="wrapper">
 		<nav id="sidebar" class="sidebar js-sidebar">
 			<div class="sidebar-content js-simplebar">
-				<a class="sidebar-brand" href="{{ route('admin.dashboard') }}">
-					<img src="{{ asset('logoskolabs.png') }}" alt="Logo" style="height: 24px; margin-right: 8px; vertical-align: middle; filter: brightness(0) invert(1);">
-					<span class="align-middle">SKOLABS CBT</span>
+				<a class="sidebar-brand d-flex align-items-center" href="{{ route('admin.dashboard') }}" style="padding:1.5rem 1rem !important;">
+					<img src="{{ $favicon }}" alt="Logo" style="height: 38px; margin-right: 12px; border-radius: 8px;">
+					<div style="line-height:1.2;">
+                        <div style="font-size:1.2rem; font-weight:800; color:#1e293b; letter-spacing:-0.5px;">{{ \App\Models\Setting::get('app_name', 'SMKN 2') }}</div>
+                        <div style="font-size:0.75rem; font-weight:500; color:#64748b;">{{ \App\Models\Setting::get('nama_instansi', 'Kab. Tangerang') }}</div>
+                    </div>
 				</a>
 
 																<ul class="sidebar-nav" id="sidebar-nav">
@@ -415,17 +411,32 @@
 
 		<div class="main">
 			<nav class="navbar navbar-expand navbar-light navbar-bg">
-				<a class="sidebar-toggle js-sidebar-toggle"><i class="hamburger align-middle"></i></a>
+				<a class="sidebar-toggle js-sidebar-toggle"><i class="hamburger align-middle" style="color:#64748b;"></i></a>
+                <form class="d-none d-sm-inline-block" style="margin-left:1rem;">
+                    <div class="input-group input-group-navbar" style="background:#f1f5f9; border-radius:20px; padding:0.2rem 0.5rem; border: 1px solid #e2e8f0;">
+                        <span class="input-group-text bg-transparent border-0 pe-1"><i data-feather="search" style="width:16px; color:#94a3b8;"></i></span>
+                        <input type="text" class="form-control bg-transparent border-0" placeholder="Cari menu atau fitur..." aria-label="Search" style="box-shadow:none; font-size:0.85rem; width:250px;">
+                    </div>
+                </form>
 				<div class="navbar-collapse collapse">
 					<ul class="navbar-nav navbar-align">
 						<li class="nav-item dropdown">
-							<a class="nav-link dropdown-toggle d-none d-sm-inline-block" href="#" data-bs-toggle="dropdown">
+							<a class="nav-link dropdown-toggle d-none d-sm-inline-block d-flex align-items-center gap-2" href="#" data-bs-toggle="dropdown" style="padding-top:0; padding-bottom:0;">
+                                <div class="position-relative d-flex align-items-center me-2">
+								    <i data-feather="bell" style="width:20px; height:20px; color:#64748b;"></i>
+                                    <span class="position-absolute top-0 start-100 translate-middle p-1 border border-light rounded-circle" style="width:10px; height:10px; background-color:#ef4444; margin-left:-5px;"></span>
+                                </div>
 								@if(auth('admin')->user()->photo)
-									<img src="{{ asset(auth('admin')->user()->photo) }}" class="avatar img-fluid rounded me-1" alt="{{ auth('admin')->user()->name }}" /> 
+									<img src="{{ asset(auth('admin')->user()->photo) }}" class="avatar img-fluid rounded-circle me-1" alt="{{ auth('admin')->user()->name }}" style="width:36px; height:36px; object-fit:cover;" /> 
 								@else
-									<img src="{{ asset('assets/adminkit/img/avatars/avatar.jpg') }}" class="avatar img-fluid rounded me-1" alt="Default Avatar" /> 
+									<div class="text-white d-flex align-items-center justify-content-center rounded-circle shadow-sm" style="width:36px;height:36px; font-weight:bold; background: linear-gradient(135deg, #4361ee, #3a0ca3);">
+                                        {{ substr(auth('admin')->user()->name, 0, 1) }}
+                                    </div>
 								@endif
-                                <span class="text-dark">{{ auth('admin')->user()->name }}</span>
+                                <div class="text-start ms-1 me-2 d-none d-md-block" style="line-height:1.2;">
+                                    <div class="text-dark fw-bold" style="font-size:0.85rem;">{{ auth('admin')->user()->name }}</div>
+                                    <div class="text-muted" style="font-size:0.7rem;">Admin Sistem</div>
+                                </div>
 							</a>
 							<div class="dropdown-menu dropdown-menu-end">
 								<a class="dropdown-item" href="{{ route('admin.profile.edit') }}"><i class="align-middle me-1" data-feather="user"></i> Edit Profil</a>
