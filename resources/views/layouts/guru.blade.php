@@ -253,7 +253,7 @@
                 </div>
 
 								@php
-					$isUjianActive = request()->routeIs('guru.bank-soal.*') || request()->routeIs('guru.exam-schedule.*') || request()->routeIs('guru.exam-event.*');
+					$isUjianActive = request()->routeIs('guru.bank-soal.*', 'guru.exam-schedule.*', 'guru.exam-event.*', 'guru.exam-status.*', 'guru.monitoring.*');
 					$isPengolahanActive = request()->routeIs('guru.processing.*');
 				@endphp
 				<ul class="sidebar-nav" id="sidebar-nav">
@@ -277,6 +277,12 @@
 							</li>
 							<li class="sidebar-item {{ request()->routeIs('guru.exam-schedule.*') ? 'active' : '' }}">
 								<a class="sidebar-link" href="{{ route('guru.exam-schedule.index') }}"><i class="align-middle" data-feather="clock"></i> <span class="align-middle">Jadwal Ujian</span></a>
+							</li>
+							<li class="sidebar-item {{ request()->routeIs('guru.exam-status.*') ? 'active' : '' }}">
+								<a class="sidebar-link" href="{{ route('guru.exam-status.index') }}"><i class="align-middle" data-feather="activity"></i> <span class="align-middle">Status Ujian</span></a>
+							</li>
+							<li class="sidebar-item {{ request()->routeIs('guru.monitoring.*') ? 'active' : '' }}">
+								<a class="sidebar-link" href="{{ route('guru.monitoring.index') }}"><i class="align-middle" data-feather="monitor"></i> <span class="align-middle">Status Peserta</span></a>
 							</li>
 						</ul>
 					</li>

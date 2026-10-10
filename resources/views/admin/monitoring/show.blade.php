@@ -157,6 +157,25 @@
             });
         });
 
+        $('#tableMonitoring').on('click', '.btn-reset-login', function(e) {
+            e.preventDefault();
+            let form = $(this).closest('form');
+            Swal.fire({
+                title: 'Reset Login?',
+                text: "Status login siswa akan direset dan siswa bisa login kembali dari perangkat lain.",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Ya, Reset!',
+                cancelButtonText: 'Batal'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    form.submit();
+                }
+            });
+        });
+
         // Auto refresh setiap 30 detik
         setInterval(function() {
             table.ajax.reload(null, false);

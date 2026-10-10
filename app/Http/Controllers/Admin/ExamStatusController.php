@@ -35,14 +35,14 @@ class ExamStatusController extends Controller
             })
                 ->addColumn('action', function ($row) {
                 $btn = '<div class="text-center">';
-                $btn .= '<form action="' . route('admin.exam-status.release-token', $row->id) . '" method="POST" class="d-inline">
+                $btn .= '<form action="' . route('admin.exam-status.release-token', $row->id) . '" method="POST" class="d-inline form-release-token">
                                     ' . csrf_field() . '
-                                    <button type="submit" class="btn btn-sm btn-primary me-1" title="Reset"><i class="align-middle" data-feather="refresh-cw"></i></button>
+                                    <button type="submit" class="btn btn-sm btn-primary me-1 btn-release-token" title="Rilis Token Baru"><i class="align-middle" data-feather="refresh-cw"></i></button>
                                 </form>';
                 if ($row->token) {
-                    $btn .= '<form action="' . route('admin.exam-status.clear-token', $row->id) . '" method="POST" class="d-inline">
+                    $btn .= '<form action="' . route('admin.exam-status.clear-token', $row->id) . '" method="POST" class="d-inline form-clear-token">
                                         ' . csrf_field() . '
-                                        <button type="submit" class="btn btn-sm btn-danger"><i class="align-middle" data-feather="x-circle"></i></button>
+                                        <button type="submit" class="btn btn-sm btn-danger btn-clear-token" title="Hapus Token"><i class="align-middle" data-feather="x-circle"></i></button>
                                     </form>';
                 }
                 $btn .= '</div>';

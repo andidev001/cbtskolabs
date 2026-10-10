@@ -258,6 +258,20 @@ Route::prefix('guru')->group(function () {
 
             // Analisis & Leger untuk Guru
             Route::get('processing/analisis', [GuruProcessingController::class , 'analisisIndex'])->name('guru.processing.analisis.index');
+
+            // Status Ujian & Rilis Token
+            Route::get('exam-status', [\App\Http\Controllers\Guru\ExamStatusController::class , 'index'])->name('guru.exam-status.index');
+            Route::post('exam-status/{schedule}/release-token', [\App\Http\Controllers\Guru\ExamStatusController::class , 'releaseToken'])->name('guru.exam-status.release-token');
+            Route::post('exam-status/{schedule}/clear-token', [\App\Http\Controllers\Guru\ExamStatusController::class , 'clearToken'])->name('guru.exam-status.clear-token');
+            Route::post('exam-status/{schedule}/update-interval', [\App\Http\Controllers\Guru\ExamStatusController::class , 'updateInterval'])->name('guru.exam-status.update-interval');
+
+            // Monitoring (Status Peserta)
+            Route::get('monitoring', [\App\Http\Controllers\Guru\ExamMonitoringController::class , 'index'])->name('guru.monitoring.index');
+            Route::get('monitoring/{schedule}', [\App\Http\Controllers\Guru\ExamMonitoringController::class , 'show'])->name('guru.monitoring.show');
+            Route::post('monitoring/{schedule}/{siswa}/force-finish', [\App\Http\Controllers\Guru\ExamMonitoringController::class , 'forceFinish'])->name('guru.monitoring.force-finish');
+            Route::post('monitoring/{schedule}/{siswa}/reset', [\App\Http\Controllers\Guru\ExamMonitoringController::class , 'resetExam'])->name('guru.monitoring.reset');
+            Route::post('monitoring/{schedule}/{siswa}/unblock', [\App\Http\Controllers\Guru\ExamMonitoringController::class , 'unblock'])->name('guru.monitoring.unblock');
+            Route::post('monitoring/{siswa}/reset-login', [\App\Http\Controllers\Guru\ExamMonitoringController::class , 'resetLogin'])->name('guru.monitoring.reset-login');
             Route::get('processing/analisis/{schedule}', [GuruProcessingController::class , 'analisisShow'])->name('guru.processing.analisis.show');
             Route::get('processing/analisis/{id}/export-excel', [GuruProcessingController::class , 'analisisExportExcel'])->name('guru.processing.analisis.export-excel');
             

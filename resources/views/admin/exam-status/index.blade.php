@@ -74,6 +74,44 @@ $(function() {
             feather.replace();
         }
     });
+
+    $('#token-table').on('click', '.btn-release-token', function(e) {
+        e.preventDefault();
+        let form = $(this).closest('form');
+        Swal.fire({
+            title: 'Rilis Token Baru?',
+            text: "Token lama akan diganti dengan yang baru.",
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Ya, Rilis!',
+            cancelButtonText: 'Batal'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                form.submit();
+            }
+        });
+    });
+
+    $('#token-table').on('click', '.btn-clear-token', function(e) {
+        e.preventDefault();
+        let form = $(this).closest('form');
+        Swal.fire({
+            title: 'Hapus Token?',
+            text: "Token akan dinonaktifkan dan siswa tidak bisa login dengan token ini.",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'Ya, Hapus!',
+            cancelButtonText: 'Batal'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                form.submit();
+            }
+        });
+    });
 });
 </script>
 @endpush
