@@ -84,12 +84,13 @@
                 <h5 class="modal-title">PDF Berita Acara</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <div class="modal-body p-0 position-relative">
-                <div id="pdfLoading" class="position-absolute top-50 start-50 translate-middle text-center">
-                    <div class="spinner-border text-primary" role="status"></div>
-                    <div class="mt-2 text-muted">Memuat PDF...</div>
+            <div class="modal-body p-0 position-relative" style="min-height: 85vh;">
+                <div id="pdfLoading" class="position-absolute top-50 start-50 translate-middle text-center" style="z-index: 1;">
+                    <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;"></div>
+                    <div class="mt-3 fw-bold text-secondary">Sedang memproses PDF...</div>
+                    <div class="small text-muted">Mohon tunggu sebentar.</div>
                 </div>
-                <iframe id="pdfIframe" src="" style="width:100%; height:100%; min-height:85vh; border:none; position:relative; z-index:2; display:none;" onload="if(this.src && this.src !== window.location.href) { document.getElementById('pdfLoading').style.display='none'; this.style.display='block'; }"></iframe>
+                <iframe id="pdfIframe" src="" style="width:100%; height:100%; min-height:85vh; border:none; position:relative; z-index:2; opacity:0; transition: opacity 0.3s;" onload="if(this.src && this.src !== window.location.href && this.src !== 'about:blank') { document.getElementById('pdfLoading').style.display='none'; this.style.opacity='1'; }"></iframe>
             </div>
         </div>
     </div>
@@ -135,11 +136,11 @@ $(function() {
     $(document).on('click', '.btn-view-pdf', function() {
         let url = $(this).data('url');
         $('#pdfLoading').show();
-        $('#pdfIframe').hide().attr('src', url);
+        $('#pdfIframe').css('opacity', '0').attr('src', url);
     });
     
     $('#modalPdfViewer').on('hidden.bs.modal', function () {
-        $('#pdfIframe').attr('src', '').hide();
+        $('#pdfIframe').attr('src', 'about:blank').css('opacity', '0');
         $('#pdfLoading').show();
     });
 });
