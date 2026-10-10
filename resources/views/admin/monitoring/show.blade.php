@@ -99,6 +99,64 @@
             table.ajax.reload(null, false);
         });
 
+        // SweetAlert Handlers
+        $('#tableMonitoring').on('click', '.btn-force-finish', function(e) {
+            e.preventDefault();
+            let form = $(this).closest('form');
+            Swal.fire({
+                title: 'Paksa Selesai?',
+                text: "Ujian siswa ini akan diakhiri secara paksa!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Ya, Selesai!',
+                cancelButtonText: 'Batal'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    form.submit();
+                }
+            });
+        });
+
+        $('#tableMonitoring').on('click', '.btn-unblock', function(e) {
+            e.preventDefault();
+            let form = $(this).closest('form');
+            Swal.fire({
+                title: 'Buka Blokir?',
+                text: "Siswa dapat melanjutkan ujian kembali.",
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Ya, Buka!',
+                cancelButtonText: 'Batal'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    form.submit();
+                }
+            });
+        });
+
+        $('#tableMonitoring').on('click', '.btn-reset', function(e) {
+            e.preventDefault();
+            let form = $(this).closest('form');
+            Swal.fire({
+                title: 'Reset Total Ujian?',
+                text: "Semua jawaban siswa akan dihapus dan ujian diulang dari awal!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Ya, Reset!',
+                cancelButtonText: 'Batal'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    form.submit();
+                }
+            });
+        });
+
         // Auto refresh setiap 30 detik
         setInterval(function() {
             table.ajax.reload(null, false);

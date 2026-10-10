@@ -111,15 +111,15 @@ class ExamMonitoringController extends Controller
                     $btn = '<div class="d-flex gap-1 justify-content-center">';
                     if ($result && !$result->finished_at && $result->status !== 'blocked') {
                         $url = route('admin.monitoring.force-finish', [$schedule->id, $row->id]);
-                        $btn .= '<form action="'.$url.'" method="POST">'.csrf_field().'<button type="submit" class="btn btn-sm btn-warning text-white py-0 px-2" title="Paksa Selesai"><i data-feather="terminal" style="width: 12px; height: 12px;"></i> Selesai</button></form>';
+                        $btn .= '<form action="'.$url.'" method="POST" class="form-force-finish">'.csrf_field().'<button type="button" class="btn btn-sm btn-warning text-white py-0 px-2 btn-force-finish" title="Paksa Selesai"><i data-feather="terminal" style="width: 12px; height: 12px;"></i> Selesai</button></form>';
                     }
                     if ($result && $result->status === 'blocked') {
                         $url = route('admin.monitoring.unblock', [$schedule->id, $row->id]);
-                        $btn .= '<form action="'.$url.'" method="POST">'.csrf_field().'<button type="submit" class="btn btn-sm btn-success py-0 px-2" onclick="return confirm(\'Buka blokir ujian untuk siswa ini?\')" title="Buka Blokir"><i data-feather="unlock" style="width: 12px; height: 12px;"></i> Buka Blokir</button></form>';
+                        $btn .= '<form action="'.$url.'" method="POST" class="form-unblock">'.csrf_field().'<button type="button" class="btn btn-sm btn-success py-0 px-2 btn-unblock" title="Buka Blokir"><i data-feather="unlock" style="width: 12px; height: 12px;"></i> Buka Blokir</button></form>';
                     }
                     if ($result) {
                         $url = route('admin.monitoring.reset', [$schedule->id, $row->id]);
-                        $btn .= '<form action="'.$url.'" method="POST">'.csrf_field().'<button type="submit" class="btn btn-sm btn-danger py-0 px-2" onclick="return confirm(\'Reset ujian siswa ini?\')" title="Reset Total Ujian"><i data-feather="rotate-ccw" style="width: 12px; height: 12px;"></i> Reset Total</button></form>';
+                        $btn .= '<form action="'.$url.'" method="POST" class="form-reset">'.csrf_field().'<button type="button" class="btn btn-sm btn-danger py-0 px-2 btn-reset" title="Reset Total Ujian"><i data-feather="rotate-ccw" style="width: 12px; height: 12px;"></i> Reset Total</button></form>';
                     }
                     $btn .= '</div>';
                     return $btn;
