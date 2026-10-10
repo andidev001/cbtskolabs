@@ -196,7 +196,24 @@
         body > .modal .btn-close:hover { color: #333; }
         body > .modal .btn-close::before { content: '\2715'; }
         body > .modal .modal-body { padding: 1.5rem; max-height: calc(100vh - 180px); overflow-y: auto; }
-        body > .modal .modal-footer { display: flex; justify-content: flex-end; align-items: center; gap: 0.5rem; padding: 1rem 1.5rem; border-top: 1px solid #f0f2f5; background-color: #fcfcfc; }
+        /* Button overrides for elegant look */
+        .btn-primary { background-color: #4361ee !important; border-color: #4361ee !important; color: #fff !important; }
+        .btn-primary:hover { background-color: #3a0ca3 !important; border-color: #3a0ca3 !important; }
+        
+        .btn-success { background-color: #10b981 !important; border-color: #10b981 !important; color: #fff !important; }
+        .btn-success:hover { background-color: #059669 !important; border-color: #059669 !important; }
+
+        .btn-info { background-color: #0ea5e9 !important; border-color: #0ea5e9 !important; color: #fff !important; }
+        .btn-info:hover { background-color: #0284c7 !important; border-color: #0284c7 !important; }
+
+        .btn-warning { background-color: #f59e0b !important; border-color: #f59e0b !important; color: #fff !important; }
+        .btn-warning:hover { background-color: #d97706 !important; border-color: #d97706 !important; }
+
+        .btn-danger { background-color: #ef4444 !important; border-color: #ef4444 !important; color: #fff !important; }
+        .btn-danger:hover { background-color: #dc2626 !important; border-color: #dc2626 !important; }
+        
+        .btn-secondary { background-color: #64748b !important; border-color: #64748b !important; color: #fff !important; }
+        .btn-secondary:hover { background-color: #475569 !important; border-color: #475569 !important; }
 </style>
 <style>
         /* Kekinian Table & DataTables */
