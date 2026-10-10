@@ -72,12 +72,12 @@
                     <span class="text-muted fw-bold">Selamat Datang,</span>
                 </div>
                 <h2 class="fw-bolder mb-2" style="color: #1e293b; font-size: 1.8rem;">{{ auth('admin')->user()->name }}</h2>
-                <p class="text-muted mb-0" style="max-width: 400px; font-size:0.9rem;">
+                <p class="text-muted mb-0" style="max-width: 300px; font-size:0.9rem;">
                     Kelola dan pantau seluruh data dan aktivitas sistem CBT SKOLABS {{ \App\Models\Setting::get('nama_instansi', 'Kab. Tangerang') }} dengan mudah dan cepat.
                 </p>
             </div>
             <!-- Illustration placeholder, could use an SVG or image -->
-            <svg class="welcome-bg d-none d-md-block" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" style="right: 20px; bottom: 0px; width: 220px; opacity: 1;">
+            <svg class="welcome-bg d-none d-md-block" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" style="right: 0px; bottom: 0px; width: 200px; opacity: 1;">
                 <path fill="#e0e7ff" d="M47.7,-57.2C59.4,-47.3,64.8,-29.3,66.8,-11.7C68.8,5.9,67.5,23,59.3,37.3C51,51.6,35.9,63.1,18.8,68.6C1.7,74.1,-17.4,73.5,-32.8,66C-48.2,58.4,-60,43.8,-67.2,26.7C-74.4,9.6,-77,-10,-70.5,-26.4C-64.1,-42.9,-48.7,-56,-32.8,-63.3C-16.8,-70.5,-0.3,-71.9,16,-68.8C32.4,-65.7,47.7,-57.2,47.7,-57.2Z" transform="translate(100 100)" />
                 <rect x="50" y="50" width="100" height="70" rx="5" fill="#4361ee" />
                 <rect x="55" y="55" width="90" height="50" rx="3" fill="#fff" />
