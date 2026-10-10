@@ -1,9 +1,9 @@
 @extends('layouts.admin')
 
-@section('title', 'Monitoring: ' . $schedule->name)
+@section('title', 'Monitoring Peserta')
 
 @section('content')
-<div class="row mb-3">
+<div class="row">
     <div class="col-12">
         <a href="{{ route('admin.monitoring.index') }}" class="btn btn-sm btn-secondary mb-3">
             <i data-feather="arrow-left" class="align-middle me-1" style="width: 14px; height: 14px;"></i> Kembali
@@ -16,13 +16,21 @@
                         <h4 class="mb-1"><strong>Monitoring Peserta: {{ $schedule->name }}</strong></h4>
                         <p class="text-muted small mb-0">Total Soal: <strong>{{ $totalQuestions }}</strong> | Token: <strong>{{ $schedule->token ?? '-' }}</strong></p>
                     </div>
-                    <button class="btn btn-primary btn-sm" onclick="location.reload()">
-                        <i data-feather="refresh-cw" class="align-middle me-1" style="width: 14px; height: 14px;"></i> Refresh Status
-                    </button>
+                    <div class="d-flex gap-2 align-items-center">
+                        <select id="groupFilter" class="form-select form-select-sm" style="width: 200px;">
+                            <option value="">-- Semua Kelas/Grup --</option>
+                            @foreach($groups as $group)
+                                <option value="{{ $group->id }}">{{ $group->name }}</option>
+                            @endforeach
+                        </select>
+                        <button class="btn btn-primary btn-sm" id="btnRefresh">
+                            <i data-feather="refresh-cw" class="align-middle me-1" style="width: 14px; height: 14px;"></i> Refresh Status
+                        </button>
+                    </div>
                 </div>
 
                 <div class="table-responsive">
-                    <table class="table table-bordered table-hover mb-0">
+                    <table class="table table-bordered table-hover mb-0" id="tableMonitoring">
                         <thead class="bg-light">
                             <tr>
                                 <th width="50" class="text-center">No</th>
@@ -36,84 +44,6 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach ($students as $student)
-                            @php
-                                $result = $results->get($student->id);
-                                $answerCount = $answerCounts->get($student->id)->total ?? 0;
-                                $progress = $totalQuestions > 0 ? round(($answerCount / $totalQuestions) * 100) : 0;
-                                
-                                $statusLabel = 'Belum Mulai';
-                                $statusClass = 'bg-secondary';
-                                
-                                if($result) {
-                                    if($result->status === 'blocked') {
-                                        $statusLabel = 'Diblokir';
-                                        $statusClass = 'bg-danger';
-                                    } elseif($result->status === 'finished' || $result->finished_at) {
-                                        $statusLabel = 'Selesai';
-                                        $statusClass = 'bg-success';
-                                    } else {
-                                        $statusLabel = 'Sedang Mengerjakan';
-                                        $statusClass = 'bg-primary';
-                                    }
-                                }
-                            @endphp
-                            <tr>
-                                <td class="text-center align-middle">{{ $loop->iteration }}</td>
-                                <td class="align-middle">{{ $student->nomer_ujian }}</td>
-                                <td class="align-middle fw-bold">{{ $student->name }}</td>
-                                <td class="align-middle">{{ $student->group->name ?? '-' }}</td>
-                                <td class="text-center align-middle">
-                                    <span class="badge {{ $statusClass }}">{{ $statusLabel }}</span>
-                                    @if($result && !$result->finished_at)
-                                        <div class="small text-muted mt-1" style="font-size: 0.7rem;">
-                                            Mulai: {{ $result->started_at->format('H:i') }}
-                                        </div>
-                                    @endif
-                                </td>
-                                <td class="align-middle">
-                                    <div class="d-flex align-items-center gap-2">
-                                        <div class="progress flex-grow-1" style="height: 6px;">
-                                            <div class="progress-bar" role="progressbar" style="width: {{ $progress }}%;" aria-valuenow="{{ $progress }}" aria-valuemin="0" aria-valuemax="100"></div>
-                                        </div>
-                                        <span class="small fw-bold">{{ $answerCount }}/{{ $totalQuestions }}</span>
-                                    </div>
-                                </td>
-                                <td class="text-center align-middle fw-bold {{ $result && $result->finished_at ? 'text-success' : 'text-muted' }}">
-                                    {{ $result && $result->finished_at ? $result->score : '-' }}
-                                </td>
-                                <td class="align-middle">
-                                    <div class="d-flex gap-1 justify-content-center">
-                                        @if($result && !$result->finished_at && $result->status !== 'blocked')
-                                        <form action="{{ route('admin.monitoring.force-finish', [$schedule->id, $student->id]) }}" method="POST">
-                                            @csrf
-                                            <button type="submit" class="btn btn-sm btn-warning text-white py-0 px-2" title="Paksa Selesai">
-                                                <i data-feather="terminal" style="width: 12px; height: 12px;"></i> Selesai
-                                            </button>
-                                        </form>
-                                        @endif
-
-                                        @if($result && $result->status === 'blocked')
-                                        <form action="{{ route('admin.monitoring.unblock', [$schedule->id, $student->id]) }}" method="POST">
-                                            @csrf
-                                            <button type="submit" class="btn btn-sm btn-success py-0 px-2" onclick="return confirm('Buka blokir ujian untuk siswa ini agar bisa melanjutkan?')" title="Buka Blokir">
-                                                <i data-feather="unlock" style="width: 12px; height: 12px;"></i> Buka Blokir
-                                            </button>
-                                        </form>
-                                        @endif
-
-                                        @if($result)
-                                        <form action="{{ route('admin.monitoring.reset', [$schedule->id, $student->id]) }}" method="POST">
-                                            @csrf
-                                            <button type="submit" class="btn btn-sm btn-danger py-0 px-2" onclick="return confirm('Reset ujian untuk siswa ini? Semua jawaban akan dihapus.')" title="Reset Total Ujian">
-                                                <i data-feather="rotate-ccw" style="width: 12px; height: 12px;"></i> Reset Total
-                                            </button>
-                                        </form>
-                                        @endif
-                                    </div>
-                                </td>
-                            </tr>
-                            @endforeach
                         </tbody>
                     </table>
                 </div>
@@ -128,4 +58,52 @@
     .badge { font-weight: 500; font-size: 0.70rem; padding: 3px 8px; }
     .progress { background-color: #e9ecef; border-radius: 10px; }
 </style>
+
+@push('scripts')
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        var table = $('#tableMonitoring').DataTable({
+            processing: true,
+            serverSide: true,
+            ajax: {
+                url: "{{ route('admin.monitoring.show', $schedule->id) }}",
+                data: function (d) {
+                    d.group_id = $('#groupFilter').val();
+                }
+            },
+            columns: [
+                { data: 'DT_RowIndex', name: 'DT_RowIndex', orderable: false, searchable: false, className: 'text-center align-middle' },
+                { data: 'nomer_ujian', name: 'nomer_ujian', className: 'align-middle' },
+                { data: 'name', name: 'name', className: 'align-middle fw-bold' },
+                { data: 'group_name', name: 'group_name', className: 'align-middle' },
+                { data: 'status', name: 'status', className: 'text-center align-middle', orderable: false, searchable: false },
+                { data: 'progress', name: 'progress', className: 'align-middle', orderable: false, searchable: false },
+                { data: 'score', name: 'score', className: 'text-center align-middle', orderable: false, searchable: false },
+                { data: 'action', name: 'action', className: 'align-middle text-center', orderable: false, searchable: false }
+            ],
+            language: {
+                url: '//cdn.datatables.net/plug-ins/1.13.6/i18n/id.json',
+            },
+            drawCallback: function(settings) {
+                if(window.feather) {
+                    feather.replace();
+                }
+            }
+        });
+
+        $('#groupFilter').on('change', function() {
+            table.draw();
+        });
+
+        $('#btnRefresh').on('click', function() {
+            table.ajax.reload(null, false);
+        });
+
+        // Auto refresh setiap 30 detik
+        setInterval(function() {
+            table.ajax.reload(null, false);
+        }, 30000);
+    });
+</script>
+@endpush
 @endsection
