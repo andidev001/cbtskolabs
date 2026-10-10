@@ -412,22 +412,13 @@
 		<div class="main">
 			<nav class="navbar navbar-expand navbar-light navbar-bg">
 				<a class="sidebar-toggle js-sidebar-toggle"><i class="hamburger align-middle" style="color:#64748b;"></i></a>
-                <form class="d-none d-sm-inline-block" style="margin-left:1rem;">
-                    <div class="input-group input-group-navbar" style="background:#f1f5f9; border-radius:20px; padding:0.2rem 0.5rem; border: 1px solid #e2e8f0;">
-                        <span class="input-group-text bg-transparent border-0 pe-1"><i data-feather="search" style="width:16px; color:#94a3b8;"></i></span>
-                        <input type="text" class="form-control bg-transparent border-0" placeholder="Cari menu atau fitur..." aria-label="Search" style="box-shadow:none; font-size:0.85rem; width:250px;">
-                    </div>
-                </form>
 				<div class="navbar-collapse collapse">
 					<ul class="navbar-nav navbar-align">
 						<li class="nav-item dropdown">
 							<a class="nav-link dropdown-toggle d-none d-sm-inline-block d-flex align-items-center gap-2" href="#" data-bs-toggle="dropdown" style="padding-top:0; padding-bottom:0;">
-                                <div class="position-relative d-flex align-items-center me-2">
-								    <i data-feather="bell" style="width:20px; height:20px; color:#64748b;"></i>
-                                    <span class="position-absolute top-0 start-100 translate-middle p-1 border border-light rounded-circle" style="width:10px; height:10px; background-color:#ef4444; margin-left:-5px;"></span>
-                                </div>
+                                
 								@if(auth('admin')->user()->photo)
-									<img src="{{ asset(auth('admin')->user()->photo) }}" class="avatar img-fluid rounded-circle me-1" alt="{{ auth('admin')->user()->name }}" style="width:36px; height:36px; object-fit:cover;" /> 
+									<img src="{{ asset(auth('admin')->user()->photo) }}" class="avatar img-fluid rounded-circle" alt="{{ auth('admin')->user()->name }}" style="width:36px; height:36px; object-fit:cover;" /> 
 								@else
 									<div class="text-white d-flex align-items-center justify-content-center rounded-circle shadow-sm" style="width:36px;height:36px; font-weight:bold; background: linear-gradient(135deg, #4361ee, #3a0ca3);">
                                         {{ substr(auth('admin')->user()->name, 0, 1) }}
