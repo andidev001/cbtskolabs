@@ -59,7 +59,7 @@
     @endphp
 
     @if($kop_surat)
-        <div style="text-align: center; border-bottom: 3px solid #000; padding-bottom: 10px; margin-bottom: 20px;">
+        <div style="text-align: center; margin-bottom: 20px;">
             <img src="{{ $kop_surat }}" style="max-width: 100%; height: auto; max-height: 150px;" alt="Kop Surat">
         </div>
     @else
