@@ -133,3 +133,4 @@ file_put_contents('app/Http/Controllers/Admin/BeritaAcaraController.php', str_re
 file_put_contents('app/Http/Controllers/Guru/BeritaAcaraController.php', str_replace(['__NAMESPACE__', '__PREFIX__'], ['Guru', 'guru'], $stub));
 
 echo "Controllers updated.\n";
+

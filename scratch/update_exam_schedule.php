@@ -5,3 +5,4 @@ if (strpos($content, 'beritaAcara') === false) {
     file_put_contents('app/Models/ExamSchedule.php', $content);
 }
 echo "OK";
+

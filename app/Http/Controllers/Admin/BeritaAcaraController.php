@@ -35,6 +35,7 @@ class BeritaAcaraController extends Controller
                     $pdfUrl = url($request->segment(1) . '/berita-acara/' . $row->id . '/cetak-pdf');
                     
                     $ba = $row->beritaAcara;
+                    $btnPdf = '<button class="btn btn-sm btn-danger text-white btn-view-pdf" data-url="'.$pdfUrl.'" title="Cetak PDF" data-bs-toggle="modal" data-bs-target="#modalPdfViewer"><i class="align-middle" data-feather="printer" style="width: 14px; height: 14px;"></i></button>';
                     
                     if ($ba) {
                         $btnEdit = '<button class="btn btn-sm btn-success text-white btn-edit-ba" 
@@ -46,15 +47,12 @@ class BeritaAcaraController extends Controller
                             data-pengawas="' . htmlspecialchars($ba->pengawas, ENT_QUOTES) . '" 
                             data-catatan="' . htmlspecialchars($ba->catatan, ENT_QUOTES) . '" 
                             title="Edit Berita Acara" data-bs-toggle="modal" data-bs-target="#modalBeritaAcara">
-                            <i class="align-middle" data-feather="edit" style="width: 14px; height: 14px;"></i> Edit</button>';
+                            <i class="align-middle" data-feather="edit" style="width: 14px; height: 14px;"></i></button>';
                             
-                        $btnPdf = '<button class="btn btn-sm btn-danger text-white btn-view-pdf" data-url="'.$pdfUrl.'" title="Lihat PDF" data-bs-toggle="modal" data-bs-target="#modalPdfViewer"><i class="align-middle" data-feather="file-text" style="width: 14px; height: 14px;"></i> Cetak PDF</button>';
-                        
                         return '<div class="d-flex gap-1 justify-content-center">' . $btnEdit . $btnPdf . '</div>';
                     } else {
-                        return '<div class="text-center">
-                                    <button class="btn btn-sm btn-info text-white btn-edit-ba" data-url="' . $storeUrl . '" data-schedule="' . $row->name . '" title="Isi Berita Acara" data-bs-toggle="modal" data-bs-target="#modalBeritaAcara"><i class="align-middle" data-feather="file-plus" style="width: 14px; height: 14px;"></i> Isi Berita Acara</button>
-                                </div>';
+                        $btnIsi = '<button class="btn btn-sm btn-info text-white btn-edit-ba" data-url="' . $storeUrl . '" data-schedule="' . $row->name . '" title="Isi Berita Acara" data-bs-toggle="modal" data-bs-target="#modalBeritaAcara"><i class="align-middle" data-feather="file-plus" style="width: 14px; height: 14px;"></i></button>';
+                        return '<div class="d-flex gap-1 justify-content-center">' . $btnIsi . $btnPdf . '</div>';
                     }
                 })
                 ->rawColumns(['action'])
@@ -92,10 +90,6 @@ class BeritaAcaraController extends Controller
     {
         $schedule = ExamSchedule::with(['bankSoal', 'examEvent', 'groups', 'beritaAcara'])->findOrFail($id);
         $ba = $schedule->beritaAcara;
-
-        if (!$ba) {
-            return abort(404, 'Berita Acara belum diisi.');
-        }
 
         $assignedGroupIds = $schedule->groups->pluck('id')->toArray();
         $query = Siswa::whereIn('group_id', $assignedGroupIds);
