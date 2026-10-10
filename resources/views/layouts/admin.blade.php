@@ -302,7 +302,7 @@
 
 					@php
 						$isDataMasterActive = request()->routeIs('admin.peserta.*', 'admin.group.*', 'admin.jurusan.*', 'admin.subject.*', 'admin.guru.*', 'admin.user.*', 'admin.religion.*', 'admin.exam-session.*');
-						$isUjianActive = request()->routeIs('admin.exam-event.*', 'admin.exam-schedule.*', 'admin.exam-status.*', 'admin.monitoring.*', 'admin.bank-soal.*');
+						$isUjianActive = request()->routeIs('admin.exam-event.*', 'admin.exam-schedule.*', 'admin.berita-acara.*', 'admin.exam-status.*', 'admin.monitoring.*', 'admin.bank-soal.*');
 						$isPengolahanActive = request()->routeIs('admin.processing.*');
 						$isPengaturanActive = request()->routeIs('admin.settings.*');
 					@endphp
@@ -347,8 +347,11 @@
 							<li class="sidebar-item {{ request()->routeIs('admin.exam-event.*') ? 'active' : '' }}">
 								<a class="sidebar-link" href="{{ route('admin.exam-event.index') }}"><i class="align-middle" data-feather="calendar"></i> <span class="align-middle">Event Ujian</span></a>
 							</li>
-							<li class="sidebar-item {{ request()->routeIs('admin.exam-schedule.*') ? 'active' : '' }}">
+							<li class="sidebar-item {{ request()->routeIs('admin.exam-schedule.*', 'admin.berita-acara.*') ? 'active' : '' }}">
 								<a class="sidebar-link" href="{{ route('admin.exam-schedule.index') }}"><i class="align-middle" data-feather="clock"></i> <span class="align-middle">Jadwal Ujian</span></a>
+							</li>
+							<li class="sidebar-item {{ request()->routeIs('admin.berita-acara.*') ? 'active' : '' }}">
+								<a class="sidebar-link" href="{{ route('admin.berita-acara.index') }}"><i class="align-middle" data-feather="printer"></i> <span class="align-middle">Berita Acara</span></a>
 							</li>
 							<li class="sidebar-item {{ request()->routeIs('admin.exam-status.*') ? 'active' : '' }}">
 								<a class="sidebar-link" href="{{ route('admin.exam-status.index') }}"><i class="align-middle" data-feather="activity"></i> <span class="align-middle">Status Ujian</span></a>

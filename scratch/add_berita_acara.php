@@ -46,3 +46,4 @@ $content = file_get_contents('app/Http/Controllers/Guru/ExamMonitoringController
 $content = preg_replace('/return redirect\(\)->back\(\)->with\(\'error\', \'Status siswa bukan terblokir\.\'\);\s*}\s*}/', "return redirect()->back()->with('error', 'Status siswa bukan terblokir.');\n    }\n\n$addition", $content);
 file_put_contents('app/Http/Controllers/Guru/ExamMonitoringController.php', $content);
 echo "Guru done.\n";
+

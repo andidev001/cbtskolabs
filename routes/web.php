@@ -163,10 +163,11 @@ Route::prefix('admin')->group(function () {
             Route::post('exam-status/{schedule}/update-interval', [ExamStatusController::class , 'updateInterval'])->name('admin.exam-status.update-interval');
 
             // Monitoring (Status Peserta)
-            Route::get('monitoring', [ExamMonitoringController::class, 'index'])->name('admin.monitoring.index');
+                        Route::get('monitoring', [ExamMonitoringController::class, 'index'])->name('admin.monitoring.index');
+            Route::get('berita-acara', [\App\Http\Controllers\Admin\BeritaAcaraController::class, 'index'])->name('admin.berita-acara.index');
+            Route::get('berita-acara/{schedule}/cetak', [\App\Http\Controllers\Admin\BeritaAcaraController::class, 'cetak'])->name('admin.berita-acara.cetak');
             Route::get('monitoring/{schedule}', [ExamMonitoringController::class, 'show'])->name('admin.monitoring.show');
-            Route::get('monitoring/{schedule}/berita-acara', [ExamMonitoringController::class, 'beritaAcara'])->name('admin.monitoring.berita-acara');
-            Route::post('monitoring/{schedule}/{siswa}/force-finish', [ExamMonitoringController::class, 'forceFinish'])->name('admin.monitoring.force-finish');
+                        Route::post('monitoring/{schedule}/{siswa}/force-finish', [ExamMonitoringController::class, 'forceFinish'])->name('admin.monitoring.force-finish');
             Route::post('monitoring/{schedule}/{siswa}/reset', [ExamMonitoringController::class , 'resetExam'])->name('admin.monitoring.reset');
             Route::post('monitoring/{schedule}/{siswa}/unblock', [ExamMonitoringController::class , 'unblock'])->name('admin.monitoring.unblock');
 
@@ -267,10 +268,11 @@ Route::prefix('guru')->group(function () {
             Route::post('exam-status/{schedule}/update-interval', [\App\Http\Controllers\Guru\ExamStatusController::class , 'updateInterval'])->name('guru.exam-status.update-interval');
 
             // Monitoring (Status Peserta)
-            Route::get('monitoring', [\App\Http\Controllers\Guru\ExamMonitoringController::class, 'index'])->name('guru.monitoring.index');
+                        Route::get('monitoring', [\App\Http\Controllers\Guru\ExamMonitoringController::class, 'index'])->name('guru.monitoring.index');
+            Route::get('berita-acara', [\App\Http\Controllers\Guru\BeritaAcaraController::class, 'index'])->name('guru.berita-acara.index');
+            Route::get('berita-acara/{schedule}/cetak', [\App\Http\Controllers\Guru\BeritaAcaraController::class, 'cetak'])->name('guru.berita-acara.cetak');
             Route::get('monitoring/{schedule}', [\App\Http\Controllers\Guru\ExamMonitoringController::class, 'show'])->name('guru.monitoring.show');
-            Route::get('monitoring/{schedule}/berita-acara', [\App\Http\Controllers\Guru\ExamMonitoringController::class, 'beritaAcara'])->name('guru.monitoring.berita-acara');
-            Route::post('monitoring/{schedule}/{siswa}/force-finish', [\App\Http\Controllers\Guru\ExamMonitoringController::class, 'forceFinish'])->name('guru.monitoring.force-finish');
+                        Route::post('monitoring/{schedule}/{siswa}/force-finish', [\App\Http\Controllers\Guru\ExamMonitoringController::class, 'forceFinish'])->name('guru.monitoring.force-finish');
             Route::post('monitoring/{schedule}/{siswa}/reset', [\App\Http\Controllers\Guru\ExamMonitoringController::class , 'resetExam'])->name('guru.monitoring.reset');
             Route::post('monitoring/{schedule}/{siswa}/unblock', [\App\Http\Controllers\Guru\ExamMonitoringController::class , 'unblock'])->name('guru.monitoring.unblock');
             Route::post('monitoring/{siswa}/reset-login', [\App\Http\Controllers\Guru\ExamMonitoringController::class , 'resetLogin'])->name('guru.monitoring.reset-login');
