@@ -252,6 +252,8 @@ Route::prefix('guru')->group(function () {
             Route::post('processing/koreksi/{schedule}/siswa/{siswa}', [GuruProcessingController::class , 'koreksiStore'])->name('guru.processing.koreksi.store');
             Route::get('processing/hasil', [GuruProcessingController::class , 'hasilIndex'])->name('guru.processing.hasil.index');
             Route::get('processing/hasil/{schedule}', [GuruProcessingController::class , 'hasilShow'])->name('guru.processing.hasil.show');
+            Route::get('processing/hasil/{id}/export-excel', [GuruProcessingController::class, 'hasilExportExcel'])->name('guru.processing.hasil.export-excel');
+
 
             // Analisis & Leger untuk Guru
             Route::get('processing/analisis', [GuruProcessingController::class , 'analisisIndex'])->name('guru.processing.analisis.index');

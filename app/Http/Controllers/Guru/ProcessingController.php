@@ -235,6 +235,14 @@ class ProcessingController extends Controller
         return view('guru.processing.hasil-show', compact('schedule', 'results'));
     }
 
+    public function hasilExportExcel(Request $request, $scheduleId)
+    {
+        $schedule = $this->mySchedules()->findOrFail($scheduleId);
+        $fileName = 'Hasil_Ujian_' . str_replace(' ', '_', $schedule->name) . '_' . date('YmdHis') . '.xlsx';
+
+        return \Maatwebsite\Excel\Facades\Excel::download(new \App\Exports\ExamResultExport($scheduleId, $request->group_id), $fileName);
+    }
+
     /** ── Leger Nilai ── */
     public function legerIndex(Request $request)
     {

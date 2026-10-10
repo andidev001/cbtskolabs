@@ -28,9 +28,10 @@
     $hasEssay = (in_array('Essay', $qTypes) || in_array('UR', $qTypes));
     
     // Daftar Kelas Unik
-    $groups = $results->map(function($r) {
-        return optional($r->siswa->group)->name;
-    })->filter()->unique()->sort();
+    $groups = $results->mapWithKeys(function($r) {
+        $g = $r->siswa->group;
+        return $g ? [$g->id => $g->name] : [];
+    })->filter()->sort();
 @endphp
 
 @if(!$isOnlyPG)
@@ -76,11 +77,14 @@
 <div class="card shadow-sm border-0">
     <div class="card-header bg-white fw-semibold d-flex justify-content-between align-items-center">
         <span>Daftar Nilai Siswa</span>
-        <div class="d-flex align-items-center gap-3">
-            <select id="filter-kelas" class="form-select form-select-sm" style="min-width: 140px;">
-                <option value="">Semua Kelas</option>
-                @foreach($groups as $g)
-                    <option value="{{ $g }}">{{ $g }}</option>
+        <div class="d-flex flex-wrap align-items-center gap-2">
+            <a href="{{ route('guru.processing.hasil.export-excel', $schedule->id) }}" id="btn-export-excel" class="btn btn-sm btn-outline-success">
+                <i data-feather="file-text" style="width: 14px; height: 14px;"></i> Export Excel
+            </a>
+            <select id="filter-kelas" class="form-select form-select-sm" style="width: auto; min-width: 130px;">
+                <option value="" data-id="">Semua Kelas</option>
+                @foreach($groups as $id => $name)
+                    <option value="{{ $name }}" data-id="{{ $id }}">{{ $name }}</option>
                 @endforeach
             </select>
             <span class="badge bg-primary" id="badge-total">{{ $total }} peserta</span>
@@ -152,10 +156,22 @@ $(function() {
         drawCallback: function() { feather.replace(); }
     });
 
+    var baseExportUrl = "{{ route('guru.processing.hasil.export-excel', $schedule->id) }}";
+
     $('#filter-kelas').on('change', function() {
-        var val = $.fn.dataTable.util.escapeRegex($(this).val());
+        var val = $(this).val();
+        var id = $(this).find('option:selected').data('id');
+        var escapedVal = $.fn.dataTable.util.escapeRegex(val);
+        
         // Column index 3 adalah Kelas/Grup
-        table.column(3).search(val ? '^' + val + '$' : '', true, false).draw();
+        table.column(3).search(escapedVal ? '^' + escapedVal + '$' : '', true, false).draw();
+
+        // Update link export
+        var exportUrl = baseExportUrl;
+        if (id) {
+            exportUrl += "?group_id=" + id;
+        }
+        $('#btn-export-excel').attr('href', exportUrl);
     });
 });
 </script>
