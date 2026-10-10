@@ -6,36 +6,56 @@
 <style>
     .welcome-card {
         background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
-        border-radius: 16px;
+        border-radius: 20px;
         position: relative;
         overflow: hidden;
-        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+        box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.03);
+        border: 1px solid rgba(255,255,255,0.8);
     }
     .welcome-bg {
         position: absolute;
         right: -20px;
         bottom: -20px;
-        opacity: 0.8;
+        opacity: 0.7;
         width: 300px;
+        transition: transform 0.5s ease;
+    }
+    .welcome-card:hover .welcome-bg {
+        transform: scale(1.03) translate(-3px, -3px);
     }
     .stat-card {
-        border-radius: 16px;
-        box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
-        border: 1px solid #f1f5f9;
-        transition: transform 0.2s;
+        border-radius: 20px;
+        box-shadow: 0 4px 20px -2px rgba(0,0,0,0.03);
+        border: 1px solid rgba(241, 245, 249, 0.8);
+        transition: all 0.3s ease;
         background: #fff;
     }
     .stat-card:hover {
-        transform: translateY(-3px);
+        transform: translateY(-4px);
+        box-shadow: 0 12px 25px -5px rgba(0,0,0,0.06);
     }
     .icon-box {
-        width: 40px;
-        height: 40px;
-        border-radius: 10px;
+        width: 42px;
+        height: 42px;
+        border-radius: 12px;
         display: flex;
         align-items: center;
         justify-content: center;
-        margin-bottom: 0.5rem;
+        margin-bottom: 0.75rem;
+        transition: all 0.3s ease;
+    }
+    .stat-card:hover .icon-box {
+        transform: scale(1.05);
+    }
+    .smooth-card {
+        border-radius: 20px !important;
+        box-shadow: 0 4px 20px -2px rgba(0,0,0,0.03) !important;
+        border: 1px solid rgba(241, 245, 249, 0.8) !important;
+        transition: all 0.3s ease !important;
+        background: #fff;
+    }
+    .smooth-card:hover {
+        box-shadow: 0 12px 25px -5px rgba(0,0,0,0.06) !important;
     }
     .text-success-custom { color: #10b981; }
     .text-primary-custom { color: #3b82f6; }
@@ -151,7 +171,7 @@
 
 <div class="row g-4">
     <div class="col-12 col-xl-8">
-        <div class="card h-100 border-0 shadow-sm" style="border-radius:16px;">
+        <div class="card h-100 border-0 smooth-card">
             <div class="card-header bg-white border-0 pt-4 pb-0 px-4 d-flex justify-content-between align-items-center">
                 <div class="d-flex align-items-center">
                     <div class="bg-primary-soft text-primary rounded p-2 me-2">
@@ -176,7 +196,7 @@
         </div>
     </div>
     <div class="col-12 col-xl-4">
-        <div class="card h-100 border-0 shadow-sm" style="border-radius:16px;">
+        <div class="card h-100 border-0 smooth-card">
             <div class="card-header bg-white border-0 pt-4 pb-0 px-4 d-flex align-items-center">
                 <div class="bg-primary-soft text-primary rounded p-2 me-2" style="background: rgba(139, 92, 246, 0.1); color: #8b5cf6 !important;">
                     <i data-feather="clock" style="width:18px;"></i>
