@@ -9,7 +9,12 @@ class Subject extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['name', 'code'];
+    protected $fillable = ['name', 'code', 'religion_id'];
+
+    public function religion()
+    {
+        return $this->belongsTo(Religion::class);
+    }
 
     /** Guru-guru yang mengampu mata pelajaran ini */
     public function gurus()

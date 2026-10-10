@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Subject;
+use App\Models\Religion;
 use App\Imports\SubjectImport;
 use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Http\Request;
@@ -13,12 +14,15 @@ class SubjectController extends Controller
     public function index(Request $request)
     {
         if ($request->ajax()) {
-            $data = Subject::select('subjects.*');
+            $data = Subject::with('religion')->select('subjects.*');
             return \Yajra\DataTables\Facades\DataTables::of($data)
                 ->addIndexColumn()
+                ->addColumn('religion_name', function($row){
+                    return $row->religion ? $row->religion->name : 'Umum (Semua Agama)';
+                })
                 ->addColumn('action', function ($row) {
                 $btn = '<div class="text-center">';
-                $btn .= '<button type="button" class="btn btn-sm btn-primary me-1 btn-edit" data-id="' . $row->id . '" data-code="' . htmlspecialchars($row->code) . '" data-name="' . htmlspecialchars($row->name) . '" title="Edit" data-bs-toggle="tooltip"><i class="align-middle" data-feather="edit-2"></i></button>';
+                $btn .= '<button type="button" class="btn btn-sm btn-primary me-1 btn-edit" data-id="' . $row->id . '" data-code="' . htmlspecialchars($row->code) . '" data-name="' . htmlspecialchars($row->name) . '" data-religion="' . $row->religion_id . '" title="Edit" data-bs-toggle="tooltip"><i class="align-middle" data-feather="edit-2"></i></button>';
                 $btn .= '<form action="' . route('admin.subject.destroy', $row->id) . '" method="POST" class="d-inline">
                                     ' . csrf_field() . '
                                     ' . method_field('DELETE') . '
@@ -30,7 +34,8 @@ class SubjectController extends Controller
                 ->rawColumns(['action'])
                 ->make(true);
         }
-        return view('admin.subject.index');
+        $religions = Religion::all();
+        return view('admin.subject.index', compact('religions'));
     }
 
     public function create()
@@ -43,6 +48,7 @@ class SubjectController extends Controller
         $request->validate([
             'name' => 'required|string|max:255',
             'code' => 'required|string|max:50|unique:subjects',
+            'religion_id' => 'nullable|exists:religions,id',
         ]);
 
         Subject::create($request->all());
@@ -62,6 +68,7 @@ class SubjectController extends Controller
         $request->validate([
             'name' => 'required|string|max:255',
             'code' => 'required|string|max:50|unique:subjects,code,' . $subject->id,
+            'religion_id' => 'nullable|exists:religions,id',
         ]);
 
         $subject->update($request->all());

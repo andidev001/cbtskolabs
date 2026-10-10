@@ -23,6 +23,7 @@
                     <tr>
                         <th width="100">Kode</th>
                         <th>Nama Mata Pelajaran</th>
+                        <th>Khusus Agama</th>
                         <th class="text-center" width="150">Aksi</th>
                     </tr>
                 </thead>
@@ -93,6 +94,16 @@
                         <label class="form-label">Nama Mata Pelajaran</label>
                         <input type="text" class="form-control" name="name" required placeholder="Misal: Matematika">
                     </div>
+                    <div class="mb-3">
+                        <label class="form-label">Khusus Agama (Opsional)</label>
+                        <select class="form-select" name="religion_id">
+                            <option value="">-- Umum (Semua Agama) --</option>
+                            @foreach($religions ?? [] as $r)
+                                <option value="{{ $r->id }}">{{ $r->name }}</option>
+                            @endforeach
+                        </select>
+                        <small class="text-muted">Pilih jika mapel ini khusus agama tertentu.</small>
+                    </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Batal</button>
@@ -123,6 +134,16 @@
                         <label class="form-label">Nama Mata Pelajaran</label>
                         <input type="text" class="form-control" name="name" id="edit_name" required>
                     </div>
+                    <div class="mb-3">
+                        <label class="form-label">Khusus Agama (Opsional)</label>
+                        <select class="form-select" name="religion_id" id="edit_religion_id">
+                            <option value="">-- Umum (Semua Agama) --</option>
+                            @foreach($religions ?? [] as $r)
+                                <option value="{{ $r->id }}">{{ $r->name }}</option>
+                            @endforeach
+                        </select>
+                        <small class="text-muted">Pilih jika mapel ini khusus agama tertentu.</small>
+                    </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Batal</button>
@@ -149,6 +170,16 @@ $(function() {
                 }
             },
             {data: 'name', name: 'name'},
+            {
+                data: 'religion_name', 
+                name: 'religion_name',
+                render: function(data) {
+                    if (data === 'Umum (Semua Agama)') {
+                        return '<span class="text-muted small"><i data-feather="globe" style="width:12px;height:12px"></i> ' + data + '</span>';
+                    }
+                    return '<span class="badge bg-secondary">' + data + '</span>';
+                }
+            },
             {data: 'action', name: 'action', orderable: false, searchable: false}
         ],
         language: {
@@ -179,9 +210,11 @@ $(function() {
         var id = $(this).data('id');
         var code = $(this).data('code');
         var name = $(this).data('name');
+        var religion = $(this).data('religion');
 
         $('#edit_code').val(code);
         $('#edit_name').val(name);
+        $('#edit_religion_id').val(religion || '');
 
         var actionUrl = "/admin/subject/" + id;
         $('#editSubjectForm').attr('action', actionUrl);

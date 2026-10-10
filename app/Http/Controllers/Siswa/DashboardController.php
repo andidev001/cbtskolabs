@@ -24,11 +24,16 @@ class DashboardController extends Controller
         $schedules = ExamSchedule::select('id', 'name', 'exam_event_id', 'bank_soal_id', 'start_at', 'end_at', 'duration', 'token', 'show_score', 'show_percentage', 'show_answer', 'enforce_focus')
             ->with([
             'examEvent:id,name',
-            'bankSoal:id,name'
+            'bankSoal:id,name,subject_id',
+            'bankSoal.subject:id,name,religion_id'
         ])
             ->whereHas('groups', function ($q) use ($siswa) {
             $q->where('groups.id', $siswa->group_id);
         })
+            ->whereHas('bankSoal.subject', function($q) use ($siswa) {
+                $q->whereNull('religion_id')
+                  ->orWhere('religion_id', $siswa->religion_id);
+            })
             ->where('is_active', true)
             ->orderBy('start_at')
             ->get()

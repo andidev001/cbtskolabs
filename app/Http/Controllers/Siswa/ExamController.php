@@ -17,7 +17,7 @@ class ExamController extends Controller
     public function start(Request $request, $scheduleId)
     {
         $siswa = Auth::guard('siswa')->user();
-        $schedule = ExamSchedule::findOrFail($scheduleId);
+        $schedule = ExamSchedule::with('bankSoal.subject')->findOrFail($scheduleId);
         $schedule->maybeRefreshToken();
 
         $now = Carbon::now();
@@ -26,6 +26,10 @@ class ExamController extends Controller
         abort_if(!$schedule->is_active, 403, 'Ujian tidak aktif.');
         abort_if($now->lt($schedule->start_at), 403, 'Ujian belum dimulai.');
         abort_if($now->gt($schedule->end_at), 403, 'Waktu ujian telah berakhir.');
+
+        // Validasi Agama
+        $subject = $schedule->bankSoal->subject;
+        abort_if($subject && $subject->religion_id !== null && $subject->religion_id != $siswa->religion_id, 403, 'Ujian ini tidak tersedia untuk Anda (Beda Agama).');
 
         // Validasi Sesi Siswa
         $siswaSession = \App\Models\ExamSession::where('name', $siswa->sesi)->first();
@@ -84,10 +88,13 @@ class ExamController extends Controller
         $schedule = ExamSchedule::select('id', 'name', 'exam_event_id', 'bank_soal_id', 'end_at', 'duration', 'enforce_focus')
             ->with([
             'bankSoal:id,name,subject_id',
-            'bankSoal.subject:id,name',
+            'bankSoal.subject:id,name,religion_id',
             'examEvent:id,name'
         ])->findOrFail($scheduleId);
         $now = Carbon::now();
+
+        $subject = $schedule->bankSoal->subject;
+        abort_if($subject && $subject->religion_id !== null && $subject->religion_id != $siswa->religion_id, 403, 'Ujian ini tidak tersedia (Beda Agama).');
 
         abort_if($now->gt($schedule->end_at), 403, 'Waktu ujian telah berakhir.');
 
