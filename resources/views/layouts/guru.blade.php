@@ -328,7 +328,7 @@
                 @php $guru = auth('guru')->user(); @endphp
                 <div class="guru-chip">
                     @if($guru->photo)
-                        <img src="{{ asset($guru->photo) }}" alt="{{ $guru->name }}" style="width: 36px; height: 36px; border-radius: 50%; object-fit: cover; flex-shrink: 0;">
+                        <img src="{{ asset($guru->photo) }}" alt="" style="width: 36px; height: 36px; border-radius: 50%; object-fit: cover; flex-shrink: 0;" onerror="this.onerror=null; this.outerHTML='<div class=\'avatar\'>{{ strtoupper(substr($guru->name, 0, 1)) }}</div>';">
                     @else
                         <div class="avatar">{{ strtoupper(substr($guru->name, 0, 1)) }}</div>
                     @endif
@@ -423,7 +423,7 @@
 						<li class="nav-item dropdown">
 							<a class="nav-link dropdown-toggle d-none d-sm-inline-block" href="#" data-bs-toggle="dropdown">
                                 @if($guru->photo)
-                                    <img src="{{ asset($guru->photo) }}" class="avatar img-fluid rounded-circle me-1" alt="{{ $guru->name }}" style="width: 32px; height: 32px; object-fit: cover;" />
+                                    <img src="{{ asset($guru->photo) }}" alt="" class="avatar img-fluid rounded-circle me-1" style="width: 32px; height: 32px; object-fit: cover;" onerror="this.onerror=null; this.outerHTML='<div class=\'d-inline-flex align-items-center justify-content-center text-white rounded-circle shadow-sm me-1\' style=\'width:32px;height:32px; font-weight:bold; background: linear-gradient(135deg, #4361ee, #3a0ca3); vertical-align:middle;\'>{{ strtoupper(substr($guru->name, 0, 1)) }}</div>';">
                                 @endif
 								<span class="text-dark fw-semibold">{{ $guru->name }}</span>
 							</a>
