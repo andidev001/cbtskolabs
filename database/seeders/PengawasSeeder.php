@@ -12,10 +12,12 @@ class PengawasSeeder extends Seeder
      */
     public function run(): void
     {
-        \App\Models\Pengawas::create([
-            'name' => 'Pengawas Ujian',
-            'username' => 'pengawas',
-            'password' => bcrypt('password')
-        ]);
+        \App\Models\Pengawas::firstOrCreate(
+            ['username' => 'pengawas'],
+            [
+                'name' => 'Pengawas Ujian',
+                'password' => bcrypt('password')
+            ]
+        );
     }
 }
