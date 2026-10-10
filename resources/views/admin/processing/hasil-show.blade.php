@@ -26,9 +26,9 @@
                         <p class="text-muted small mb-0">{{ $schedule->examEvent->name }} | {{ $schedule->bankSoal->name }}</p>
                     </div>
                     <div class="d-flex gap-2">
-                        <form action="{{ route('admin.processing.hasil.reset', $schedule->id) }}" method="POST" onsubmit="return confirm('Hapus SEMUA hasil ujian pada jadwal ini? Tindakan ini tidak dapat dibatalkan.')">
+                        <form action="{{ route('admin.processing.hasil.reset', $schedule->id) }}" method="POST" id="form-delete-all">
                             @csrf
-                            <button type="submit" class="btn btn-outline-danger btn-sm">
+                            <button type="button" class="btn btn-outline-danger btn-sm" id="btn-delete-all">
                                 <i data-feather="trash-2" class="align-middle me-1" style="width: 14px; height: 14px;"></i> Hapus Semua Hasil
                             </button>
                         </form>
@@ -100,7 +100,12 @@
                 {data: 'status', name: 'status', searchable: false, orderable: false, className: 'text-center'},
                 {data: 'action', name: 'action', orderable: false, searchable: false, className: 'text-center'}
             ],
-            order: [[6, 'desc']]
+            order: [[6, 'desc']],
+            drawCallback: function(settings) {
+                if(window.feather) {
+                    feather.replace();
+                }
+            }
         });
 
         $('select[name="group_id"]').on('change', function() {
@@ -114,6 +119,45 @@
                 url.searchParams.delete('group_id');
             }
             $('#exportBtn').attr('href', url.toString());
+        });
+
+        // SweetAlert for Hapus Semua Hasil
+        $('#btn-delete-all').on('click', function(e) {
+            e.preventDefault();
+            Swal.fire({
+                title: 'Hapus SEMUA Hasil?',
+                text: "Tindakan ini akan menghapus semua hasil ujian pada jadwal ini dan tidak dapat dibatalkan!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Ya, Hapus Semua!',
+                cancelButtonText: 'Batal'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $('#form-delete-all').submit();
+                }
+            });
+        });
+
+        // SweetAlert for Hapus Hasil Siswa
+        $('#tableHasil').on('click', '.btn-delete-hasil', function(e) {
+            e.preventDefault();
+            let form = $(this).closest('form');
+            Swal.fire({
+                title: 'Hapus Hasil Ujian?',
+                text: "Hasil ujian siswa ini akan dihapus permanen!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Ya, Hapus!',
+                cancelButtonText: 'Batal'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    form.submit();
+                }
+            });
         });
     });
 </script>

@@ -244,9 +244,9 @@ class ExamProcessingController extends Controller
                     $delUrl = route('admin.processing.hasil.destroy', $row->id);
                     $csrf = csrf_field();
                     $method = method_field('DELETE');
-                    return '<form action="'.$delUrl.'" method="POST" class="d-inline" onsubmit="return confirm(\'Yakin hapus data ini?\')">
+                    return '<form action="'.$delUrl.'" method="POST" class="d-inline form-delete-hasil">
                                 '.$csrf.$method.'
-                                <button type="submit" class="btn btn-sm btn-outline-danger"><i data-feather="trash-2" style="width: 14px; height: 14px;"></i></button>
+                                <button type="button" class="btn btn-sm btn-outline-danger btn-delete-hasil" title="Hapus Hasil"><i data-feather="trash-2" style="width: 14px; height: 14px;"></i></button>
                             </form>';
                 })
                 ->rawColumns(['benar', 'salah', 'skor', 'status', 'action'])
