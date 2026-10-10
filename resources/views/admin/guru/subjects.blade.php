@@ -22,9 +22,9 @@
 
 <div class="row g-4">
     {{-- Form mapping --}}
-    <div class="col-lg-7">
+    <div class="col-lg-6">
         <div class="card shadow-sm border-0">
-            <div class="card-header bg-primary text-white d-flex align-items-center gap-2">
+            <div class="card-header text-white d-flex align-items-center gap-2" style="background-color: #4361ee;">
                 <i data-feather="book-open"></i>
                 <span class="fw-semibold">Pilih Mata Pelajaran yang Diampu</span>
             </div>
@@ -88,7 +88,7 @@
     </div>
 
     {{-- Info guru --}}
-    <div class="col-lg-5">
+    <div class="col-lg-6">
         <div class="card shadow-sm border-0">
             <div class="card-header bg-light fw-semibold">
                 <i data-feather="user" class="me-1"></i> Profil Guru
@@ -99,8 +99,8 @@
                         <img src="{{ asset('storage/' . $guru->photo) }}" alt="Foto"
                              class="rounded-circle" style="width:64px;height:64px;object-fit:cover;">
                     @else
-                        <div class="rounded-circle bg-primary d-flex align-items-center justify-content-center text-white fw-bold"
-                             style="width:64px;height:64px;font-size:1.5rem;">
+                        <div class="rounded-circle d-flex align-items-center justify-content-center text-white fw-bold"
+                             style="width:64px;height:64px;font-size:1.5rem; background-color: #4361ee;">
                             {{ strtoupper(substr($guru->name, 0, 1)) }}
                         </div>
                     @endif
@@ -120,7 +120,7 @@
                     </tr>
                     <tr>
                         <td class="text-muted">Email</td>
-                        <td>{{ $guru->email ?: '-' }}</td>
+                        <td class="text-break">{{ $guru->email ?: '-' }}</td>
                     </tr>
                     <tr>
                         <td class="text-muted">No. HP</td>
@@ -131,7 +131,7 @@
                 <hr>
                 <div class="fw-semibold mb-2">Mapel yang diampu saat ini:</div>
                 @forelse($guru->subjects as $s)
-                    <span class="badge bg-primary me-1 mb-1 py-2 px-3">
+                    <span class="badge me-1 mb-1 py-2 px-3" style="background-color: #4361ee; color: #fff;">
                         <i data-feather="book" style="width:12px;height:12px"></i>
                         {{ $s->name }} @if($s->code) ({{ $s->code }}) @endif
                     </span>
