@@ -75,6 +75,10 @@
         }
         .user-info {
             text-align: right;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 2px;
         }
         .user-info .name {
             font-weight: 500;
@@ -365,14 +369,22 @@
         .btn-confirm { background: #1e40af; color: #fff; }
 
         @media (max-width: 768px) {
-            .header { padding: 10px 15px; height: 70px; }
-            .header-title h1 { font-size: 1.1rem; }
-            .main-container { padding: 0 10px; margin-top: -15px; }
-            .exam-card { padding: 15px; }
-            .card-top { flex-direction: column; gap: 15px; }
-            .timer-box { width: 100%; }
+            .header { padding: 10px 15px; height: auto; min-height: 70px; flex-wrap: nowrap; }
+            .header-logo { width: 35px; height: 35px; margin-right: 10px !important; }
+            .header-left img { height: 35px !important; margin-right: 10px !important; }
+            .header-title h1 { font-size: 1rem; }
+            .header-title p { font-size: 0.65rem; }
+            .header-right { gap: 10px; }
+            .user-info .name { font-size: 0.75rem; max-width: 80px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+            .user-icon { width: 35px; height: 35px; }
+            .main-container { padding: 0 10px; margin-top: 10px; }
+            .exam-card { padding: 15px; border-radius: 8px; }
+            .card-top { flex-direction: column; gap: 15px; align-items: flex-start; }
+            .timer-container { width: 100%; display: flex; flex-direction: row; gap: 10px; justify-content: space-between; }
+            .timer-box { width: auto; flex: 1; padding: 10px; font-size: 1.1rem; }
+            .btn-daftar-soal { flex: 1; padding: 10px; font-size: 0.85rem; justify-content: center; }
             .card-footer { flex-wrap: wrap; gap: 10px; }
-            .btn-nav { flex: 1 1 45%; justify-content: center; font-size: 0.8rem; padding: 10px; }
+            .btn-nav { flex: 1 1 45%; justify-content: center; font-size: 0.85rem; padding: 10px; }
         }
         .swal2-popup.rounded-4 .swal2-icon { transform: scale(0.6); margin-top: 0; margin-bottom: 0; }
     </style>
