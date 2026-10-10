@@ -224,6 +224,9 @@ $(document).on("click", ".btn-edit", function() {
 
 // Pindahkan semua modal ke body untuk menghindari masalah position: fixed di dalam container yang ditransform
 $(function() {
+    var viewModal = document.getElementById('viewSiswaModal');
+    if(viewModal) document.body.appendChild(viewModal);
+
     var editModal = document.getElementById('editSiswaModal');
     if(editModal) document.body.appendChild(editModal);
     
@@ -345,6 +348,34 @@ $(function() {
                     <button type="submit" class="btn btn-primary btn-sm">Simpan Peserta</button>
                 </div>
             </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal View Peserta -->
+<div class="modal fade" id="viewSiswaModal" tabindex="-1" aria-labelledby="viewSiswaModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="viewSiswaModalLabel">Detail Data Peserta</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-4">
+                <table class="table table-sm table-borderless">
+                    <tr><td width="35%" class="fw-bold text-muted">No. Ujian</td><td width="5%">:</td><td id="view_nomer_ujian" class="fw-bold"></td></tr>
+                    <tr><td class="fw-bold text-muted">Nama Peserta</td><td>:</td><td id="view_name"></td></tr>
+                    <tr><td class="fw-bold text-muted">Username</td><td>:</td><td id="view_username"></td></tr>
+                    <tr><td class="fw-bold text-muted">Password (Raw)</td><td>:</td><td id="view_password"></td></tr>
+                    <tr><td class="fw-bold text-muted">Grup / Kelas</td><td>:</td><td id="view_group"></td></tr>
+                    <tr><td class="fw-bold text-muted">Jurusan</td><td>:</td><td id="view_jurusan"></td></tr>
+                    <tr><td class="fw-bold text-muted">Agama</td><td>:</td><td id="view_religion"></td></tr>
+                    <tr><td class="fw-bold text-muted">Sesi</td><td>:</td><td id="view_sesi"></td></tr>
+                    <tr><td class="fw-bold text-muted">Status</td><td>:</td><td id="view_status"></td></tr>
+                </table>
+            </div>
+            <div class="modal-footer border-0 pt-0">
+                <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Tutup</button>
+            </div>
         </div>
     </div>
 </div>
