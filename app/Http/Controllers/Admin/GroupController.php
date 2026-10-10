@@ -21,7 +21,7 @@ class GroupController extends Controller
                 ->addColumn('action', function ($row) {
                 $btn = '<div class="text-center">';
                 $btn .= '<a href="' . route('admin.group.show', $row->id) . '" class="btn btn-sm btn-info text-white me-1" title="Detail" data-bs-toggle="tooltip"><i class="align-middle" data-feather="eye"></i></a>';
-                $btn .= '<a href="' . route('admin.group.edit', $row->id) . '" class="btn btn-sm btn-primary me-1" title="Edit" data-bs-toggle="tooltip"><i class="align-middle" data-feather="edit-2"></i></a>';
+                $btn .= '<button type="button" class="btn btn-sm btn-primary me-1 btn-edit" data-id="' . $row->id . '" data-name="' . htmlspecialchars($row->name) . '" title="Edit" data-bs-toggle="tooltip"><i class="align-middle" data-feather="edit-2"></i></button>';
                 $btn .= '<form action="' . route('admin.group.destroy', $row->id) . '" method="POST" class="d-inline">
                                     ' . csrf_field() . '
                                     ' . method_field('DELETE') . '

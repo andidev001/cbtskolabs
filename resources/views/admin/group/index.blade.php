@@ -83,6 +83,32 @@
     </div>
 </div>
 
+<!-- Modal Edit Grup -->
+<div class="modal fade" id="editGroupModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Edit Grup Peserta</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="editGroupForm" method="POST">
+                @csrf
+                @method('PUT')
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Nama Grup / Kelas</label>
+                        <input type="text" class="form-control" name="name" id="edit_name" required placeholder="Misal: X TKJ 1">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Batal</button>
+                    <button type="submit" class="btn btn-primary btn-sm" style="background-color:#3b31c1;border:none;">Simpan Perubahan</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 @push('scripts')
 <script>
 $(function() {
@@ -117,6 +143,23 @@ $(function() {
         }
     });
 
+        $(document).on('click', '.btn-edit', function() {
+        var id = $(this).data('id');
+        var name = $(this).data('name');
+        
+        $('#edit_name').val(name);
+        
+        var updateUrl = "{{ route('admin.group.update', ':id') }}";
+        updateUrl = updateUrl.replace(':id', id);
+        $('#editGroupForm').attr('action', updateUrl);
+        
+        var editModal = new bootstrap.Modal(document.getElementById('editGroupModal'));
+        editModal.show();
+    });
+
+    var editModalEl = document.getElementById('editGroupModal');
+    if(editModalEl) document.body.appendChild(editModalEl);
+    
     var createModal = document.getElementById('createGroupModal');
     if(createModal) {
         document.body.appendChild(createModal);
