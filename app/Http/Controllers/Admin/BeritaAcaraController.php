@@ -48,13 +48,6 @@ class BeritaAcaraController extends Controller
         $assignedGroupIds = $schedule->groups->pluck('id')->toArray();
         $query = Siswa::whereIn('group_id', $assignedGroupIds);
         
-        if ($request->has('ruang') && $request->ruang != '') {
-            $query->where('ruang', $request->ruang);
-        }
-        if ($request->has('sesi') && $request->sesi != '') {
-            $query->where('sesi', $request->sesi);
-        }
-        
         $students = $query->orderBy('name')->get();
         $total_students = $students->count();
         
