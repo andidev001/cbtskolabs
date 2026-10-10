@@ -424,7 +424,6 @@
                                     </div>
 								@endif
                                 <span class="text-dark fw-bold ms-1" style="vertical-align:middle;">{{ auth('admin')->user()->name }}</span>
-                                <span class="text-muted small ms-1" style="vertical-align:middle;">(Admin Sistem)</span>
 							</a>
 							<div class="dropdown-menu dropdown-menu-end">
 								<a class="dropdown-item" href="{{ route('admin.profile.edit') }}"><i class="align-middle me-1" data-feather="user"></i> Edit Profil</a>
