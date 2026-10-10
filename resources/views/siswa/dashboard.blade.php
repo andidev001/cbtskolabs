@@ -516,6 +516,19 @@
                             Selesai pada {{ $exam->end_at->format('d/m/Y') }}
                         @endif
                     </div>
+                    @if(!$isBlocked && $res && $res->finished_at)
+                        @if($exam->show_score)
+                        <div class="detail-item mt-2">
+                            <b>Nilai Akhir: <span class="text-primary" style="font-size: 1.1rem;">{{ $res->score }}</span></b>
+                        </div>
+                        @endif
+                        @if($exam->show_percentage && $res->total_questions > 0)
+                        <div class="detail-item">
+                            <b>Persentase: {{ round(($res->correct_answers / $res->total_questions) * 100) }}%</b> 
+                            <small class="text-muted">({{ $res->correct_answers }} benar dari {{ $res->total_questions }} soal)</small>
+                        </div>
+                        @endif
+                    @endif
                 </div>
             </div>
         </div>

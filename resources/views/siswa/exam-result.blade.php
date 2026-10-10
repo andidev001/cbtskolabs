@@ -97,7 +97,7 @@
 
     <p class="sub">Ujian <strong style="color:#1a4da1;">{{ $schedule->name }}</strong> telah selesai.</p>
 
-    @if($schedule->show_score)
+    @if($schedule->show_percentage)
     <div class="stat-row">
         <div class="stat-item">
             <div class="num" style="color:#34d399;">{{ $correct }}</div>

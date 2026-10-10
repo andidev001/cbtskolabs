@@ -21,7 +21,7 @@ class DashboardController extends Controller
         $siswaSession = \App\Models\ExamSession::where('name', $siswa->sesi)->first();
 
         // Ambil jadwal ujian dengan kolom terpilih saja
-        $schedules = ExamSchedule::select('id', 'name', 'exam_event_id', 'bank_soal_id', 'start_at', 'end_at', 'duration', 'token')
+        $schedules = ExamSchedule::select('id', 'name', 'exam_event_id', 'bank_soal_id', 'start_at', 'end_at', 'duration', 'token', 'show_score', 'show_percentage', 'show_answer', 'enforce_focus')
             ->with([
             'examEvent:id,name',
             'bankSoal:id,name'
