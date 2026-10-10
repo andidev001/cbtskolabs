@@ -58,6 +58,34 @@ class ExamMonitoringController extends Controller
 
             $students = $query->orderBy('name')->get();
             $results = ExamResult::where('exam_schedule_id', $id)->get()->keyBy('siswa_id');
+            
+            // Auto-finish if time is up
+            $now = \Carbon\Carbon::now();
+            foreach ($students as $student) {
+                $res = $results->get($student->id);
+                if ($res && !$res->finished_at && $res->status !== 'blocked') {
+                    $examEnd = \Carbon\Carbon::parse($schedule->end_at);
+                    
+                    $session = \App\Models\ExamSession::where('name', $student->sesi)->first();
+                    if ($session) {
+                        $sessionEnd = \Carbon\Carbon::createFromFormat('H:i:s', $session->end_time);
+                        if ($sessionEnd->lt($examEnd)) {
+                            $examEnd = $sessionEnd;
+                        }
+                    }
+                    
+                    $maxEnd = $res->started_at->copy()->addMinutes($schedule->duration);
+                    if ($maxEnd->lt($examEnd)) {
+                        $examEnd = $maxEnd;
+                    }
+                    
+                    if ($now->gt($examEnd)) {
+                        $newRes = \App\Models\ExamResult::calculateScoreAndFinish($schedule->id, $student->id);
+                        $results->put($student->id, $newRes);
+                    }
+                }
+            }
+
             $answerCounts = ExamAnswer::where('exam_schedule_id', $id)
                 ->select('siswa_id', DB::raw('count(*) as total'))
                 ->groupBy('siswa_id')
