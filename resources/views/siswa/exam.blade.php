@@ -392,9 +392,29 @@
             .btn-nav { flex: 1 1 45%; justify-content: center; font-size: 0.85rem; padding: 10px; }
         }
         .swal2-popup.rounded-4 .swal2-icon { transform: scale(0.6); margin-top: 0; margin-bottom: 0; }
+        
+        #fullscreen-overlay {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            background: rgba(0, 0, 0, 0.95); z-index: 99999;
+            display: flex; align-items: center; justify-content: center;
+        }
+        body.is-fullscreen #fullscreen-overlay {
+            display: none;
+        }
     </style>
 </head>
 <body>
+
+<div id="fullscreen-overlay">
+    <div class="text-center bg-white p-4 rounded shadow" style="max-width: 400px; margin: 0 20px;">
+        <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: #1a4da1; margin-bottom: 20px;"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"></path></svg>
+        <h4 class="mb-3 fw-bold" style="color: #333;">Layar Penuh Diperlukan</h4>
+        <p class="text-muted mb-4" style="font-size: 0.9rem;">Ujian ini harus dikerjakan dalam mode layar penuh (Fullscreen) untuk keamanan dan menghindari perpindahan tab.</p>
+        <button id="btn-fullscreen" class="btn btn-primary w-100" style="background: #1a4da1; border:none; padding: 12px; font-weight: 600;">
+            Masuk Layar Penuh & Lanjut
+        </button>
+    </div>
+</div>
 
 <header class="header">
     <div class="header-left">
@@ -1021,6 +1041,41 @@
     @csrf
 </form>
 
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    const btnFullscreen = document.getElementById('btn-fullscreen');
+    const docElm = document.documentElement;
+    const isFullscreenSupported = docElm.requestFullscreen || docElm.webkitRequestFullscreen || docElm.msRequestFullscreen;
+
+    if (!isFullscreenSupported) {
+        document.body.classList.add('is-fullscreen');
+    } else {
+        btnFullscreen.addEventListener('click', function() {
+            if (docElm.requestFullscreen) {
+                docElm.requestFullscreen();
+            } else if (docElm.webkitRequestFullscreen) {
+                docElm.webkitRequestFullscreen();
+            } else if (docElm.msRequestFullscreen) {
+                docElm.msRequestFullscreen();
+            }
+        });
+        
+        function onFullScreenChange() {
+            let isFullScreen = document.fullscreenElement || document.webkitFullscreenElement || document.msFullscreenElement;
+            if (isFullScreen) {
+                document.body.classList.add('is-fullscreen');
+            } else {
+                document.body.classList.remove('is-fullscreen');
+            }
+        }
+        
+        document.addEventListener("fullscreenchange", onFullScreenChange);
+        document.addEventListener("webkitfullscreenchange", onFullScreenChange);
+        document.addEventListener("msfullscreenchange", onFullScreenChange);
+        onFullScreenChange();
+    }
+});
+</script>
 </body>
 </html>
 
