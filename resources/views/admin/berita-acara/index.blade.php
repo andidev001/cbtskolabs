@@ -78,14 +78,18 @@
 
 <!-- Modal PDF Viewer -->
 <div class="modal fade" id="modalPdfViewer" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-xl">
+    <div class="modal-dialog modal-fullscreen">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title">PDF Berita Acara</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <div class="modal-body p-0">
-                <iframe id="pdfIframe" src="" style="width:100%; height:80vh; border:none;"></iframe>
+            <div class="modal-body p-0 position-relative">
+                <div id="pdfLoading" class="position-absolute top-50 start-50 translate-middle text-center">
+                    <div class="spinner-border text-primary" role="status"></div>
+                    <div class="mt-2 text-muted">Memuat PDF...</div>
+                </div>
+                <iframe id="pdfIframe" src="" style="width:100%; height:100%; min-height:85vh; border:none; position:relative; z-index:2; display:none;" onload="if(this.src && this.src !== window.location.href) { document.getElementById('pdfLoading').style.display='none'; this.style.display='block'; }"></iframe>
             </div>
         </div>
     </div>
@@ -130,11 +134,13 @@ $(function() {
     
     $(document).on('click', '.btn-view-pdf', function() {
         let url = $(this).data('url');
-        $('#pdfIframe').attr('src', url);
+        $('#pdfLoading').show();
+        $('#pdfIframe').hide().attr('src', url);
     });
     
     $('#modalPdfViewer').on('hidden.bs.modal', function () {
-        $('#pdfIframe').attr('src', '');
+        $('#pdfIframe').attr('src', '').hide();
+        $('#pdfLoading').show();
     });
 });
 </script>

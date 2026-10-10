@@ -88,7 +88,7 @@ class BeritaAcaraController extends Controller
 
     public function cetakPdf(Request $request, $id)
     {
-        $schedule = ExamSchedule::with(['bankSoal', 'examEvent', 'groups', 'beritaAcara'])->findOrFail($id);
+        $schedule = ExamSchedule::with(['bankSoal.subject', 'examEvent', 'groups', 'beritaAcara'])->findOrFail($id);
         $ba = $schedule->beritaAcara;
 
         $assignedGroupIds = $schedule->groups->pluck('id')->toArray();
