@@ -5,7 +5,7 @@
 @section('content')
 <div class="row mb-4">
     <div class="col-12">
-        <div class="card bg-primary text-white shadow-sm overflow-hidden" style="border-radius: 10px;">
+        <div class="card text-white shadow-sm overflow-hidden" style="border-radius: 10px; background: linear-gradient(135deg, #4361ee, #3a0ca3);">
             <div class="card-body p-4 position-relative">
                 <div class="row align-items-center">
                     <div class="col-md-8 position-relative z-1">

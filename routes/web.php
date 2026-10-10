@@ -329,6 +329,10 @@ Route::prefix('pengawas')->group(function () {
     Route::middleware('auth:pengawas')->group(function () {
         Route::get('/dashboard', [\App\Http\Controllers\Pengawas\DashboardController::class, 'index'])->name('pengawas.dashboard');
         
+        // Profile
+        Route::get('/profile', [\App\Http\Controllers\Pengawas\ProfileController::class, 'edit'])->name('pengawas.profile.edit');
+        Route::post('/profile', [\App\Http\Controllers\Pengawas\ProfileController::class, 'update'])->name('pengawas.profile.update');
+        
         // Berita Acara
         Route::get('berita-acara', [\App\Http\Controllers\Pengawas\BeritaAcaraController::class, 'index'])->name('pengawas.berita-acara.index');
         Route::post('berita-acara/{schedule}/store/{group}', [\App\Http\Controllers\Pengawas\BeritaAcaraController::class, 'store'])->name('pengawas.berita-acara.store');

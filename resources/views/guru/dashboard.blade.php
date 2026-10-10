@@ -5,11 +5,11 @@
 @section('content')
 @php $guru = auth('guru')->user(); @endphp
 
-<div style="background: linear-gradient(135deg, #1a4da1 0%, #0d3a85 100%); padding: 32px 28px; border-radius: 18px; margin-bottom: 28px; color: white; position: relative; overflow: hidden;">
+<div style="background: linear-gradient(135deg, #4361ee, #3a0ca3); padding: 32px 28px; border-radius: 18px; margin-bottom: 28px; color: white; position: relative; overflow: hidden;">
     <div style="position:absolute;top:-40px;right:-40px;width:200px;height:200px;background:rgba(255,255,255,0.05);border-radius:50%;"></div>
     <div style="position:absolute;bottom:-60px;right:60px;width:150px;height:150px;background:rgba(255,255,255,0.04);border-radius:50%;"></div>
     <div style="position:relative;z-index:1;">
-        <div style="font-size:0.85rem;opacity:0.8;margin-bottom:6px;">Selamat datang kembali 👋</div>
+        <div style="font-size:0.85rem;opacity:0.8;margin-bottom:6px;">Selamat datang kembali,</div>
         <h2 style="font-size:1.8rem;font-weight:800;margin:0 0 6px;">{{ $guru->name }}</h2>
         <div style="font-size:0.9rem;opacity:0.75;">
             @if($guru->nip) NIP: {{ $guru->nip }} &nbsp;|&nbsp; @endif

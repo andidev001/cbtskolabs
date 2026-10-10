@@ -324,19 +324,6 @@
                     </div>
 				</a>
 
-                {{-- Pengawas chip --}}
-                <div class="pengawas-chip">
-                    @if(Auth::guard('pengawas')->user()->photo)
-                        <img src="{{ asset(Auth::guard('pengawas')->user()->photo) }}" alt="" style="width: 36px; height: 36px; border-radius: 50%; object-fit: cover; flex-shrink: 0;" onerror="this.onerror=null; this.outerHTML='<div class=\'avatar\'>{{ strtoupper(substr(Auth::guard('pengawas')->user()->name, 0, 1)) }}</div>';">
-                    @else
-                        <div class="avatar">{{ strtoupper(substr(Auth::guard('pengawas')->user()->name, 0, 1)) }}</div>
-                    @endif
-                    <div class="info">
-                        <div class="name">{{ Auth::guard('pengawas')->user()->name }}</div>
-                        <div class="role">{{ Auth::guard('pengawas')->user()->nip ?: 'Pengawas' }}</div>
-                    </div>
-                </div>
-
 								@php
 					$isUjianActive = request()->routeIs('pengawas.berita-acara.*', 'pengawas.monitoring.*', 'pengawas.exam-status.*');
 				@endphp
@@ -366,6 +353,11 @@
 					</li>
 
 					<li class="sidebar-header">Akun</li>
+                    <li class="sidebar-item {{ request()->routeIs('pengawas.profile.edit') ? 'active' : '' }}">
+						<a class="sidebar-link" href="{{ route('pengawas.profile.edit') }}">
+							<i class="align-middle" data-feather="user"></i> <span class="align-middle">Profil Saya</span>
+						</a>
+					</li>
 					<li class="sidebar-item">
 						<form id="pengawas-logout-form" action="{{ route('pengawas.logout') }}" method="POST" style="display:none">@csrf</form>
 						<a class="sidebar-link" href="#" onclick="confirmLogout(event)">
@@ -385,11 +377,15 @@
 							<a class="nav-link dropdown-toggle d-none d-sm-inline-block" href="#" data-bs-toggle="dropdown">
                                 @if(Auth::guard('pengawas')->user()->photo)
                                     <img src="{{ asset(Auth::guard('pengawas')->user()->photo) }}" alt="" class="avatar img-fluid rounded-circle me-1" style="width: 32px; height: 32px; object-fit: cover;" onerror="this.onerror=null; this.outerHTML='<div class=\'d-inline-flex align-items-center justify-content-center text-white rounded-circle shadow-sm me-1\' style=\'width:32px;height:32px; font-weight:bold; background: linear-gradient(135deg, #4361ee, #3a0ca3); vertical-align:middle;\'>{{ strtoupper(substr(Auth::guard('pengawas')->user()->name, 0, 1)) }}</div>';">
+                                @else
+                                    <div class="d-inline-flex align-items-center justify-content-center text-white rounded-circle shadow-sm me-1" style="width:32px;height:32px; font-weight:bold; background: linear-gradient(135deg, #4361ee, #3a0ca3); vertical-align:middle;">
+                                        {{ strtoupper(substr(Auth::guard('pengawas')->user()->name, 0, 1)) }}
+                                    </div>
                                 @endif
 								<span class="text-dark fw-semibold">{{ Auth::guard('pengawas')->user()->name }}</span>
 							</a>
 							<div class="dropdown-menu dropdown-menu-end">
-                                <a class="dropdown-item" href="#">
+                                <a class="dropdown-item" href="{{ route('pengawas.profile.edit') }}">
                                     <i data-feather="user" class="align-middle me-1"></i> Profil
                                 </a>
                                 <div class="dropdown-divider"></div>

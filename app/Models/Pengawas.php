@@ -16,6 +16,7 @@ class Pengawas extends Authenticatable
         'name',
         'username',
         'password',
+        'photo',
     ];
 
     protected $hidden = [

@@ -324,20 +324,6 @@
                     </div>
 				</a>
 
-                {{-- Guru chip --}}
-                @php $guru = auth('guru')->user(); @endphp
-                <div class="guru-chip">
-                    @if($guru->photo)
-                        <img src="{{ asset($guru->photo) }}" alt="" style="width: 36px; height: 36px; border-radius: 50%; object-fit: cover; flex-shrink: 0;" onerror="this.onerror=null; this.outerHTML='<div class=\'avatar\'>{{ strtoupper(substr($guru->name, 0, 1)) }}</div>';">
-                    @else
-                        <div class="avatar">{{ strtoupper(substr($guru->name, 0, 1)) }}</div>
-                    @endif
-                    <div class="info">
-                        <div class="name">{{ $guru->name }}</div>
-                        <div class="role">{{ $guru->nip ?: 'Guru' }}</div>
-                    </div>
-                </div>
-
 								@php
 					$isUjianActive = request()->routeIs('guru.bank-soal.*', 'guru.exam-schedule.*', 'guru.berita-acara.*', 'guru.daftar-hadir.*', 'guru.exam-event.*', 'guru.exam-status.*', 'guru.monitoring.*');
 					$isPengolahanActive = request()->routeIs('guru.processing.*');
@@ -416,6 +402,7 @@
 		</nav>
 
 		<div class="main">
+            @php $guru = auth('guru')->user(); @endphp
 			<nav class="navbar navbar-expand navbar-light navbar-bg">
 				<a class="sidebar-toggle js-sidebar-toggle"><i class="hamburger align-middle"></i></a>
 				<div class="navbar-collapse collapse">
@@ -424,6 +411,10 @@
 							<a class="nav-link dropdown-toggle d-none d-sm-inline-block" href="#" data-bs-toggle="dropdown">
                                 @if($guru->photo)
                                     <img src="{{ asset($guru->photo) }}" alt="" class="avatar img-fluid rounded-circle me-1" style="width: 32px; height: 32px; object-fit: cover;" onerror="this.onerror=null; this.outerHTML='<div class=\'d-inline-flex align-items-center justify-content-center text-white rounded-circle shadow-sm me-1\' style=\'width:32px;height:32px; font-weight:bold; background: linear-gradient(135deg, #4361ee, #3a0ca3); vertical-align:middle;\'>{{ strtoupper(substr($guru->name, 0, 1)) }}</div>';">
+                                @else
+                                    <div class="d-inline-flex align-items-center justify-content-center text-white rounded-circle shadow-sm me-1" style="width:32px;height:32px; font-weight:bold; background: linear-gradient(135deg, #4361ee, #3a0ca3); vertical-align:middle;">
+                                        {{ strtoupper(substr($guru->name, 0, 1)) }}
+                                    </div>
                                 @endif
 								<span class="text-dark fw-semibold">{{ $guru->name }}</span>
 							</a>
