@@ -165,7 +165,8 @@ Route::prefix('admin')->group(function () {
             // Monitoring (Status Peserta)
                         Route::get('monitoring', [ExamMonitoringController::class, 'index'])->name('admin.monitoring.index');
             Route::get('berita-acara', [\App\Http\Controllers\Admin\BeritaAcaraController::class, 'index'])->name('admin.berita-acara.index');
-            Route::get('berita-acara/{schedule}/cetak', [\App\Http\Controllers\Admin\BeritaAcaraController::class, 'cetak'])->name('admin.berita-acara.cetak');
+            Route::post('berita-acara/{schedule}/store', [\App\Http\Controllers\Admin\BeritaAcaraController::class, 'store'])->name('admin.berita-acara.store');
+            Route::get('berita-acara/{schedule}/cetak-pdf', [\App\Http\Controllers\Admin\BeritaAcaraController::class, 'cetakPdf'])->name('admin.berita-acara.cetak-pdf');
             Route::get('monitoring/{schedule}', [ExamMonitoringController::class, 'show'])->name('admin.monitoring.show');
                         Route::post('monitoring/{schedule}/{siswa}/force-finish', [ExamMonitoringController::class, 'forceFinish'])->name('admin.monitoring.force-finish');
             Route::post('monitoring/{schedule}/{siswa}/reset', [ExamMonitoringController::class , 'resetExam'])->name('admin.monitoring.reset');
@@ -270,7 +271,8 @@ Route::prefix('guru')->group(function () {
             // Monitoring (Status Peserta)
                         Route::get('monitoring', [\App\Http\Controllers\Guru\ExamMonitoringController::class, 'index'])->name('guru.monitoring.index');
             Route::get('berita-acara', [\App\Http\Controllers\Guru\BeritaAcaraController::class, 'index'])->name('guru.berita-acara.index');
-            Route::get('berita-acara/{schedule}/cetak', [\App\Http\Controllers\Guru\BeritaAcaraController::class, 'cetak'])->name('guru.berita-acara.cetak');
+            Route::post('berita-acara/{schedule}/store', [\App\Http\Controllers\Guru\BeritaAcaraController::class, 'store'])->name('guru.berita-acara.store');
+            Route::get('berita-acara/{schedule}/cetak-pdf', [\App\Http\Controllers\Guru\BeritaAcaraController::class, 'cetakPdf'])->name('guru.berita-acara.cetak-pdf');
             Route::get('monitoring/{schedule}', [\App\Http\Controllers\Guru\ExamMonitoringController::class, 'show'])->name('guru.monitoring.show');
                         Route::post('monitoring/{schedule}/{siswa}/force-finish', [\App\Http\Controllers\Guru\ExamMonitoringController::class, 'forceFinish'])->name('guru.monitoring.force-finish');
             Route::post('monitoring/{schedule}/{siswa}/reset', [\App\Http\Controllers\Guru\ExamMonitoringController::class , 'resetExam'])->name('guru.monitoring.reset');

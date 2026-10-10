@@ -75,4 +75,9 @@ class ExamSchedule extends Model
     {
         return $this->belongsToMany(Group::class , 'exam_schedule_groups');
     }
+
+    public function beritaAcara()
+    {
+        return $this->hasOne(BeritaAcara::class);
+    }
 }

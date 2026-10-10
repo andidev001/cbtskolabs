@@ -999,10 +999,11 @@
     }
 
     document.addEventListener('visibilitychange', () => {
-        if (document.visibilityState === 'hidden') kickOut();
+        if (document.visibilityState === 'hidden' && cheatDetectorActive) kickOut();
     });
 
-    window.addEventListener('blur', () => kickOut());
+    // Remove window blur as it triggers too easily on modals
+    // window.addEventListener('blur', () => kickOut());
 
     document.addEventListener('contextmenu', e => e.preventDefault());
     document.onkeydown = function(e) {

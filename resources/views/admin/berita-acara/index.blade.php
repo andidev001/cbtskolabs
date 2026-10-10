@@ -40,37 +40,53 @@
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">Cetak Berita Acara - <span id="modalScheduleName"></span></h5>
+                <h5 class="modal-title">Isi Berita Acara - <span id="modalScheduleName"></span></h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <form id="formBeritaAcara" action="" method="GET" target="_blank">
+            <form id="formBeritaAcara" action="" method="POST">
+                @csrf
                 <div class="modal-body">
                     <div class="mb-3">
                         <label class="form-label">Ruang Ujian</label>
-                        <input type="text" name="ruang" class="form-control" placeholder="Contoh: Ruang 1" required>
+                        <input type="text" name="ruang" id="inputRuang" class="form-control" placeholder="Contoh: Ruang 1" required>
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Sesi Ujian</label>
-                        <input type="text" name="sesi" class="form-control" placeholder="Contoh: Sesi 1" required>
+                        <input type="text" name="sesi" id="inputSesi" class="form-control" placeholder="Contoh: Sesi 1" required>
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Nama Proktor / Teknisi</label>
-                        <input type="text" name="proktor" class="form-control" placeholder="Nama Proktor" required>
+                        <input type="text" name="proktor" id="inputProktor" class="form-control" placeholder="Nama Proktor" required>
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Nama Pengawas</label>
-                        <input type="text" name="pengawas" class="form-control" placeholder="Nama Pengawas" required>
+                        <input type="text" name="pengawas" id="inputPengawas" class="form-control" placeholder="Nama Pengawas" required>
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Catatan Selama Ujian</label>
-                        <textarea name="catatan" class="form-control" rows="3">Ujian berjalan dengan tertib dan lancar.</textarea>
+                        <textarea name="catatan" id="inputCatatan" class="form-control" rows="3">Ujian berjalan dengan tertib dan lancar.</textarea>
                     </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
-                    <button type="submit" class="btn btn-primary">Cetak Sekarang</button>
+                    <button type="submit" class="btn btn-primary">Simpan</button>
                 </div>
             </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal PDF Viewer -->
+<div class="modal fade" id="modalPdfViewer" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">PDF Berita Acara</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-0">
+                <iframe id="pdfIframe" src="" style="width:100%; height:80vh; border:none;"></iframe>
+            </div>
         </div>
     </div>
 </div>
@@ -98,12 +114,27 @@ $(function() {
         }
     });
 
-    $(document).on('click', '.btn-print-ba', function() {
+    $(document).on('click', '.btn-edit-ba', function() {
         let url = $(this).data('url');
         let schedule = $(this).data('schedule');
         
         $('#formBeritaAcara').attr('action', url);
         $('#modalScheduleName').text(schedule);
+        
+        $('#inputRuang').val($(this).data('ruang') || '');
+        $('#inputSesi').val($(this).data('sesi') || '');
+        $('#inputProktor').val($(this).data('proktor') || '');
+        $('#inputPengawas').val($(this).data('pengawas') || '');
+        $('#inputCatatan').val($(this).data('catatan') || 'Ujian berjalan dengan tertib dan lancar.');
+    });
+    
+    $(document).on('click', '.btn-view-pdf', function() {
+        let url = $(this).data('url');
+        $('#pdfIframe').attr('src', url);
+    });
+    
+    $('#modalPdfViewer').on('hidden.bs.modal', function () {
+        $('#pdfIframe').attr('src', '');
     });
 });
 </script>
