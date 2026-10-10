@@ -4,6 +4,11 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>SKOLABS CBT - {{ $schedule->name }}</title>
+    @php
+        $app_logo = \App\Models\Setting::get('app_logo');
+        $favicon = $app_logo ? \Storage::url($app_logo) : asset('logoskolabs.png');
+    @endphp
+    <link rel="shortcut icon" href="{{ $favicon }}" />
     <link href="{{ asset('assets/adminkit/css/app.css') }}" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
     <style>

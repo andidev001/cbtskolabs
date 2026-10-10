@@ -3,7 +3,12 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <title>Sign In Admin | SKOLABS CBT</title>
+    <title>Sign In Guru | SKOLABS CBT</title>
+    @php
+        $app_logo = \App\Models\Setting::get('app_logo');
+        $favicon = $app_logo ? \Storage::url($app_logo) : asset('logoskolabs.png');
+    @endphp
+    <link rel="shortcut icon" href="{{ $favicon }}" />
     
     <link rel="preconnect" href="https://fonts.gstatic.com">
     <link href="{{ asset('assets/adminkit/css/app.css') }}" rel="stylesheet">

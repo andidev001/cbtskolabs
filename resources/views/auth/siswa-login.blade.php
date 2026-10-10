@@ -4,7 +4,11 @@
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<title>Siswa Login | SKOLABS CBT</title>
-	<link rel="shortcut icon" href="{{ asset('assets/adminkit/img/icons/icon-48x48.png') }}" />
+	@php
+		$app_logo = \App\Models\Setting::get('app_logo');
+		$favicon = $app_logo ? \Storage::url($app_logo) : asset('logoskolabs.png');
+	@endphp
+	<link rel="shortcut icon" href="{{ $favicon }}" />
 	<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         body { 
