@@ -50,12 +50,27 @@
         $app_name = \App\Models\Setting::get('nama_instansi', \App\Models\Setting::get('app_name', 'SKOLABS CBT'));
         $app_address = \App\Models\Setting::get('alamat', '______________________________________________________________');
         
-        $ba = $schedule->beritaAcara;
         $ruang = $ba ? $ba->ruang : '_____';
         $sesi = $ba ? $ba->sesi : '_____';
         $proktor = $ba ? $ba->proktor : '_____________________';
         $pengawas = $ba ? $ba->pengawas : '_____________________';
         $catatan = $ba ? $ba->catatan : 'Ujian berjalan dengan tertib dan lancar.';
+    @endphp
+
+    @php
+        $group_students = $students;
+        $total_students = $group_students->count();
+        
+        $total_present = 0;
+        $absent_students = [];
+        foreach ($group_students as $student) {
+            if ($results->has($student->id)) {
+                $total_present++;
+            } else {
+                $absent_students[] = $student->name;
+            }
+        }
+        $total_absent = $total_students - $total_present;
     @endphp
 
     @if($kop_surat)
@@ -87,7 +102,7 @@
     <table class="content-table">
         <tr><td>Nama Ujian</td><td>:</td><td class="text-bold">{{ $schedule->name }}</td></tr>
         <tr><td>Event Ujian</td><td>:</td><td>{{ $schedule->examEvent->name ?? '-' }}</td></tr>
-        <tr><td>Kelas/Grup</td><td>:</td><td>{{ $schedule->groups->pluck('name')->join(', ') }}</td></tr>
+        <tr><td>Kelas/Grup</td><td>:</td><td>{{ $groups->first()->name }}</td></tr>
         <tr><td>Ruang / Sesi</td><td>:</td><td>{{ $ruang }} / {{ $sesi }}</td></tr>
         <tr><td>Jumlah Peserta Terdaftar</td><td>:</td><td>{{ $total_students }} orang</td></tr>
         <tr><td>Jumlah Peserta Hadir</td><td>:</td><td>{{ $total_present }} orang</td></tr>
@@ -122,4 +137,3 @@
     </table>
 </body>
 </html>
-

@@ -253,7 +253,7 @@
                 </div>
 
 								@php
-					$isUjianActive = request()->routeIs('guru.bank-soal.*', 'guru.exam-schedule.*', 'guru.berita-acara.*', 'guru.exam-event.*', 'guru.exam-status.*', 'guru.monitoring.*');
+					$isUjianActive = request()->routeIs('guru.bank-soal.*', 'guru.exam-schedule.*', 'guru.berita-acara.*', 'guru.daftar-hadir.*', 'guru.exam-event.*', 'guru.exam-status.*', 'guru.monitoring.*');
 					$isPengolahanActive = request()->routeIs('guru.processing.*');
 				@endphp
 				<ul class="sidebar-nav" id="sidebar-nav">
@@ -280,6 +280,9 @@
 							</li>
 							<li class="sidebar-item {{ request()->routeIs('guru.berita-acara.*') ? 'active' : '' }}">
 								<a class="sidebar-link" href="{{ route('guru.berita-acara.index') }}"><i class="align-middle" data-feather="printer"></i> <span class="align-middle">Berita Acara</span></a>
+							</li>
+							<li class="sidebar-item {{ request()->routeIs('guru.daftar-hadir.*') ? 'active' : '' }}">
+								<a class="sidebar-link" href="{{ route('guru.daftar-hadir.index') }}"><i class="align-middle" data-feather="users"></i> <span class="align-middle">Daftar Hadir</span></a>
 							</li>
 							<li class="sidebar-item {{ request()->routeIs('guru.exam-status.*') ? 'active' : '' }}">
 								<a class="sidebar-link" href="{{ route('guru.exam-status.index') }}"><i class="align-middle" data-feather="activity"></i> <span class="align-middle">Status Ujian</span></a>
@@ -475,6 +478,7 @@
         });
     </script>
     
+    @stack('modals')
     @stack('scripts')
 </body>
 </html>

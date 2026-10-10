@@ -21,6 +21,7 @@
                                 <th width="50" class="text-center">No</th>
                                 <th>Nama Ujian</th>
                                 <th>Event</th>
+                                <th class="text-center">Kelas/Grup</th>
                                 <th class="text-center">Bank Soal</th>
                                 <th width="150" class="text-center">Aksi</th>
                             </tr>
@@ -108,6 +109,7 @@ $(function() {
             {data: 'DT_RowIndex', name: 'DT_RowIndex', orderable: false, searchable: false, className: 'text-center'},
             {data: 'name', name: 'name', className: 'fw-bold text-primary'},
             {data: 'event_name', name: 'examEvent.name'},
+            {data: 'group_name', name: 'group_name', className: 'text-center'},
             {data: 'bank_soal_name', name: 'bankSoal.name', className: 'text-center small text-muted'},
             {data: 'action', name: 'action', orderable: false, searchable: false}
         ],

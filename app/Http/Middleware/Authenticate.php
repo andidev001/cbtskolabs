@@ -24,6 +24,10 @@ class Authenticate extends Middleware
             return route('guru.login');
         }
 
+        if ($request->is('pengawas') || $request->is('pengawas/*')) {
+            return route('pengawas.login');
+        }
+
         if ($request->is('siswa') || $request->is('siswa/*')) {
             return route('siswa.login');
         }

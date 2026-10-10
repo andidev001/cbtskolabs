@@ -55,6 +55,11 @@ return [
             'driver' => 'session',
             'provider' => 'siswas',
         ],
+
+        'pengawas' => [
+            'driver' => 'session',
+            'provider' => 'pengawas',
+        ],
     ],
 
     /*
@@ -93,6 +98,11 @@ return [
         'siswas' => [
             'driver' => 'eloquent',
             'model' => App\Models\Siswa::class ,
+        ],
+
+        'pengawas' => [
+            'driver' => 'eloquent',
+            'model' => App\Models\Pengawas::class ,
         ],
 
         // 'users' => [

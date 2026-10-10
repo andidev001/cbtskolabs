@@ -11,6 +11,7 @@ class BeritaAcara extends Model
 
     protected $fillable = [
         'exam_schedule_id',
+        'group_id',
         'ruang',
         'sesi',
         'proktor',
