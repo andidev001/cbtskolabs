@@ -317,7 +317,7 @@
 		<nav id="sidebar" class="sidebar js-sidebar">
 			<div class="sidebar-content js-simplebar">
 				<a class="sidebar-brand d-flex align-items-center" href="{{ route('pengawas.dashboard') }}" style="padding:1.5rem 1rem !important;">
-					<img src="{{  }}" alt="Logo" style="height: 38px; margin-right: 12px; border-radius: 8px;">
+					<img src="{{ $favicon }}" alt="Logo" style="height: 38px; margin-right: 12px; border-radius: 8px;">
 					<div style="line-height:1.2;">
                         <div style="font-size:1.2rem; font-weight:800; color:#1e293b; letter-spacing:-0.5px;">SKOLABS CBT</div>
                         <div style="font-size:0.75rem; font-weight:600; color:#4361ee;">PENGAWAS</div>
