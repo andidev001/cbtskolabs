@@ -128,7 +128,8 @@
         body > .modal .modal-title { margin: 0; font-weight: 700; font-size: 1.1rem; color: #333; }
         body > .modal .btn-close { background: transparent; border: 0; font-size: 1.5rem; line-height: 1; color: #999; cursor: pointer; padding: 0; margin: 0; transition: color 0.2s; }
         body > .modal .btn-close:hover { color: #333; }
-        body > .modal .btn-close::before { content: '\2715'; }
+        body > .modal .btn-close.btn-close-white, body > .modal .modal-header.bg-primary .btn-close { color: #fff !important; }
+        body > .modal .btn-close::before { content: '✕'; }
         body > .modal .modal-body { padding: 1.5rem; max-height: calc(100vh - 180px); overflow-y: auto; }
         body > .modal .modal-footer { display: flex; justify-content: flex-end; align-items: center; gap: 0.5rem; padding: 1rem 1.5rem; border-top: 1px solid #f0f2f5; background-color: #fcfcfc; }
 </style>
@@ -194,7 +195,8 @@
         body > .modal .modal-title { margin: 0; font-weight: 700; font-size: 1.1rem; color: #333; }
         body > .modal .btn-close { background: transparent; border: 0; font-size: 1.5rem; line-height: 1; color: #999; cursor: pointer; padding: 0; margin: 0; transition: color 0.2s; }
         body > .modal .btn-close:hover { color: #333; }
-        body > .modal .btn-close::before { content: '\2715'; }
+        body > .modal .btn-close.btn-close-white, body > .modal .modal-header.bg-primary .btn-close { color: #fff !important; }
+        body > .modal .btn-close::before { content: '✕'; }
         body > .modal .modal-body { padding: 1.5rem; max-height: calc(100vh - 180px); overflow-y: auto; }
         /* Button overrides for elegant look */
         .btn-primary { background-color: #4361ee !important; border-color: #4361ee !important; color: #fff !important; }
@@ -288,7 +290,8 @@
         body > .modal .modal-title { margin: 0; font-weight: 700; font-size: 1.1rem; color: #333; }
         body > .modal .btn-close { background: transparent; border: 0; font-size: 1.5rem; line-height: 1; color: #999; cursor: pointer; padding: 0; margin: 0; transition: color 0.2s; }
         body > .modal .btn-close:hover { color: #333; }
-        body > .modal .btn-close::before { content: '\2715'; }
+        body > .modal .btn-close.btn-close-white, body > .modal .modal-header.bg-primary .btn-close { color: #fff !important; }
+        body > .modal .btn-close::before { content: '✕'; }
         body > .modal .modal-body { padding: 1.5rem; max-height: calc(100vh - 180px); overflow-y: auto; }
         body > .modal .modal-footer { display: flex; justify-content: flex-end; align-items: center; gap: 0.5rem; padding: 1rem 1.5rem; border-top: 1px solid #f0f2f5; background-color: #fcfcfc; }
 </style>
