@@ -81,10 +81,14 @@
                             </div>
                             <small class="text-muted mt-1 d-block">Isi kolom kedua dengan angka (misal: 15) untuk token dinamis.</small>
                         </div>
-                        <div class="col-md-6 d-flex align-items-end">
+                        <div class="col-md-6 d-flex align-items-end gap-4">
                             <div class="form-check form-switch mb-2">
                                 <input class="form-check-input" type="checkbox" name="is_active" id="is_active" value="1" checked>
                                 <label class="form-check-label fw-bold" for="is_active">Aktifkan Sekarang</label>
+                            </div>
+                            <div class="form-check form-switch mb-2">
+                                <input class="form-check-input" type="checkbox" name="randomize_questions" id="randomize_questions" value="1" checked>
+                                <label class="form-check-label fw-bold" for="randomize_questions">Acak Soal</label>
                             </div>
                         </div>
                     </div>

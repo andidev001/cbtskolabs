@@ -135,7 +135,11 @@ class ExamController extends Controller
         // Ambil urutan soal per siswa (urutan tetap tersimpan di session)
         $sessionQKey = "exam_questions_{$scheduleId}_{$siswa->id}";
         if (!session()->has($sessionQKey)) {
-            $ids = $bankQuestions->keys()->shuffle()->values()->toArray();
+            if ($schedule->randomize_questions ?? true) {
+                $ids = $bankQuestions->keys()->shuffle()->values()->toArray();
+            } else {
+                $ids = $bankQuestions->keys()->values()->toArray();
+            }
             session([$sessionQKey => $ids]);
         }
         $questionIds = session($sessionQKey);

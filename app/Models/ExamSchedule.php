@@ -23,7 +23,8 @@ class ExamSchedule extends Model
         'show_score',
         'show_percentage',
         'show_answer',
-        'enforce_focus'
+        'enforce_focus',
+        'randomize_questions',
     ];
 
     protected $casts = [
@@ -35,6 +36,7 @@ class ExamSchedule extends Model
         'show_percentage' => 'boolean',
         'show_answer' => 'boolean',
         'enforce_focus' => 'boolean',
+        'randomize_questions' => 'boolean',
     ];
 
     /**
