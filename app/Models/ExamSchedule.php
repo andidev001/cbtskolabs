@@ -25,6 +25,7 @@ class ExamSchedule extends Model
         'show_answer',
         'enforce_focus',
         'randomize_questions',
+        'randomize_options',
     ];
 
     protected $casts = [
@@ -37,6 +38,7 @@ class ExamSchedule extends Model
         'show_answer' => 'boolean',
         'enforce_focus' => 'boolean',
         'randomize_questions' => 'boolean',
+        'randomize_options' => 'boolean',
     ];
 
     /**

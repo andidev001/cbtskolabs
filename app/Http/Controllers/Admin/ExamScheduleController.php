@@ -82,6 +82,7 @@ class ExamScheduleController extends Controller
         $data = $request->all();
         $data['is_active'] = $request->has('is_active') ? 1 : 0;
         $data['randomize_questions'] = $request->has('randomize_questions') ? 1 : 0;
+        $data['randomize_options'] = $request->has('randomize_options') ? 1 : 0;
 
         // Generate a random token if not provided or just keep it null?
         // Usually, CBT tokens are manually generated or assigned.
@@ -115,6 +116,7 @@ class ExamScheduleController extends Controller
         $data = $request->all();
         $data['is_active'] = $request->has('is_active') ? 1 : 0;
         $data['randomize_questions'] = $request->has('randomize_questions') ? 1 : 0;
+        $data['randomize_options'] = $request->has('randomize_options') ? 1 : 0;
 
         $examSchedule->update($data);
 

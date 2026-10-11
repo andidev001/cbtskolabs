@@ -724,11 +724,12 @@
         const curAns = data.current_answer;
 
         if (['PG', 'LS', 'BS', 'ST'].includes(qType)) {
-            let opts = qType === 'BS' || qType === 'ST' ? ['a', 'b'] : ['a', 'b', 'c', 'd', 'e'];
-            opts.forEach(opt => {
-                const text = data.question[`option_${opt}`];
-                if (text) {
-                    const key = opt.toUpperCase();
+            const list = data.question.options_list || [];
+            if (list.length > 0) {
+                list.forEach(item => {
+                    const label = item.label;
+                    const key = item.key;
+                    const text = item.text;
                     const isSelected = curAns === key;
                     const optionDiv = document.createElement('div');
                     optionDiv.className = `option-item ${isSelected ? 'selected' : ''}`;
@@ -740,18 +741,43 @@
                     };
                     optionDiv.innerHTML = `
                         <input type="radio" name="answer" value="${key}" id="radio_${key}" ${isSelected ? 'checked' : ''} style="display:none;">
-                        <div class="option-circle">${key}</div>
+                        <div class="option-circle">${label}</div>
                         <div class="option-text">${text}</div>
                     `;
                     container.appendChild(optionDiv);
-                }
-            });
+                });
+            } else {
+                let opts = qType === 'BS' || qType === 'ST' ? ['a', 'b'] : ['a', 'b', 'c', 'd', 'e'];
+                opts.forEach(opt => {
+                    const text = data.question[`option_${opt}`];
+                    if (text) {
+                        const key = opt.toUpperCase();
+                        const isSelected = curAns === key;
+                        const optionDiv = document.createElement('div');
+                        optionDiv.className = `option-item ${isSelected ? 'selected' : ''}`;
+                        optionDiv.onclick = () => {
+                            document.querySelectorAll('.option-item').forEach(el => el.classList.remove('selected'));
+                            optionDiv.classList.add('selected');
+                            const r = document.getElementById('radio_' + key);
+                            if(r) { r.checked = true; saveAnswer(); }
+                        };
+                        optionDiv.innerHTML = `
+                            <input type="radio" name="answer" value="${key}" id="radio_${key}" ${isSelected ? 'checked' : ''} style="display:none;">
+                            <div class="option-circle">${key}</div>
+                            <div class="option-text">${text}</div>
+                        `;
+                        container.appendChild(optionDiv);
+                    }
+                });
+            }
         } else if (qType === 'PGK') {
             let ansArr = Array.isArray(curAns) ? curAns : [];
-            ['a', 'b', 'c', 'd', 'e'].forEach(opt => {
-                const text = data.question[`option_${opt}`];
-                if (text) {
-                    const key = opt.toUpperCase();
+            const list = data.question.options_list || [];
+            if (list.length > 0) {
+                list.forEach(item => {
+                    const label = item.label;
+                    const key = item.key;
+                    const text = item.text;
                     const isSelected = ansArr.includes(key);
                     const optionDiv = document.createElement('div');
                     optionDiv.className = `option-item ${isSelected ? 'selected' : ''}`;
@@ -767,12 +793,38 @@
                     };
                     optionDiv.innerHTML = `
                         <input type="checkbox" name="answer[]" value="${key}" id="chk_${key}" ${isSelected ? 'checked' : ''} style="display:none;">
-                        <div class="option-circle" style="border-radius:4px;">${key}</div>
+                        <div class="option-circle" style="border-radius:4px;">${label}</div>
                         <div class="option-text">${text}</div>
                     `;
                     container.appendChild(optionDiv);
-                }
-            });
+                });
+            } else {
+                ['a', 'b', 'c', 'd', 'e'].forEach(opt => {
+                    const text = data.question[`option_${opt}`];
+                    if (text) {
+                        const key = opt.toUpperCase();
+                        const isSelected = ansArr.includes(key);
+                        const optionDiv = document.createElement('div');
+                        optionDiv.className = `option-item ${isSelected ? 'selected' : ''}`;
+                        optionDiv.onclick = (e) => {
+                            if(e.target.tagName !== 'INPUT') {
+                                const cb = document.getElementById('chk_' + key);
+                                cb.checked = !cb.checked;
+                            }
+                            const cb = document.getElementById('chk_' + key);
+                            if(cb.checked) optionDiv.classList.add('selected');
+                            else optionDiv.classList.remove('selected');
+                            saveAnswer();
+                        };
+                        optionDiv.innerHTML = `
+                            <input type="checkbox" name="answer[]" value="${key}" id="chk_${key}" ${isSelected ? 'checked' : ''} style="display:none;">
+                            <div class="option-circle" style="border-radius:4px;">${key}</div>
+                            <div class="option-text">${text}</div>
+                        `;
+                        container.appendChild(optionDiv);
+                    }
+                });
+            }
         } else if (qType === 'MJ') {
             const left = data.question.mj_left || [];
             const right = data.question.mj_right || [];

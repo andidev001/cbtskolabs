@@ -215,7 +215,54 @@ class ExamController extends Controller
             }
             unset($question->complex_options);
         }
-        
+
+        // Siapkan opsi terformat dengan dukungan acak pilihan jawaban (randomize_options)
+        $optionsList = [];
+        if (in_array($question->type, ['PG', 'LS', 'PGK'])) {
+            $optKeys = ['a', 'b', 'c', 'd', 'e'];
+            $availableKeys = [];
+            foreach ($optKeys as $k) {
+                if (!is_null($question->{"option_$k"}) && $question->{"option_$k"} !== '') {
+                    $availableKeys[] = $k;
+                }
+            }
+
+            $orderedKeys = $availableKeys;
+            if ($schedule->randomize_options ?? true) {
+                // Seeded deterministic Fisher-Yates shuffle per siswa dan soal
+                $seed = crc32("opt_{$scheduleId}_{$siswa->id}_{$question->id}");
+                mt_srand($seed);
+                for ($i = count($orderedKeys) - 1; $i > 0; $i--) {
+                    $j = mt_rand(0, $i);
+                    $tmp = $orderedKeys[$i];
+                    $orderedKeys[$i] = $orderedKeys[$j];
+                    $orderedKeys[$j] = $tmp;
+                }
+                mt_srand();
+            }
+
+            $displayLetters = ['A', 'B', 'C', 'D', 'E'];
+            foreach ($orderedKeys as $idx => $origK) {
+                $optionsList[] = [
+                    'label' => $displayLetters[$idx] ?? strtoupper($origK),
+                    'key' => strtoupper($origK),
+                    'text' => $question->{"option_$origK"}
+                ];
+            }
+        } elseif (in_array($question->type, ['BS', 'ST'])) {
+            $displayLetters = ['A', 'B'];
+            foreach (['a', 'b'] as $idx => $origK) {
+                if (!is_null($question->{"option_$origK"}) && $question->{"option_$origK"} !== '') {
+                    $optionsList[] = [
+                        'label' => $displayLetters[$idx] ?? strtoupper($origK),
+                        'key' => strtoupper($origK),
+                        'text' => $question->{"option_$origK"}
+                    ];
+                }
+            }
+        }
+        $question->options_list = $optionsList;
+
         // Ensure answer string is parsed properly for frontend
         $currAns = $answers->get($questionId)?->answer;
         if (in_array($question->type, ['PGK', 'MT', 'MJ'])) {

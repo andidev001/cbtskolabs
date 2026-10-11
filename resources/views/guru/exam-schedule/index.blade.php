@@ -89,14 +89,18 @@
                             <label class="form-label text-muted small fw-bold">Token (Opsional)</label>
                             <input type="text" name="token" class="form-control" placeholder="Kosongkan jika tidak pakai token">
                         </div>
-                        <div class="col-md-6 d-flex align-items-end gap-3">
+                        <div class="col-md-6 d-flex align-items-end gap-3 flex-wrap">
                             <div class="form-check form-switch mb-2">
                                 <input class="form-check-input" type="checkbox" name="is_active" id="is_active" value="1" checked>
-                                <label class="form-check-label fw-bold" for="is_active">Aktifkan Sekarang</label>
+                                <label class="form-check-label fw-bold" for="is_active">Aktif</label>
                             </div>
                             <div class="form-check form-switch mb-2">
                                 <input class="form-check-input" type="checkbox" name="randomize_questions" id="randomize_questions" value="1" checked>
                                 <label class="form-check-label fw-bold" for="randomize_questions">Acak Soal</label>
+                            </div>
+                            <div class="form-check form-switch mb-2">
+                                <input class="form-check-input" type="checkbox" name="randomize_options" id="randomize_options" value="1" checked>
+                                <label class="form-check-label fw-bold" for="randomize_options">Acak Jawaban</label>
                             </div>
                         </div>
                     </div>
@@ -165,14 +169,18 @@
                             <label class="form-label text-muted small fw-bold">Token (Opsional)</label>
                             <input type="text" name="token" id="edit_token" class="form-control" placeholder="Kosongkan jika tidak pakai token">
                         </div>
-                        <div class="col-md-6 d-flex align-items-end gap-3">
+                        <div class="col-md-6 d-flex align-items-end gap-3 flex-wrap">
                             <div class="form-check form-switch mb-2">
                                 <input class="form-check-input" type="checkbox" name="is_active" id="edit_is_active" value="1">
-                                <label class="form-check-label fw-bold" for="edit_is_active">Aktifkan Sekarang</label>
+                                <label class="form-check-label fw-bold" for="edit_is_active">Aktif</label>
                             </div>
                             <div class="form-check form-switch mb-2">
                                 <input class="form-check-input" type="checkbox" name="randomize_questions" id="edit_randomize_questions" value="1">
                                 <label class="form-check-label fw-bold" for="edit_randomize_questions">Acak Soal</label>
+                            </div>
+                            <div class="form-check form-switch mb-2">
+                                <input class="form-check-input" type="checkbox" name="randomize_options" id="edit_randomize_options" value="1">
+                                <label class="form-check-label fw-bold" for="edit_randomize_options">Acak Jawaban</label>
                             </div>
                         </div>
                     </div>
@@ -232,6 +240,7 @@ $(function() {
         let duration = $(this).data('duration');
         let is_active = $(this).data('is_active');
         let randomize_questions = $(this).data('randomize_questions');
+        let randomize_options = $(this).data('randomize_options');
         let token = $(this).data('token');
 
         let updateUrl = "{{ route('guru.exam-schedule.update', ':id') }}".replace(':id', id);
@@ -254,6 +263,12 @@ $(function() {
             $('#edit_randomize_questions').prop('checked', true);
         } else {
             $('#edit_randomize_questions').prop('checked', false);
+        }
+
+        if(randomize_options == 1 || randomize_options === undefined) {
+            $('#edit_randomize_options').prop('checked', true);
+        } else {
+            $('#edit_randomize_options').prop('checked', false);
         }
 
         var editModal = new bootstrap.Modal(document.getElementById('editModal'));
