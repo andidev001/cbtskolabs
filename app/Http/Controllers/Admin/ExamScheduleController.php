@@ -44,6 +44,8 @@ class ExamScheduleController extends Controller
                     data-end_at="' . $row->end_at->format('Y-m-d\TH:i') . '"
                     data-duration="' . $row->duration . '"
                     data-is_active="' . $row->is_active . '"
+                    data-randomize_questions="' . ($row->randomize_questions ? '1' : '0') . '"
+                    data-randomize_options="' . ($row->randomize_options ? '1' : '0') . '"
                 ><i class="align-middle" data-feather="edit-2"></i></button>';
                 $btn .= '<form action="' . route('admin.exam-schedule.destroy', $row->id) . '" method="POST" class="d-inline">
                                     ' . csrf_field() . '
