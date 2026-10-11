@@ -78,6 +78,12 @@
     <div class="card-header bg-white fw-semibold d-flex justify-content-between align-items-center">
         <span>Daftar Nilai Siswa</span>
         <div class="d-flex flex-wrap align-items-center gap-2">
+            <form action="{{ route('guru.processing.hasil.recalculate', $schedule->id) }}" method="POST" id="form-recalculate" class="d-inline">
+                @csrf
+                <button type="button" class="btn btn-sm btn-outline-primary" id="btn-recalculate" onclick="if(confirm('Kalkulasi ulang nilai semua siswa yang telah selesai ujian ini?')) this.form.submit();">
+                    <i data-feather="refresh-cw" style="width: 14px; height: 14px;"></i> Hitung Ulang Nilai
+                </button>
+            </form>
             <a href="{{ route('guru.processing.hasil.export-excel', $schedule->id) }}" id="btn-export-excel" class="btn btn-sm btn-outline-success">
                 <i data-feather="file-text" style="width: 14px; height: 14px;"></i> Export Excel
             </a>

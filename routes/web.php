@@ -184,6 +184,7 @@ Route::prefix('admin')->group(function () {
             Route::get('pengolahan/hasil/{schedule}', [ExamProcessingController::class , 'hasilShow'])->name('admin.processing.hasil.show');
             Route::delete('pengolahan/hasil/{id}', [ExamProcessingController::class , 'hasilDestroy'])->name('admin.processing.hasil.destroy');
             Route::post('pengolahan/hasil/{id}/reset', [ExamProcessingController::class , 'hasilReset'])->name('admin.processing.hasil.reset');
+            Route::post('pengolahan/hasil/{id}/recalculate', [ExamProcessingController::class , 'hasilRecalculateAll'])->name('admin.processing.hasil.recalculate');
             Route::get('pengolahan/hasil/{id}/export-excel', [ExamProcessingController::class , 'hasilExportExcel'])->name('admin.processing.hasil.export-excel');
             Route::get('pengolahan/leger', [ExamProcessingController::class , 'legerIndex'])->name('admin.processing.leger.index');
             Route::get('pengolahan/leger/export-excel', [ExamProcessingController::class , 'legerExportExcel'])->name('admin.processing.leger.export-excel');
@@ -259,6 +260,7 @@ Route::prefix('guru')->group(function () {
             Route::post('processing/koreksi/{schedule}/siswa/{siswa}', [GuruProcessingController::class , 'koreksiStore'])->name('guru.processing.koreksi.store');
             Route::get('processing/hasil', [GuruProcessingController::class , 'hasilIndex'])->name('guru.processing.hasil.index');
             Route::get('processing/hasil/{schedule}', [GuruProcessingController::class , 'hasilShow'])->name('guru.processing.hasil.show');
+            Route::post('processing/hasil/{id}/recalculate', [GuruProcessingController::class , 'hasilRecalculateAll'])->name('guru.processing.hasil.recalculate');
             Route::get('processing/hasil/{id}/export-excel', [GuruProcessingController::class, 'hasilExportExcel'])->name('guru.processing.hasil.export-excel');
 
 

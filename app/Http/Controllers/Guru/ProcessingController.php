@@ -243,6 +243,17 @@ class ProcessingController extends Controller
         return \Maatwebsite\Excel\Facades\Excel::download(new \App\Exports\ExamResultExport($scheduleId, $request->group_id), $fileName);
     }
 
+    public function hasilRecalculateAll($scheduleId)
+    {
+        $schedule = $this->mySchedules()->findOrFail($scheduleId);
+        $results = ExamResult::where('exam_schedule_id', $schedule->id)->whereNotNull('finished_at')->get();
+        foreach ($results as $res) {
+            \App\Jobs\CalculateExamScoreJob::dispatch($schedule->id, $res->siswa_id);
+        }
+
+        return back()->with('success', 'Kalkulasi ulang nilai untuk ' . $results->count() . ' siswa berhasil dimasukkan ke antrean background.');
+    }
+
     /** ── Leger Nilai ── */
     public function legerIndex(Request $request)
     {

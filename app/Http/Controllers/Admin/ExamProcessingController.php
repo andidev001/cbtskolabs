@@ -283,6 +283,16 @@ class ExamProcessingController extends Controller
         return back()->with('success', 'Semua hasil ujian pada jadwal ini berhasil dihapus/direset.');
     }
 
+    public function hasilRecalculateAll($scheduleId)
+    {
+        $results = ExamResult::where('exam_schedule_id', $scheduleId)->whereNotNull('finished_at')->get();
+        foreach ($results as $res) {
+            \App\Jobs\CalculateExamScoreJob::dispatch($scheduleId, $res->siswa_id);
+        }
+
+        return back()->with('success', 'Kalkulasi ulang nilai untuk ' . $results->count() . ' siswa berhasil dimasukkan ke antrean background.');
+    }
+
     public function hasilExportExcel(Request $request, $scheduleId)
     {
         $schedule = ExamSchedule::findOrFail($scheduleId);

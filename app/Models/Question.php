@@ -26,6 +26,17 @@ class Question extends Model
         'layout'
     ];
 
+    protected static function booted()
+    {
+        static::saved(function ($question) {
+            \Illuminate\Support\Facades\Cache::forget("bank_soal_questions_{$question->bank_soal_id}");
+        });
+
+        static::deleted(function ($question) {
+            \Illuminate\Support\Facades\Cache::forget("bank_soal_questions_{$question->bank_soal_id}");
+        });
+    }
+
     public function bankSoal()
     {
         return $this->belongsTo(BankSoal::class);

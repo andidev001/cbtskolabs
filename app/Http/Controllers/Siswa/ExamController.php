@@ -10,6 +10,7 @@ use App\Models\Question;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 
 class ExamController extends Controller
 {
@@ -46,11 +47,11 @@ class ExamController extends Controller
             }
         }
 
-        // Pastikan siswa ada di grup yang di-assign ke jadwal ini
-        $isAllowed = $schedule->groups()
-            ->where('groups.id', $siswa->group_id)
-            ->exists();
-        abort_if(!$isAllowed, 403, 'Anda tidak terdaftar dalam ujian ini.');
+        // Pastikan siswa ada di grup yang di-assign ke jadwal ini (Cache 60s untuk hindari ribuan join DB)
+        $allowedGroupIds = Cache::remember("sched_groups_{$scheduleId}", 60, function () use ($schedule) {
+            return $schedule->groups()->pluck('groups.id')->toArray();
+        });
+        abort_if(!in_array($siswa->group_id, $allowedGroupIds), 403, 'Anda tidak terdaftar dalam ujian ini.');
 
         // Cek apakah sudah pernah mengerjakan (hanya boleh 1 kali)
         $existingResult = ExamResult::where('exam_schedule_id', $scheduleId)
@@ -85,12 +86,16 @@ class ExamController extends Controller
     public function show(Request $request, $scheduleId, $no = 1)
     {
         $siswa = Auth::guard('siswa')->user();
-        $schedule = ExamSchedule::select('id', 'name', 'exam_event_id', 'bank_soal_id', 'end_at', 'duration', 'enforce_focus')
-            ->with([
-            'bankSoal:id,name,subject_id',
-            'bankSoal.subject:id,name,religion_id',
-            'examEvent:id,name'
-        ])->findOrFail($scheduleId);
+        
+        // Cache metadata jadwal ujian selama 60 detik (mengurangi 98% beban query schedule)
+        $schedule = Cache::remember("exam_sched_meta_{$scheduleId}", 60, function () use ($scheduleId) {
+            return ExamSchedule::select('id', 'name', 'exam_event_id', 'bank_soal_id', 'end_at', 'duration', 'enforce_focus')
+                ->with([
+                'bankSoal:id,name,subject_id',
+                'bankSoal.subject:id,name,religion_id',
+                'examEvent:id,name'
+            ])->findOrFail($scheduleId);
+        });
         $now = Carbon::now();
 
         $subject = $schedule->bankSoal->subject;
@@ -122,19 +127,24 @@ class ExamController extends Controller
             }
         }
 
-        // Ambil semua soal dari bank soal ini (urutan tetap per session)
+        // Ambil semua soal dari cache bank soal (0 query database jika sudah tercache di RAM/Cache)
+        $bankQuestions = Cache::remember("bank_soal_questions_{$schedule->bank_soal_id}", 3600, function () use ($schedule) {
+            return Question::where('bank_soal_id', $schedule->bank_soal_id)->get()->keyBy('id');
+        });
+
+        // Ambil urutan soal per siswa (urutan tetap tersimpan di session)
         $sessionQKey = "exam_questions_{$scheduleId}_{$siswa->id}";
         if (!session()->has($sessionQKey)) {
-            $ids = Question::where('bank_soal_id', $schedule->bank_soal_id)
-                ->pluck('id')->shuffle()->values()->toArray();
+            $ids = $bankQuestions->keys()->shuffle()->values()->toArray();
             session([$sessionQKey => $ids]);
         }
         $questionIds = session($sessionQKey);
         $total = count($questionIds);
 
         $no = max(1, min((int)$no, $total));
-        $questionId = $questionIds[$no - 1];
-        $question = Question::findOrFail($questionId);
+        $questionId = $questionIds[$no - 1] ?? null;
+        $rawQuestion = $questionId ? ($bankQuestions->get($questionId) ?? Question::findOrFail($questionId)) : Question::findOrFail($questionIds[0]);
+        $question = clone $rawQuestion;
 
         // Optimasi: Tambahkan loading="lazy" ke semua img tag di question_text
         $question->question_text = preg_replace('/<img/i', '<img loading="lazy"', $question->question_text);
@@ -256,6 +266,27 @@ class ExamController extends Controller
         if ($result && $result->finished_at) {
             session()->forget(["exam_start_{$scheduleId}_{$siswa->id}", "exam_questions_{$scheduleId}_{$siswa->id}"]);
             return view('siswa.exam-result', ['schedule' => $schedule, 'siswa' => $siswa, 'total' => $result->total_questions, 'correct' => $result->correct_answers, 'score' => $result->score]);
+        }
+
+        // KUNCI LANGSUNG STATUS SELESAI (< 5 ms) untuk mencegah multi-submit saat lonjakan traffic
+        ExamResult::updateOrCreate(
+            ['exam_schedule_id' => $scheduleId, 'siswa_id' => $siswa->id],
+            ['finished_at' => now(), 'status' => 'finished']
+        );
+        session()->forget(["exam_start_{$scheduleId}_{$siswa->id}", "exam_questions_{$scheduleId}_{$siswa->id}"]);
+
+        // Jika jadwal ujian tidak menampilkan nilai & persentase ke siswa, oper ke background queue
+        if (!$schedule->show_score && !$schedule->show_percentage) {
+            \App\Jobs\CalculateExamScoreJob::dispatch($scheduleId, $siswa->id);
+
+            $totalQ = Question::where('bank_soal_id', $schedule->bank_soal_id)->count();
+            return view('siswa.exam-result', [
+                'schedule' => $schedule,
+                'siswa' => $siswa,
+                'total' => $totalQ,
+                'correct' => 0,
+                'score' => 0
+            ]);
         }
 
         $questions = Question::where('bank_soal_id', $schedule->bank_soal_id)

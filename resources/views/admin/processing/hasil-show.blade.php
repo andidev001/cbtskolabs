@@ -32,6 +32,12 @@
                                 <i data-feather="trash-2" class="align-middle me-1" style="width: 14px; height: 14px;"></i> Hapus Semua Hasil
                             </button>
                         </form>
+                        <form action="{{ route('admin.processing.hasil.recalculate', $schedule->id) }}" method="POST" id="form-recalculate">
+                            @csrf
+                            <button type="button" class="btn btn-outline-primary btn-sm" id="btn-recalculate" onclick="if(confirm('Kalkulasi ulang nilai semua siswa yang telah selesai ujian ini?')) this.form.submit();">
+                                <i data-feather="refresh-cw" class="align-middle me-1" style="width: 14px; height: 14px;"></i> Hitung Ulang Nilai
+                            </button>
+                        </form>
                         <div class="d-flex align-items-center gap-2">
                             <select name="group_id" class="form-select form-select-sm" style="width: 150px;">
                                 <option value="">Semua Kelas</option>

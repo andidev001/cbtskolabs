@@ -443,7 +443,7 @@
                 @if($exam->token)
                     <input type="text" id="token_{{ $exam->id }}" class="token-input" placeholder="Masukkan Token" autocomplete="off">
                 @endif
-                <form action="{{ route('siswa.exam.start', $exam->id) }}" method="POST" id="form_start_{{ $exam->id }}" style="width: 100%;" target="exam_window_{{ $exam->id }}" onsubmit="window.open('', 'exam_window_{{ $exam->id }}', 'width='+screen.availWidth+',height='+screen.availHeight+',fullscreen=yes,menubar=no,toolbar=no,location=no,status=no,resizable=yes'); return true;">
+                <form action="{{ route('siswa.exam.start', $exam->id) }}" method="POST" id="form_start_{{ $exam->id }}" style="width: 100%;">
                     @csrf
                     <input type="hidden" name="token" id="hidden_token_{{ $exam->id }}">
                     <button type="submit" class="btm-mulai" onclick="return checkToken({{ $exam->id }}, '{{ $exam->token }}', this)">

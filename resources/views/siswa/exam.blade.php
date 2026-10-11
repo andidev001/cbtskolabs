@@ -536,8 +536,8 @@
         <div id="finishSummary" style="background:#f1f3f5; padding:15px; border-radius:8px; margin-bottom:25px; text-align:left; font-size:0.9rem;">
         </div>
         <div class="modal-btns">
-            <button type="button" class="btn-cancel" onclick="document.getElementById('finishModal').classList.remove('show')">Kembali</button>
-            <button type="button" class="btn-confirm" onclick="if(typeof cheatDetectorActive !== 'undefined') cheatDetectorActive = false; document.getElementById('finishForm').submit()">Ya, Selesai</button>
+            <button type="button" class="btn-cancel" id="btnCancelFinish" onclick="document.getElementById('finishModal').classList.remove('show')">Kembali</button>
+            <button type="button" class="btn-confirm" id="btnConfirmFinish" onclick="handleFinishSubmit(this)">Ya, Selesai</button>
         </div>
     </div>
 </div>
@@ -885,17 +885,43 @@
 
     function toggleFlag() {
         const valEl = document.getElementById('is_flagged_val');
-        const isFlagged = valEl.value === '1';
-        valEl.value = isFlagged ? '0' : '1';
+        const isCurrentlyFlagged = valEl.value === '1';
+        const newFlagState = !isCurrentlyFlagged;
+        valEl.value = newFlagState ? '1' : '0';
         
         const btn = document.getElementById('flagBtn');
-        btn.classList.toggle('flagged', !isFlagged);
+        btn.classList.toggle('flagged', newFlagState);
         
-        
-        saveAnswer();
+        // Optimistic UI update pada kotak nomor di daftar soal
+        const gridBtn = document.getElementById(`grid-${currentNo}`);
+        if (gridBtn) {
+            gridBtn.classList.remove('flagged');
+            if (newFlagState) {
+                gridBtn.classList.add('flagged');
+            } else {
+                const hasAnswer = document.querySelector('input[type="radio"][name="answer"]:checked') !== null ||
+                                  document.querySelectorAll('input[type="checkbox"][name="answer[]"]:checked').length > 0 ||
+                                  (document.getElementById('essayAnswer') && document.getElementById('essayAnswer').value.trim() !== '') ||
+                                  gridBtn.classList.contains('answered');
+                if (hasAnswer) {
+                    gridBtn.classList.add('answered');
+                }
+            }
+        }
+
+        clearTimeout(saveTimeout);
+        doSaveAnswer(true);
     }
 
+    let saveTimeout = null;
+    let lastSavedForQuestion = {};
+
     function saveAnswer() {
+        clearTimeout(saveTimeout);
+        saveTimeout = setTimeout(() => doSaveAnswer(false), 200);
+    }
+
+    function doSaveAnswer(force = false) {
         const qid = document.getElementById('current_question_id').value;
         const isFlagged = document.getElementById('is_flagged_val').value;
         let answer = null;
@@ -935,6 +961,11 @@
             answer = essayInput.value;
         }
 
+        const currentPayload = JSON.stringify({ answer: answer, flagged: isFlagged });
+        if (!force && lastSavedForQuestion[qid] === currentPayload) {
+            return; // Benar-benar tidak ada perubahan baik jawaban maupun status ragu-ragu
+        }
+
         isSaving = true;
         fetch(`{{ url('siswa/exam') }}/${scheduleId}/answer`, {
             method: 'POST',
@@ -951,10 +982,13 @@
         })
         .then(res => res.json())
         .then(data => {
+            lastSavedForQuestion[qid] = currentPayload;
             const gridBtn = document.getElementById(`grid-${currentNo}`);
-            gridBtn.classList.remove('answered', 'flagged');
-            if (data.flagged) gridBtn.classList.add('flagged');
-            else if (data.answered) gridBtn.classList.add('answered');
+            if (gridBtn) {
+                gridBtn.classList.remove('answered', 'flagged');
+                if (data.flagged) gridBtn.classList.add('flagged');
+                else if (data.answered) gridBtn.classList.add('answered');
+            }
         })
         .catch(err => {
             console.error("Save error:", err);
@@ -967,8 +1001,12 @@
     }
 
     function confirmFinish() {
+        if (saveTimeout) {
+            clearTimeout(saveTimeout);
+            doSaveAnswer();
+        }
         if (isSaving) {
-            setTimeout(confirmFinish, 500);
+            setTimeout(confirmFinish, 300);
             return;
         }
         
@@ -986,7 +1024,27 @@
         document.getElementById('finishModal').classList.add('show');
     }
 
-    // â”€â”€ Anti-Cheat Logic â”€â”€
+    let isSubmittingFinish = false;
+    function handleFinishSubmit(btn) {
+        if (isSubmittingFinish) return;
+        isSubmittingFinish = true;
+
+        if (typeof cheatDetectorActive !== 'undefined') {
+            cheatDetectorActive = false;
+        }
+
+        btn.disabled = true;
+        btn.style.opacity = '0.7';
+        btn.style.cursor = 'not-allowed';
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span> Mengirim...';
+        
+        const cancelBtn = document.getElementById('btnCancelFinish');
+        if (cancelBtn) cancelBtn.style.display = 'none';
+
+        document.getElementById('finishForm').submit();
+    }
+
+    // ── Anti-Cheat Logic ──
     @if($schedule->enforce_focus)
     let cheatDetectorActive = true;
     
