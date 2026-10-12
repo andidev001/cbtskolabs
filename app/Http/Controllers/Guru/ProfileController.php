@@ -43,7 +43,11 @@ class ProfileController extends Controller
 
             $file = $request->file('photo');
             $filename = 'guru_' . $user->id . '_' . time() . '.' . $file->getClientOriginalExtension();
-            $file->move(public_path('uploads/profile'), $filename);
+            $targetDir = public_path('uploads/profile');
+            if (!file_exists($targetDir)) {
+                @mkdir($targetDir, 0775, true);
+            }
+            $file->move($targetDir, $filename);
             $data['photo'] = 'uploads/profile/' . $filename;
         }
 

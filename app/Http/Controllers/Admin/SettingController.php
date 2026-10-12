@@ -42,16 +42,24 @@ class SettingController extends Controller
 
         foreach ($data as $key => $value) {
             if ($key == 'logo' && $request->hasFile('logo')) {
+                $targetDir = public_path('uploads');
+                if (!file_exists($targetDir)) {
+                    @mkdir($targetDir, 0775, true);
+                }
                 $file = $request->file('logo');
                 $filename = 'logo_' . time() . '.' . $file->getClientOriginalExtension();
-                $file->move(public_path('uploads'), $filename);
+                $file->move($targetDir, $filename);
                 Setting::set('logo', 'uploads/' . $filename);
                 continue;
             }
             if ($key == 'kop_surat' && $request->hasFile('kop_surat')) {
+                $targetDir = public_path('uploads');
+                if (!file_exists($targetDir)) {
+                    @mkdir($targetDir, 0775, true);
+                }
                 $file = $request->file('kop_surat');
                 $filename = 'kop_surat_' . time() . '.' . $file->getClientOriginalExtension();
-                $file->move(public_path('uploads'), $filename);
+                $file->move($targetDir, $filename);
                 Setting::set('kop_surat', 'uploads/' . $filename);
                 continue;
             }
