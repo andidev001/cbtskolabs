@@ -170,3 +170,4 @@ function updateCard(groupId) {
     .form-check.border-primary { border-color: #3b31c1 !important; }
 </style>
 @endsection
+
