@@ -140,9 +140,12 @@ class SiswaController extends Controller
             'file' => 'required|mimes:xlsx,csv,xls'
         ]);
 
-        Excel::import(new SiswaImport, $request->file('file'));
-
-        return redirect()->back()->with('success', 'Data peserta berhasil diimport.');
+        try {
+            Excel::import(new SiswaImport, $request->file('file'));
+            return redirect()->back()->with('success', 'Data peserta berhasil diimport.');
+        } catch (\Throwable $e) {
+            return redirect()->back()->with('error', 'Gagal mengimport data peserta: ' . $e->getMessage());
+        }
     }
 
     public function cardPreview(Request $request)
