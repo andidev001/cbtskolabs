@@ -38,8 +38,9 @@ class DashboardController extends Controller
             'data' => $jurusans->pluck('siswas_count'),
         ];
 
-        // Upcoming Exams
-        $upcomingExams = ExamSchedule::where('start_at', '>', $now)
+        // Active & Upcoming Exams (ujian aktif yang sedang berlangsung atau akan datang)
+        $upcomingExams = ExamSchedule::where('end_at', '>=', $now)
+            ->where('is_active', true)
             ->orderBy('start_at', 'asc')
             ->take(5)
             ->get();
@@ -51,7 +52,8 @@ class DashboardController extends Controller
             'countOngoing',
             'chartData',
             'jurusanChartData',
-            'upcomingExams'
+            'upcomingExams',
+            'now'
         ));
     }
 }

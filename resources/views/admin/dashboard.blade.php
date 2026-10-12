@@ -201,12 +201,15 @@
                 <div class="bg-primary-soft text-primary rounded p-2 me-2" style="background: rgba(139, 92, 246, 0.1); color: #8b5cf6 !important;">
                     <i data-feather="clock" style="width:18px;"></i>
                 </div>
-                <h5 class="card-title mb-0 fw-bold" style="color:#1e293b;">Ujian Mendatang</h5>
+                <h5 class="card-title mb-0 fw-bold" style="color:#1e293b;">Jadwal Ujian Terdekat</h5>
             </div>
             <div class="card-body p-4 d-flex flex-column">
                 @if(count($upcomingExams) > 0)
                     @foreach ($upcomingExams as $exam)
-                    <div class="d-flex align-items-center mb-4 p-3 rounded" style="background:#f8fafc; border:1px solid #f1f5f9;">
+                    @php
+                        $isOngoing = isset($now) ? $now->between($exam->start_at, $exam->end_at) : false;
+                    @endphp
+                    <div class="d-flex align-items-center mb-3 p-3 rounded" style="background:#f8fafc; border:1px solid #f1f5f9;">
                         <div class="flex-shrink-0">
                             <div class="bg-white text-primary border rounded text-center" style="min-width: 55px; box-shadow:0 2px 4px rgba(0,0,0,0.02);">
                                 <div class="small fw-bold text-muted border-bottom py-1" style="font-size:0.7rem; background:#f8fafc;">{{ strtoupper($exam->start_at->translatedFormat('M')) }}</div>
@@ -214,10 +217,17 @@
                             </div>
                         </div>
                         <div class="flex-grow-1 ms-3">
-                            <h6 class="mb-1 fw-bold text-dark">{{ $exam->name }}</h6>
+                            <div class="d-flex align-items-center justify-content-between mb-1">
+                                <h6 class="mb-0 fw-bold text-dark">{{ $exam->name }}</h6>
+                                @if($isOngoing)
+                                    <span class="badge bg-success" style="font-size:0.65rem;">Berlangsung</span>
+                                @else
+                                    <span class="badge bg-primary" style="font-size:0.65rem;">Mendatang</span>
+                                @endif
+                            </div>
                             <div class="small text-muted d-flex align-items-center">
                                 <i data-feather="clock" style="width:12px; margin-right:4px;"></i> 
-                                {{ $exam->start_at->format('H:i') }} WIB
+                                {{ $exam->start_at->format('H:i') }} - {{ $exam->end_at->format('H:i') }} WIB
                             </div>
                         </div>
                     </div>
@@ -228,7 +238,7 @@
                             <i data-feather="calendar" style="width:50px; height:50px; color:#cbd5e1;"></i>
                         </div>
                         <h6 class="fw-bold text-dark mb-1">Tidak ada jadwal terdekat</h6>
-                        <p class="text-muted small px-3">Saat ini tidak ada ujian yang dijadwalkan.</p>
+                        <p class="text-muted small px-3">Saat ini tidak ada ujian aktif atau yang dijadwalkan.</p>
                     </div>
                 @endif
                 <div class="mt-auto">
