@@ -114,7 +114,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @forelse($results as $result)
+                    @foreach($results as $result)
                     @php $siswa = $result->siswa; @endphp
                     <tr>
                         <td class="text-center">{{ $loop->iteration }}</td>
@@ -139,14 +139,7 @@
                             {{ $result->finished_at ? $result->finished_at->format('d/m/Y H:i') : '-' }}
                         </td>
                     </tr>
-                    @empty
-                    <tr>
-                        <td colspan="{{ $isOnlyPG ? 8 : 6 }}" class="text-center py-5 text-muted">
-                            <i data-feather="inbox" style="width:40px;height:40px;opacity:.3;"></i>
-                            <p class="mt-2">Belum ada hasil ujian masuk.</p>
-                        </td>
-                    </tr>
-                    @endforelse
+                    @endforeach
                 </tbody>
             </table>
         </div>
@@ -157,8 +150,15 @@
 <script>
 $(function() {
     var table = $('#tableHasil').DataTable({
+        @if($results->count() > 0)
         order: [[{{ $isOnlyPG ? 6 : 4 }}, 'desc']],
-        language: { url: '//cdn.datatables.net/plug-ins/1.13.7/i18n/id.json' },
+        @else
+        order: [],
+        @endif
+        language: { 
+            url: '//cdn.datatables.net/plug-ins/1.13.7/i18n/id.json',
+            emptyTable: 'Belum ada hasil ujian masuk.'
+        },
         drawCallback: function() { feather.replace(); }
     });
 

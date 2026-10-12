@@ -28,7 +28,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @forelse($participants as $p)
+                    @foreach($participants as $p)
                     @php $siswa = $p->siswa; @endphp
                     <tr>
                         <td class="text-center">{{ $loop->iteration }}</td>
@@ -43,14 +43,7 @@
                             </a>
                         </td>
                     </tr>
-                    @empty
-                    <tr>
-                        <td colspan="5" class="text-center py-5 text-muted">
-                            <i data-feather="inbox" style="width:40px;height:40px;opacity:.3;"></i>
-                            <p class="mt-2">Belum ada peserta yang menyelesaikan ujian ini.</p>
-                        </td>
-                    </tr>
-                    @endforelse
+                    @endforeach
                 </tbody>
             </table>
         </div>
@@ -61,7 +54,10 @@
 <script>
 $(function() {
     $('#koreksiTable').DataTable({
-        language: { url: '//cdn.datatables.net/plug-ins/1.13.7/i18n/id.json' },
+        language: { 
+            url: '//cdn.datatables.net/plug-ins/1.13.7/i18n/id.json',
+            emptyTable: 'Belum ada peserta yang menyelesaikan ujian ini.'
+        },
         drawCallback: function() { feather.replace(); }
     });
 });
