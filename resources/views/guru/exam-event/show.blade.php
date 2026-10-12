@@ -105,8 +105,11 @@
                         </td>
                         <td class="text-center align-middle">
                             <div class="d-flex gap-1 justify-content-center">
-                                <a href="{{ route('guru.exam-schedule.index') }}" class="btn btn-sm btn-warning text-white px-2" style="background-color: #f3b123; border: none;" title="Kelola Jadwal">
-                                    <i class="align-middle" data-feather="edit-2" style="width: 13px; height: 13px;"></i> Kelola
+                                <a href="{{ route('guru.exam-schedule.participants', $schedule->id) }}" class="btn btn-sm px-2 d-inline-flex align-items-center text-white" style="background-color: #3b31c1; border: none;" title="Mapping Peserta">
+                                    <i class="align-middle" data-feather="users" style="width: 13px; height: 13px;"></i>
+                                </a>
+                                <a href="{{ route('guru.exam-schedule.index') }}" class="btn btn-sm btn-warning text-white px-2 d-inline-flex align-items-center" style="background-color: #f3b123; border: none;" title="Kelola Jadwal">
+                                    <i class="align-middle" data-feather="edit-2" style="width: 13px; height: 13px;"></i>
                                 </a>
                             </div>
                         </td>

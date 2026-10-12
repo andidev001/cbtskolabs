@@ -49,8 +49,11 @@ class ExamScheduleController extends Controller
                 return '<small>' . $row->start_at->format('d/m/Y H:i') . '</small><br><small>' . $row->end_at->format('d/m/Y H:i') . '</small>';
             })
                 ->addColumn('action', function ($row) {
-                $btn = '<div class="text-center">';
-                $btn .= '<button type="button" class="btn btn-sm btn-primary me-1 btn-edit" title="Edit" data-bs-toggle="tooltip" 
+                $btn = '<div class="d-flex gap-1 justify-content-center">';
+                $btn .= '<a href="' . route('guru.exam-schedule.participants', $row->id) . '" class="btn btn-sm px-2 d-inline-flex align-items-center text-white" style="background-color: #3b31c1; border: none;" title="Mapping Peserta" data-bs-toggle="tooltip">
+                    <i class="align-middle" data-feather="users" style="width: 13px; height: 13px;"></i>
+                </a>';
+                $btn .= '<button type="button" class="btn btn-sm btn-warning text-white px-2 btn-edit" style="background-color: #f3b123; border: none;" title="Edit" data-bs-toggle="tooltip" 
                     data-id="' . $row->id . '"
                     data-exam_event_id="' . $row->exam_event_id . '"
                     data-bank_soal_id="' . $row->bank_soal_id . '"
@@ -61,11 +64,11 @@ class ExamScheduleController extends Controller
                     data-is_active="' . $row->is_active . '"
                     data-randomize_questions="' . ($row->randomize_questions ? '1' : '0') . '"
                     data-randomize_options="' . ($row->randomize_options ? '1' : '0') . '"
-                ><i class="align-middle" data-feather="edit-2"></i></button>';
+                ><i class="align-middle" data-feather="edit-2" style="width: 13px; height: 13px;"></i></button>';
                 $btn .= '<form action="' . route('guru.exam-schedule.destroy', $row->id) . '" method="POST" class="d-inline">
                                     ' . csrf_field() . '
                                     ' . method_field('DELETE') . '
-                                    <button type="submit" class="btn btn-sm btn-danger btn-delete"  title="Hapus"><i class="align-middle" data-feather="trash-2"></i></button>
+                                    <button type="submit" class="btn btn-sm btn-danger px-2 btn-delete" style="background-color: #e35d5d; border: none;" title="Hapus"><i class="align-middle" data-feather="trash-2" style="width: 13px; height: 13px;"></i></button>
                                 </form>';
                 $btn .= '</div>';
                 return $btn;

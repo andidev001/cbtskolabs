@@ -29,6 +29,7 @@ use App\Http\Controllers\Guru\BankSoalController as GuruBankSoalController;
 use App\Http\Controllers\Guru\QuestionController as GuruQuestionController;
 use App\Http\Controllers\Guru\ProcessingController as GuruProcessingController;
 use App\Http\Controllers\Guru\ExamScheduleController as GuruExamScheduleController;
+use App\Http\Controllers\Guru\ExamScheduleParticipantController as GuruExamScheduleParticipantController;
 use App\Http\Controllers\Guru\ProfileController as GuruProfileController;
 use Illuminate\Support\Facades\Route;
 
@@ -252,6 +253,8 @@ Route::prefix('guru')->group(function () {
             // Event dan Jadwal Ujian (CRUD untuk mapel yang diampu)
             Route::resource('exam-event', \App\Http\Controllers\Guru\ExamEventController::class)->names('guru.exam-event');
             Route::resource('exam-schedule', GuruExamScheduleController::class)->names('guru.exam-schedule');
+            Route::get('exam-schedule/{schedule}/participants', [GuruExamScheduleParticipantController::class, 'show'])->name('guru.exam-schedule.participants');
+            Route::post('exam-schedule/{schedule}/participants/sync', [GuruExamScheduleParticipantController::class, 'syncGroups'])->name('guru.exam-schedule.participants.sync');
 
             // Pengolahan Nilai
             Route::get('processing/koreksi', [GuruProcessingController::class , 'koreksiIndex'])->name('guru.processing.koreksi.index');
