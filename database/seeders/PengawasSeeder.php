@@ -16,7 +16,7 @@ class PengawasSeeder extends Seeder
             ['username' => 'pengawas'],
             [
                 'name' => 'Pengawas Ujian',
-                'password' => bcrypt('password')
+                'password' => \Illuminate\Support\Facades\Hash::make('pengawas123'),
             ]
         );
     }

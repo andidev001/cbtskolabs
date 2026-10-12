@@ -12,11 +12,13 @@ class GuruSeeder extends Seeder
      */
     public function run(): void
     {
-        \App\Models\Guru::create([
-            'name' => 'Guru Penguuji',
-            'username' => 'guru',
-            'email' => 'guru@SKOLABScbt.com',
-            'password' => \Illuminate\Support\Facades\Hash::make('guru123'),
-        ]);
+        \App\Models\Guru::firstOrCreate(
+            ['username' => 'guru'],
+            [
+                'name' => 'Guru Penguji',
+                'email' => 'guru@SKOLABScbt.com',
+                'password' => \Illuminate\Support\Facades\Hash::make('guru123'),
+            ]
+        );
     }
 }

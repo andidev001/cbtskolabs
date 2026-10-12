@@ -12,11 +12,16 @@ class SiswaSeeder extends Seeder
      */
     public function run(): void
     {
-        \App\Models\Siswa::create([
-            'name' => 'Siswa Percobaan',
-            'username' => 'siswa',
-            'nisn' => '1234567890',
-            'password' => \Illuminate\Support\Facades\Hash::make('siswa123'),
-        ]);
+        \App\Models\Siswa::firstOrCreate(
+            ['username' => 'siswa'],
+            [
+                'name' => 'Siswa Percobaan',
+                'nomer_ujian' => 'UJI-001',
+                'nisn' => '1234567890',
+                'password' => \Illuminate\Support\Facades\Hash::make('siswa123'),
+                'password_raw' => 'siswa123',
+                'status' => 1,
+            ]
+        );
     }
 }
