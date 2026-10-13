@@ -235,48 +235,20 @@
             .welcome-title { font-size: 1.35rem; }
         }
 
-        /* ── PWA Install Banner & Modal ── */
-        .pwa-banner {
-            background: linear-gradient(135deg, #eff6ff 0%, #e0e7ff 100%);
-            border: 1.5px solid #bfdbfe;
-            border-radius: 14px;
-            padding: 14px 16px;
-            margin-bottom: 22px;
-            text-align: center;
-            box-shadow: 0 4px 12px rgba(30, 64, 175, 0.06);
-            transition: all 0.3s ease;
-        }
-        .pwa-banner-header {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            margin-bottom: 4px;
-        }
-        .pwa-banner-title {
-            font-size: 0.85rem;
-            font-weight: 700;
-            color: #1e3a8a;
-        }
-        .pwa-banner-desc {
-            font-size: 0.72rem;
-            color: #475569;
-            margin: 0 0 10px;
-            line-height: 1.35;
-        }
+        /* ── PWA Install Button & Modal ── */
         .btn-install-pwa {
             background: #1e40af;
             color: #ffffff;
             border: none;
-            padding: 8px 18px;
+            padding: 10px 22px;
             border-radius: 50px;
-            font-size: 0.8rem;
+            font-size: 0.85rem;
             font-weight: 600;
             cursor: pointer;
             display: inline-flex;
             align-items: center;
-            gap: 7px;
-            box-shadow: 0 4px 12px rgba(30, 64, 175, 0.25);
+            gap: 8px;
+            box-shadow: 0 4px 14px rgba(30, 64, 175, 0.25);
             transition: all 0.2s ease;
         }
         .btn-install-pwa:hover {
@@ -405,16 +377,9 @@
                 </span>
             </div>
 
-            <div id="pwa-install-container" class="pwa-banner">
-                <div class="pwa-banner-header">
-                    <svg style="width: 18px; height: 18px; color: #1e40af;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>
-                    <span class="pwa-banner-title">Aplikasi ExamBrowser CBT</span>
-                </div>
-                <p class="pwa-banner-desc">
-                    Kunci layar ujian penuh, tanpa tab baru & tanpa split screen di HP.
-                </p>
+            <div id="pwa-install-container" style="display: none; text-align: center; margin-bottom: 22px;">
                 <button type="button" id="btn-install-pwa" class="btn-install-pwa">
-                    <svg style="width: 16px; height: 16px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                    <svg style="width: 17px; height: 17px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
                     <span>Install Aplikasi (APK)</span>
                 </button>
             </div>
