@@ -427,9 +427,72 @@
         body.is-fullscreen #fullscreen-overlay {
             display: none;
         }
+
+        /* ── Offline Network Overlay ── */
+        #offline-overlay {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            background: rgba(15, 23, 42, 0.88); backdrop-filter: blur(5px);
+            z-index: 1000000;
+            display: none; align-items: center; justify-content: center;
+        }
+        .offline-card {
+            border: 1px solid rgba(220, 53, 69, 0.2);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            animation: offlineBounceIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        @keyframes offlineBounceIn {
+            from { opacity: 0; transform: scale(0.92); }
+            to { opacity: 1; transform: scale(1); }
+        }
+        .offline-icon-pulse {
+            width: 76px; height: 76px; border-radius: 50%;
+            background: #ffebe9; display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.4);
+            animation: offlinePulse 2s infinite;
+            margin: 0 auto;
+        }
+        @keyframes offlinePulse {
+            0% { transform: scale(0.96); box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.4); }
+            70% { transform: scale(1); box-shadow: 0 0 0 14px rgba(220, 53, 69, 0); }
+            100% { transform: scale(0.96); box-shadow: 0 0 0 0 rgba(220, 53, 69, 0); }
+        }
     </style>
 </head>
 <body>
+
+<div id="offline-overlay">
+    <div class="offline-card text-center bg-white p-4 rounded-4 shadow-lg" style="max-width: 440px; margin: 0 20px;">
+        <div class="mb-3">
+            <div class="offline-icon-pulse">
+                <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#dc3545" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="1" y1="1" x2="23" y2="23"></line>
+                    <path d="M16.72 11.06A10.94 10.94 0 0 1 19 12.55"></path>
+                    <path d="M5 12.55a10.94 10.94 0 0 1 5.17-2.39"></path>
+                    <path d="M10.71 5.05A16 16 0 0 1 22.58 9"></path>
+                    <path d="M1.42 9a15.91 15.91 0 0 1 4.7-2.88"></path>
+                    <path d="M8.53 16.11a6 6 0 0 1 6.95 0"></path>
+                    <line x1="12" y1="20" x2="12.01" y2="20"></line>
+                </svg>
+            </div>
+        </div>
+        <h5 class="fw-bold text-danger mb-2">Koneksi Internet Terputus</h5>
+        <p class="text-muted mb-3" style="font-size: 0.9rem; line-height: 1.5;">
+            Jaringan internet Anda terputus. <b>Jawaban Anda tersimpan aman</b> di perangkat ini.
+            Ujian akan otomatis dapat dilanjutkan segera setelah internet terhubung kembali.
+        </p>
+        <div id="offline-status-box" class="p-2 mb-3 rounded-3 bg-light border text-muted small d-flex align-items-center justify-content-center">
+            <span class="spinner-border spinner-border-sm text-danger me-2" role="status"></span>
+            <span id="offline-status-text">Menunggu jaringan internet kembali...</span>
+        </div>
+        <button type="button" id="btn-retry-connection" class="btn btn-outline-danger btn-sm w-100 fw-bold py-2 mb-2 d-flex align-items-center justify-content-center">
+            <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="me-1"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>
+            Coba Hubungkan Sekarang
+        </button>
+        <div class="alert alert-warning py-1 px-2 mb-0 text-start" style="font-size: 0.78rem;">
+            ⚠️ <b>Penting:</b> Jangan me-refresh atau menutup tab ujian ini agar tidak keluar dari ujian.
+        </div>
+    </div>
+</div>
 
 <div id="fullscreen-overlay">
     <div class="text-center bg-white p-4 rounded shadow" style="max-width: 400px; margin: 0 20px;">
@@ -572,70 +635,110 @@
     @csrf
 </form>
 
-<script src="https://code.jquery.com/jquery-3.6.0.min.js">
-        function confirmLogout() {
-        Swal.fire({
-            title: 'Yakin ingin keluar?',
-            text: 'Jawaban sementara telah tersimpan otomatis.',
-            icon: 'warning',
-            width: '300px',
-            padding: '1em',
-            showCancelButton: true,
-            confirmButtonText: 'Ya, Keluar',
-            cancelButtonText: 'Batal',
-            buttonsStyling: false,
-            customClass: {
-                popup: 'rounded-4 pb-3',
-                title: 'fs-6 mt-1 mb-1',
-                htmlContainer: 'small text-muted mb-2',
-                actions: 'mt-0',
-                confirmButton: 'btn btn-primary btn-sm px-3 mx-1',
-                cancelButton: 'btn btn-danger btn-sm px-3 mx-1'
-            }
-        }).then((result) => {
-            if (result.isConfirmed) {
-                document.getElementById('logout-form').submit();
-            }
-        });
-    }
-</script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-<script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js">
-        function confirmLogout() {
-        Swal.fire({
-            title: 'Yakin ingin keluar?',
-            text: 'Jawaban sementara telah tersimpan otomatis.',
-            icon: 'warning',
-            width: '300px',
-            padding: '1em',
-            showCancelButton: true,
-            confirmButtonText: 'Ya, Keluar',
-            cancelButtonText: 'Batal',
-            buttonsStyling: false,
-            customClass: {
-                popup: 'rounded-4 pb-3',
-                title: 'fs-6 mt-1 mb-1',
-                htmlContainer: 'small text-muted mb-2',
-                actions: 'mt-0',
-                confirmButton: 'btn btn-primary btn-sm px-3 mx-1',
-                cancelButton: 'btn btn-danger btn-sm px-3 mx-1'
-            }
-        }).then((result) => {
-            if (result.isConfirmed) {
-                document.getElementById('logout-form').submit();
-            }
-        });
-    }
-</script>
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
 <script>
-    // â”€â”€ Global State â”€â”€
+    // ── Global State ──
     let currentNo = {{ $no }};
     const totalSoal = {{ $total }};
     const scheduleId = "{{ $schedule->id }}";
     let isSaving = false;
 
-    // â”€â”€ Timer Logic â”€â”€
+    // ── Manajemen Jaringan (Offline / Online) ──
+    let isOfflineModalOpen = false;
+    let offlineCheckInterval = null;
+    let pendingQuestionNo = null;
+    let pendingSavePayload = null;
+
+    function showOfflineModal() {
+        if (isOfflineModalOpen) return;
+        isOfflineModalOpen = true;
+
+        const overlay = document.getElementById('offline-overlay');
+        if (overlay) {
+            overlay.style.display = 'flex';
+            const statusBox = document.getElementById('offline-status-box');
+            if (statusBox) {
+                statusBox.className = 'p-2 mb-3 rounded-3 bg-light border text-muted small d-flex align-items-center justify-content-center';
+                statusBox.innerHTML = '<span class="spinner-border spinner-border-sm text-danger me-2" role="status"></span><span id="offline-status-text">Menunggu jaringan internet kembali...</span>';
+            }
+        }
+
+        if (!offlineCheckInterval) {
+            offlineCheckInterval = setInterval(testConnectionAndResume, 3000);
+        }
+    }
+
+    function hideOfflineModal() {
+        if (!isOfflineModalOpen) return;
+
+        if (offlineCheckInterval) {
+            clearInterval(offlineCheckInterval);
+            offlineCheckInterval = null;
+        }
+
+        const statusBox = document.getElementById('offline-status-box');
+        if (statusBox) {
+            statusBox.className = 'p-2 mb-3 rounded-3 bg-success bg-opacity-10 border border-success text-success small d-flex align-items-center justify-content-center';
+            statusBox.innerHTML = '<span class="fw-bold text-success">✓ Terhubung Kembali! Melanjutkan ujian...</span>';
+        }
+
+        setTimeout(() => {
+            const overlay = document.getElementById('offline-overlay');
+            if (overlay) overlay.style.display = 'none';
+            isOfflineModalOpen = false;
+
+            Swal.fire({
+                toast: true,
+                position: 'top-end',
+                icon: 'success',
+                title: 'Koneksi Pulih',
+                text: 'Internet terhubung kembali. Selamat melanjutkan ujian!',
+                showConfirmButton: false,
+                timer: 3000,
+                timerProgressBar: true
+            });
+
+            // 1. Simpan ulang jawaban yang sempat tertunda
+            if (pendingSavePayload) {
+                doSaveAnswer(true);
+            }
+
+            // 2. Muat ulang nomor soal yang tertunda
+            if (pendingQuestionNo !== null) {
+                const targetNo = pendingQuestionNo;
+                pendingQuestionNo = null;
+                gotoQuestion(targetNo);
+            }
+        }, 700);
+    }
+
+    function testConnectionAndResume() {
+        fetch(`{{ url('ping') }}?_t=${Date.now()}`, {
+            method: 'GET',
+            cache: 'no-store',
+            headers: { 'X-Requested-With': 'XMLHttpRequest' }
+        })
+        .then(res => {
+            if (res.ok) {
+                hideOfflineModal();
+            }
+        })
+        .catch(() => {
+            // Masih offline
+        });
+    }
+
+    window.addEventListener('offline', () => {
+        showOfflineModal();
+    });
+
+    window.addEventListener('online', () => {
+        testConnectionAndResume();
+    });
+
+    // ── Timer Logic ──
     let remaining = {{ $remainingSec }};
     const timerDisplay = document.getElementById('timerDisplay');
     const timerBox = document.getElementById('timerBox');
@@ -654,26 +757,35 @@
         if (remaining <= 0) {
             clearInterval(timerInterval);
             if(typeof cheatDetectorActive !== 'undefined') cheatDetectorActive = false;
-            document.getElementById('finishForm').submit();
+            if (isOfflineModalOpen) {
+                const checkSubmit = setInterval(() => {
+                    if (!isOfflineModalOpen) {
+                        clearInterval(checkSubmit);
+                        document.getElementById('finishForm').submit();
+                    }
+                }, 1000);
+            } else {
+                document.getElementById('finishForm').submit();
+            }
         }
     }, 1000);
     timerDisplay.textContent = formatTime(remaining);
 
-    // â”€â”€ Sidebar Logic â”€â”€
+    // ── Sidebar Logic ──
     function toggleSidebar() {
         document.getElementById('sidebar').classList.toggle('active');
         document.getElementById('sidebarOverlay').classList.toggle('active');
     }
 
-    // â”€â”€ Font Size Logic â”€â”€
+    // ── Font Size Logic ──
     function changeFontSize(size) {
         document.getElementById('qText').style.fontSize = size + 'rem';
         document.querySelectorAll('.font-btn').forEach(btn => btn.classList.remove('active'));
         event.target.classList.add('active');
     }
 
-    // â”€â”€ Core AJAX Logic â”€â”€
-        document.addEventListener('DOMContentLoaded', () => {
+    // ── Core AJAX Logic ──
+    document.addEventListener('DOMContentLoaded', () => {
         gotoQuestion(currentNo);
     });
 
@@ -712,17 +824,14 @@
             }
         })
         .then(data => {
+            pendingQuestionNo = null;
             renderQuestion(data);
             if (document.getElementById('sidebar').classList.contains('active')) toggleSidebar();
         })
         .catch(err => {
             console.error("Fetch error:", err);
-            Swal.fire({
-                icon: 'error',
-                title: 'Gagal Memuat Soal',
-                text: 'Koneksi terputus atau terjadi kesalahan server. Silakan periksa internet Anda dan refresh halaman.',
-                confirmButtonText: 'Tutup'
-            });
+            pendingQuestionNo = no;
+            showOfflineModal();
         })
         .finally(() => showLoading(false));
     }
@@ -1061,6 +1170,7 @@
         .then(res => res.json())
         .then(data => {
             lastSavedForQuestion[qid] = currentPayload;
+            pendingSavePayload = null;
             const gridBtn = document.getElementById(`grid-${currentNo}`);
             if (gridBtn) {
                 gridBtn.classList.remove('answered', 'flagged');
@@ -1070,6 +1180,10 @@
         })
         .catch(err => {
             console.error("Save error:", err);
+            pendingSavePayload = { qid, answer, isFlagged };
+            if (!navigator.onLine || (err.message && err.message.includes('Failed to fetch')) || err.name === 'TypeError') {
+                showOfflineModal();
+            }
         })
         .finally(() => isSaving = false);
     }
@@ -1375,6 +1489,40 @@ document.addEventListener("DOMContentLoaded", function() {
                 docElm.requestFullscreen().catch(() => {});
             }
         }, { once: true });
+    }
+
+    // Hubungkan tombol coba lagi koneksi manual
+    const btnRetry = document.getElementById('btn-retry-connection');
+    if (btnRetry) {
+        btnRetry.addEventListener('click', function() {
+            btnRetry.disabled = true;
+            btnRetry.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Menguji Koneksi...';
+            
+            fetch(`{{ url('ping') }}?_t=${Date.now()}`, {
+                method: 'GET',
+                cache: 'no-store',
+                headers: { 'X-Requested-With': 'XMLHttpRequest' }
+            })
+            .then(res => {
+                if (res.ok) {
+                    hideOfflineModal();
+                } else {
+                    throw new Error('Server belum merespon');
+                }
+            })
+            .catch(() => {
+                const statusText = document.getElementById('offline-status-text');
+                if (statusText) statusText.textContent = 'Koneksi belum terhubung. Mencoba lagi...';
+            })
+            .finally(() => {
+                btnRetry.disabled = false;
+                btnRetry.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="me-1"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg> Coba Hubungkan Sekarang`;
+            });
+        });
+    }
+
+    if (!navigator.onLine) {
+        showOfflineModal();
     }
 
     // Auto-reload jika halaman dimuat dari cache tombol 'Kembali' (BFCache browser)

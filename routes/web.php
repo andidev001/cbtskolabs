@@ -37,9 +37,9 @@ Route::get('/', function () {
     return redirect()->route('siswa.login');
 });
 
-Route::match(['get', 'post'], '/logout', function () {
-    return redirect()->route('siswa.login');
-});
+Route::get('/ping', function () {
+    return response()->json(['status' => 'pong', 'time' => now()->timestamp]);
+})->name('ping');
 
 // Admin Routes
 Route::prefix('admin')->group(function () {
