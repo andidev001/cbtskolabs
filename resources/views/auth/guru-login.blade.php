@@ -260,6 +260,22 @@
                     <h3 class="login-card-title">Sign In</h3>
                     <p class="login-card-subtitle">Masukan Username & password anda!</p>
 
+                    @if(session('warning'))
+                        <div class="alert alert-warning py-2 px-3 mb-3 text-start" style="font-size: 0.85rem;" role="alert">
+                            {{ session('warning') }}
+                        </div>
+                    @endif
+                    @if(session('error'))
+                        <div class="alert alert-danger py-2 px-3 mb-3 text-start" style="font-size: 0.85rem;" role="alert">
+                            {{ session('error') }}
+                        </div>
+                    @endif
+                    @if(session('status'))
+                        <div class="alert alert-success py-2 px-3 mb-3 text-start" style="font-size: 0.85rem;" role="alert">
+                            {{ session('status') }}
+                        </div>
+                    @endif
+
                     <form action="{{ route('guru.login.submit') }}" method="POST">
                         @csrf
                         

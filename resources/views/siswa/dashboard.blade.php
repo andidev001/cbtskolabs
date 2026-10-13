@@ -599,6 +599,13 @@ function checkToken(examId, requiredToken, btn) {
     input.focus();
     return false;
 }
+
+// Auto-reload jika halaman dimuat dari cache tombol 'Kembali' (BFCache browser)
+window.addEventListener('pageshow', function (event) {
+    if (event.persisted || (window.performance && window.performance.navigation && window.performance.navigation.type === 2)) {
+        window.location.reload();
+    }
+});
 </script>
 
 <script src="{{ asset('assets/adminkit/js/app.js') }}"></script>

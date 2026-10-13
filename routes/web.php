@@ -37,6 +37,10 @@ Route::get('/', function () {
     return redirect()->route('siswa.login');
 });
 
+Route::match(['get', 'post'], '/logout', function () {
+    return redirect()->route('siswa.login');
+});
+
 // Admin Routes
 Route::prefix('admin')->group(function () {
     Route::get('/', function () {
@@ -44,9 +48,9 @@ Route::prefix('admin')->group(function () {
     });
     Route::get('/login', [AdminLoginController::class , 'showLoginForm'])->name('admin.login');
     Route::post('/login', [AdminLoginController::class , 'login'])->name('admin.login.submit');
-    Route::post('/logout', [AdminLoginController::class , 'logout'])->name('admin.logout');
+    Route::match(['get', 'post'], '/logout', [AdminLoginController::class , 'logout'])->name('admin.logout');
 
-    Route::middleware('auth:admin')->group(function () {
+    Route::middleware(['auth:admin', 'prevent-back-history'])->group(function () {
             Route::get('/dashboard', [DashboardController::class , 'index'])->name('admin.dashboard');
 
             // Setting Routes
@@ -221,9 +225,9 @@ Route::prefix('guru')->group(function () {
     });
     Route::get('/login', [GuruLoginController::class , 'showLoginForm'])->name('guru.login');
     Route::post('/login', [GuruLoginController::class , 'login'])->name('guru.login.submit');
-    Route::post('/logout', [GuruLoginController::class , 'logout'])->name('guru.logout');
+    Route::match(['get', 'post'], '/logout', [GuruLoginController::class , 'logout'])->name('guru.logout');
 
-    Route::middleware('auth:guru')->group(function () {
+    Route::middleware(['auth:guru', 'prevent-back-history'])->group(function () {
             // Dashboard
             Route::get('/dashboard', [GuruDashboardController::class , 'index'])->name('guru.dashboard');
 
@@ -307,9 +311,9 @@ Route::prefix('guru')->group(function () {
 Route::prefix('siswa')->group(function () {
     Route::get('/login', [SiswaLoginController::class , 'showLoginForm'])->name('siswa.login');
     Route::post('/login', [SiswaLoginController::class , 'login'])->name('siswa.login.submit');
-    Route::post('/logout', [SiswaLoginController::class , 'logout'])->name('siswa.logout');
+    Route::match(['get', 'post'], '/logout', [SiswaLoginController::class , 'logout'])->name('siswa.logout');
 
-    Route::middleware('auth:siswa')->group(function () {
+    Route::middleware(['auth:siswa', 'prevent-back-history'])->group(function () {
             Route::get('/dashboard', [SiswaDashboardController::class , 'index'])->name('siswa.dashboard');
             Route::post('/exam/{schedule}/start', [SiswaExamController::class , 'start'])->name('siswa.exam.start');
             Route::get('/exam/{schedule}/soal/{no}', [SiswaExamController::class , 'show'])->name('siswa.exam.show');
@@ -329,9 +333,9 @@ Route::prefix('pengawas')->group(function () {
     });
     Route::get('/login', [\App\Http\Controllers\Pengawas\LoginController::class, 'showLoginForm'])->name('pengawas.login');
     Route::post('/login', [\App\Http\Controllers\Pengawas\LoginController::class, 'login'])->name('pengawas.login.submit');
-    Route::post('/logout', [\App\Http\Controllers\Pengawas\LoginController::class, 'logout'])->name('pengawas.logout');
+    Route::match(['get', 'post'], '/logout', [\App\Http\Controllers\Pengawas\LoginController::class, 'logout'])->name('pengawas.logout');
 
-    Route::middleware('auth:pengawas')->group(function () {
+    Route::middleware(['auth:pengawas', 'prevent-back-history'])->group(function () {
         Route::get('/dashboard', [\App\Http\Controllers\Pengawas\DashboardController::class, 'index'])->name('pengawas.dashboard');
         
         // Profile

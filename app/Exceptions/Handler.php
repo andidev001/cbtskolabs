@@ -44,5 +44,28 @@ class Handler extends ExceptionHandler
         $this->reportable(function (Throwable $e) {
             //
         });
+
+        // Tangani TokenMismatchException (419 Page Expired) secara elegan
+        $this->renderable(function (\Illuminate\Session\TokenMismatchException $e, $request) {
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'message' => 'Sesi Anda telah berakhir. Silakan muat ulang halaman.',
+                ], 419);
+            }
+
+            if ($request->is('admin') || $request->is('admin/*')) {
+                return redirect()->route('admin.login')->with('warning', 'Sesi Anda telah berakhir. Silakan login kembali.');
+            }
+
+            if ($request->is('guru') || $request->is('guru/*')) {
+                return redirect()->route('guru.login')->with('warning', 'Sesi Anda telah berakhir. Silakan login kembali.');
+            }
+
+            if ($request->is('pengawas') || $request->is('pengawas/*')) {
+                return redirect()->route('pengawas.login')->with('warning', 'Sesi Anda telah berakhir. Silakan login kembali.');
+            }
+
+            return redirect()->route('siswa.login')->with('warning', 'Sesi Anda telah berakhir. Silakan login kembali.');
+        });
     }
 }

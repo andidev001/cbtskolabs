@@ -1302,6 +1302,13 @@ document.addEventListener("DOMContentLoaded", function() {
             }
         }, { once: true });
     }
+
+    // Auto-reload jika halaman dimuat dari cache tombol 'Kembali' (BFCache browser)
+    window.addEventListener('pageshow', function (event) {
+        if (event.persisted || (window.performance && window.performance.navigation && window.performance.navigation.type === 2)) {
+            window.location.reload();
+        }
+    });
 });
 </script>
 </body>

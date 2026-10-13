@@ -391,6 +391,25 @@
                     <span>Install Aplikasi (APK)</span>
                 </button>
             </div>
+            {{-- Notifikasi Session Expired / Peringatan / Status --}}
+            @if(session('warning'))
+                <div style="background: #fffbeb; border: 1px solid #fef3c7; color: #b45309; padding: 10px 14px; border-radius: 8px; font-size: 0.85rem; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; text-align: left;">
+                    <svg style="width: 18px; height: 18px; flex-shrink: 0;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                    <span>{{ session('warning') }}</span>
+                </div>
+            @endif
+            @if(session('error'))
+                <div style="background: #fef2f2; border: 1px solid #fee2e2; color: #b91c1c; padding: 10px 14px; border-radius: 8px; font-size: 0.85rem; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; text-align: left;">
+                    <svg style="width: 18px; height: 18px; flex-shrink: 0;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    <span>{{ session('error') }}</span>
+                </div>
+            @endif
+            @if(session('status'))
+                <div style="background: #f0fdf4; border: 1px solid #dcfce7; color: #15803d; padding: 10px 14px; border-radius: 8px; font-size: 0.85rem; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; text-align: left;">
+                    <svg style="width: 18px; height: 18px; flex-shrink: 0;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                    <span>{{ session('status') }}</span>
+                </div>
+            @endif
 
             <form action="{{ route('siswa.login.submit') }}" method="POST">
                 @csrf
