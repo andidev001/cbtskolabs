@@ -1427,7 +1427,6 @@
         });
     }
 </script>
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <form action="{{ route('siswa.exam.block', $schedule->id) }}" method="POST" id="antiCheatForm" style="display:none;">
     @csrf
