@@ -16,6 +16,26 @@
 	<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 	<meta name="apple-mobile-web-app-title" content="CBT Siswa">
 	<link rel="apple-touch-icon" href="{{ asset('icons/icon-192x192.png') }}">
+	<script>
+		// Tangkap event sebelum browser selesai parsing agar tidak hilang
+		window.deferredPwaPrompt = null;
+		window.addEventListener('beforeinstallprompt', function(e) {
+			e.preventDefault();
+			window.deferredPwaPrompt = e;
+			console.log('[PWA] beforeinstallprompt berhasil ditangkap');
+			var btn = document.getElementById('btn-install-pwa');
+			if (btn) btn.classList.add('ready-prompt');
+		});
+
+		// Daftarkan Service Worker segera
+		if ('serviceWorker' in navigator) {
+			navigator.serviceWorker.register('/sw.js').then(function(reg) {
+				console.log('[PWA] Service Worker aktif');
+			}).catch(function(err) {
+				console.warn('[PWA] Service Worker info:', err);
+			});
+		}
+	</script>
 	<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         body { 
@@ -481,6 +501,26 @@
                 </div>
             </div>
 
+            <div id="pwa-guide-desktop" style="display: none;">
+                <p style="font-size: 0.8rem; color: #475569; margin-bottom: 12px;">Untuk pengguna <strong>Laptop / Komputer (Chrome / Edge)</strong>:</p>
+                <div class="pwa-step-item">
+                    <div class="pwa-step-num">1</div>
+                    <div class="pwa-step-text">Lihat di sebelah kanan <strong>bilah alamat (address bar)</strong> browser Anda.</div>
+                </div>
+                <div class="pwa-step-item">
+                    <div class="pwa-step-num">2</div>
+                    <div class="pwa-step-text">Klik ikon <strong>Instal Aplikasi</strong> (ikon monitor atau tanda + di sebelah kanan URL).</div>
+                </div>
+                <div class="pwa-step-item">
+                    <div class="pwa-step-num">3</div>
+                    <div class="pwa-step-text">Pilih <strong>"Instal"</strong>. Aplikasi ExamBrowser akan terbuka mandiri di desktop Anda.</div>
+                </div>
+            </div>
+
+            <div id="pwa-ssl-notice" style="display: none; background: #fffbeb; border: 1px solid #fef3c7; border-radius: 8px; padding: 10px; margin-top: 10px; font-size: 0.72rem; color: #92400e;">
+                ⚠️ <strong>Perhatian:</strong> Browser mewajibkan koneksi aman <strong>HTTPS</strong> agar jendela instalasi otomatis bisa muncul langsung. Pastikan alamat web menggunakan <code>https://</code>.
+            </div>
+
             <button type="button" onclick="closePwaModal()" style="width: 100%; margin-top: 15px; background: #1e40af; color: #fff; border: none; border-radius: 50px; padding: 10px; font-weight: 600; font-size: 0.85rem; cursor: pointer;">
                 Mengerti
             </button>
@@ -502,13 +542,15 @@
         });
 
         // ── PWA Logic ──
-        let deferredPrompt = null;
+        let deferredPrompt = window.deferredPwaPrompt || null;
         const installBtn = document.getElementById('btn-install-pwa');
         const installContainer = document.getElementById('pwa-install-container');
         const activeBadge = document.getElementById('pwa-installed-badge');
         const modalGuide = document.getElementById('pwa-modal-guide');
         const guideIos = document.getElementById('pwa-guide-ios');
         const guideAndroid = document.getElementById('pwa-guide-android');
+        const guideDesktop = document.getElementById('pwa-guide-desktop');
+        const sslNotice = document.getElementById('pwa-ssl-notice');
 
         // Check if currently opened in standalone PWA mode
         const isStandalone = window.matchMedia('(display-mode: standalone)').matches 
@@ -523,50 +565,69 @@
             activeBadge.style.display = 'none';
         }
 
-        // Register Service Worker
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('/sw.js').catch(() => {});
-            });
-        }
-
-        // Catch Android Chrome install prompt
+        // Catch prompt if it fires now
         window.addEventListener('beforeinstallprompt', (e) => {
             e.preventDefault();
             deferredPrompt = e;
+            window.deferredPwaPrompt = e;
             installContainer.style.display = 'block';
             activeBadge.style.display = 'none';
+            console.log('[PWA] Prompt event siap dijalankan');
         });
 
         // App Installed event
         window.addEventListener('appinstalled', () => {
             deferredPrompt = null;
+            window.deferredPwaPrompt = null;
             installContainer.style.display = 'none';
             activeBadge.style.display = 'block';
         });
 
         // Handle Install Button Click
         installBtn.addEventListener('click', async () => {
-            if (deferredPrompt) {
-                deferredPrompt.prompt();
-                const { outcome } = await deferredPrompt.userChoice;
-                if (outcome === 'accepted') {
-                    installContainer.style.display = 'none';
-                    activeBadge.style.display = 'block';
+            const promptEvent = window.deferredPwaPrompt || deferredPrompt;
+            if (promptEvent) {
+                try {
+                    promptEvent.prompt();
+                    const choice = await promptEvent.userChoice;
+                    if (choice && choice.outcome === 'accepted') {
+                        installContainer.style.display = 'none';
+                        activeBadge.style.display = 'block';
+                    }
+                    deferredPrompt = null;
+                    window.deferredPwaPrompt = null;
+                    return;
+                } catch (err) {
+                    console.error('[PWA] Error memanggil prompt:', err);
                 }
-                deferredPrompt = null;
-            } else {
-                // If native prompt is not available (e.g. iOS Safari or browser already prompt-blocked)
-                const isIos = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
-                if (isIos) {
-                    guideIos.style.display = 'block';
-                    guideAndroid.style.display = 'none';
-                } else {
-                    guideIos.style.display = 'none';
-                    guideAndroid.style.display = 'block';
-                }
-                modalGuide.style.display = 'flex';
             }
+
+            // Jika prompt bawaan browser belum/tidak tersedia (misal di iOS atau desktop atau non-HTTPS)
+            const isIos = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+            const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+            // Cek apakah HTTP (bukan HTTPS)
+            if (location.protocol === 'http:' && location.hostname !== 'localhost' && location.hostname !== '127.0.0.1') {
+                if (sslNotice) sslNotice.style.display = 'block';
+            } else {
+                if (sslNotice) sslNotice.style.display = 'none';
+            }
+
+            if (isIos) {
+                guideIos.style.display = 'block';
+                guideAndroid.style.display = 'none';
+                guideDesktop.style.display = 'none';
+            } else if (!isMobile) {
+                guideIos.style.display = 'none';
+                guideAndroid.style.display = 'none';
+                guideDesktop.style.display = 'block';
+            } else {
+                guideIos.style.display = 'none';
+                guideAndroid.style.display = 'block';
+                guideDesktop.style.display = 'none';
+            }
+
+            modalGuide.style.display = 'flex';
         });
 
         function closePwaModal() {

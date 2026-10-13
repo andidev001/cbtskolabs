@@ -1,4 +1,4 @@
-const CACHE_NAME = 'cbt-pwa-v1';
+const CACHE_NAME = 'cbt-pwa-v2';
 
 self.addEventListener('install', (event) => {
     self.skipWaiting();
@@ -19,7 +19,9 @@ self.addEventListener('activate', (event) => {
 });
 
 self.addEventListener('fetch', (event) => {
-    // CBT must always prioritize network to avoid caching real-time exam questions/answers
+    if (event.request.method !== 'GET') {
+        return;
+    }
     event.respondWith(
         fetch(event.request).catch(() => {
             return caches.match(event.request);
