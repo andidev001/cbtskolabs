@@ -1129,6 +1129,7 @@
     document.addEventListener('paste', e => e.preventDefault());
     document.addEventListener('selectstart', e => e.preventDefault());
     document.addEventListener('dragstart', e => e.preventDefault());
+    document.addEventListener('drop', e => e.preventDefault());
 
     // Layar Tetap Menyala (Screen Wake Lock API)
     if ('wakeLock' in navigator) {
@@ -1173,15 +1174,15 @@
         }
     });
 
-    // 2. Deteksi Kehilangan Fokus Window (Tarik status bar / notifikasi / tombol screenshot)
+    // 2. Deteksi Kehilangan Fokus Window (Tarik status bar / notifikasi / klik luar jendela ujian)
     window.addEventListener('blur', () => {
         document.body.classList.add('screen-protected');
         if (cheatDetectorActive) {
             setTimeout(() => {
                 if (document.hidden || !document.hasFocus()) {
-                    kickOut('Deteksi Kecurangan: Anda membuka panel notifikasi atau meninggalkan jendela ujian!');
+                    kickOut('Deteksi Kecurangan: Anda membuka jendela lain atau meninggalkan layar ujian!');
                 }
-            }, 300);
+            }, 250);
         }
     });
 
@@ -1189,14 +1190,20 @@
         document.body.classList.remove('screen-protected');
     });
 
-    // 3. Deteksi Split Screen (Layar Terbelah) di Mobile
+    // 3. Deteksi Split Screen (Layar Terbelah) di Mobile & Desktop (Windows Snap / Resize Jendela)
     window.addEventListener('resize', () => {
         if (!cheatDetectorActive) return;
         const activeTag = document.activeElement ? document.activeElement.tagName : '';
         const isEditing = activeTag === 'INPUT' || activeTag === 'TEXTAREA';
-        if (!isEditing && (window.innerHeight < (window.screen.availHeight * 0.65))) {
+        if (isEditing) return;
+
+        // Cek Split Screen Vertikal (Mobile) & Horizontal (Desktop Windows Snap / Resize ke samping)
+        const isHeightSplit = window.innerHeight < (window.screen.availHeight * 0.65);
+        const isWidthSplit = window.innerWidth < (window.screen.availWidth * 0.70);
+
+        if (isHeightSplit || isWidthSplit) {
             document.body.classList.add('screen-protected');
-            kickOut('Deteksi Kecurangan: Fitur Split Screen / Layar Terbelah tidak diizinkan!');
+            kickOut('Deteksi Kecurangan: Fitur Split Screen / Layar Terbelah atau memperkecil jendela tidak diizinkan!');
         }
     });
 
@@ -1223,24 +1230,61 @@
             if (navigator.clipboard) navigator.clipboard.writeText('');
             document.body.classList.add('screen-protected');
             setTimeout(() => document.body.classList.remove('screen-protected'), 1500);
-            if (cheatDetectorActive) kickOut('Tangkapan Layar (Screenshot) terdeteksi!');
+            if (cheatDetectorActive) kickOut('Deteksi Kecurangan: Tangkapan Layar (Screenshot / PrintScreen) terdeteksi!');
         }
     });
 
-    document.onkeydown = function(e) {
-        if (
-            e.keyCode === 123 ||
-            e.keyCode === 44 ||
-            (e.ctrlKey && (e.key === 'u' || e.key === 's' || e.key === 'p' || e.key === 'a' || e.key === 'c' || e.key === 'v' || e.key === 'x')) ||
-            (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'J' || e.key === 'C' || e.key === 'S')) ||
-            (e.metaKey && e.shiftKey)
-        ) {
+    document.addEventListener('keydown', function(e) {
+        // Tombol F1 - F12 (F12 DevTools, F5 reload, F11 fullscreen, dll)
+        if (e.keyCode >= 112 && e.keyCode <= 123) {
+            e.preventDefault();
             return false;
         }
-    };
+
+        // Tombol PrintScreen (Screenshot)
+        if (e.key === 'PrintScreen' || e.keyCode === 44) {
+            e.preventDefault();
+            if (navigator.clipboard) navigator.clipboard.writeText('');
+            kickOut('Deteksi Kecurangan: Tangkapan Layar (Screenshot / PrintScreen) terdeteksi!');
+            return false;
+        }
+
+        // Tombol Alt (Mencegah Alt+Tab, Alt+Panah Balik, Alt menu)
+        if (e.altKey) {
+            e.preventDefault();
+            return false;
+        }
+
+        // Tombol Windows / Meta (Mencegah Windows Snap / Win+Shift+S Snipping Tool)
+        if (e.metaKey) {
+            e.preventDefault();
+            if (e.shiftKey) {
+                kickOut('Deteksi Kecurangan: Shortcut Tangkapan Layar (Snipping Tool) terdeteksi!');
+            }
+            return false;
+        }
+
+        // Tombol Ctrl kombinasi (Blokir copy, paste, select all, new tab/window, source, print, search, dll)
+        if (e.ctrlKey) {
+            const blockedKeys = ['c', 'v', 'x', 'a', 'u', 's', 'p', 't', 'n', 'w', 'h', 'j', 'r', 'f', 'g', 'k', 'l', 'o', 'e', 'b', 'i', 'q'];
+            if (blockedKeys.includes(e.key.toLowerCase())) {
+                e.preventDefault();
+                return false;
+            }
+        }
+    }, true);
+
+    // 6. Peringatan konfirmasi jika reload / tutup tab browser
+    window.addEventListener('beforeunload', function(e) {
+        if (cheatDetectorActive) {
+            e.preventDefault();
+            e.returnValue = 'Apakah Anda yakin ingin meninggalkan ujian? Tindakan ini akan dicatat sebagai pelanggaran.';
+            return e.returnValue;
+        }
+    });
     @endif
 
-        function confirmLogout() {
+    function confirmLogout() {
         Swal.fire({
             title: 'Yakin ingin keluar?',
             text: 'Jawaban sementara telah tersimpan otomatis.',
@@ -1261,6 +1305,9 @@
             }
         }).then((result) => {
             if (result.isConfirmed) {
+                if (typeof cheatDetectorActive !== 'undefined') {
+                    cheatDetectorActive = false;
+                }
                 document.getElementById('logout-form').submit();
             }
         });
@@ -1278,6 +1325,8 @@ document.addEventListener("DOMContentLoaded", function() {
     const btnFullscreen = document.getElementById('btn-fullscreen');
     const docElm = document.documentElement;
     const isFullscreenSupported = docElm.requestFullscreen || docElm.webkitRequestFullscreen || docElm.msRequestFullscreen;
+
+    let hasEnteredFullscreen = false;
 
     if (!isFullscreenSupported) {
         document.body.classList.add('is-fullscreen');
@@ -1299,8 +1348,18 @@ document.addEventListener("DOMContentLoaded", function() {
                 || window.navigator.standalone === true;
             if (isFullScreen || isPwaMode) {
                 document.body.classList.add('is-fullscreen');
+                hasEnteredFullscreen = true;
             } else {
                 document.body.classList.remove('is-fullscreen');
+                @if($schedule->enforce_focus)
+                if (hasEnteredFullscreen && typeof cheatDetectorActive !== 'undefined' && cheatDetectorActive) {
+                    const activeTag = document.activeElement ? document.activeElement.tagName : '';
+                    const isEditing = activeTag === 'INPUT' || activeTag === 'TEXTAREA';
+                    if (!isEditing) {
+                        kickOut('Deteksi Kecurangan: Anda keluar dari mode Layar Penuh (Fullscreen)!');
+                    }
+                }
+                @endif
             }
         }
         
