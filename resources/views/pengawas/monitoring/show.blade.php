@@ -77,7 +77,7 @@
                 <!-- Alert Banner jika ada siswa terblokir -->
                 <div id="alert-blocked-banner" class="alert alert-danger d-none align-items-center justify-content-between py-2 px-3 mb-3" role="alert">
                     <div class="d-flex align-items-center gap-2">
-                        <i data-feather="shield-alert" class="text-danger flex-shrink-0" style="width: 20px; height: 20px;"></i>
+                        <i data-feather="alert-octagon" class="text-danger flex-shrink-0" style="width: 20px; height: 20px;"></i>
                         <div>
                             <strong>Perhatian Pengawas:</strong> Ada <span id="alert-blocked-count" class="badge bg-danger">0</span> siswa terkunci karena terdeteksi melakukan pelanggaran ujian!
                         </div>
@@ -136,6 +136,26 @@
 @push('scripts')
 <script>
     document.addEventListener("DOMContentLoaded", function() {
+        function updateStats(json) {
+            if (!json) return;
+            var total = json.totalCount !== undefined ? json.totalCount : 0;
+            var ongoing = json.ongoingCount !== undefined ? json.ongoingCount : 0;
+            var finished = json.finishedCount !== undefined ? json.finishedCount : 0;
+            var blocked = json.blockedCount !== undefined ? json.blockedCount : 0;
+
+            $('#stat-total').text(total);
+            $('#stat-ongoing').text(ongoing);
+            $('#stat-finished').text(finished);
+            $('#stat-blocked').text(blocked);
+
+            if (blocked > 0) {
+                $('#alert-blocked-banner').removeClass('d-none').addClass('d-flex');
+                $('#alert-blocked-count').text(blocked);
+            } else {
+                $('#alert-blocked-banner').removeClass('d-flex').addClass('d-none');
+            }
+        }
+
         var table = $('#tableMonitoring').DataTable({
             processing: true,
             serverSide: true,
@@ -160,29 +180,23 @@
                 url: '//cdn.datatables.net/plug-ins/1.13.6/i18n/id.json',
             },
             drawCallback: function(settings) {
-                if(window.feather) {
-                    feather.replace();
-                }
-
-                // Update ringkasan statistik
-                if (settings.json) {
-                    var total = settings.json.totalCount !== undefined ? settings.json.totalCount : 0;
-                    var ongoing = settings.json.ongoingCount !== undefined ? settings.json.ongoingCount : 0;
-                    var finished = settings.json.finishedCount !== undefined ? settings.json.finishedCount : 0;
-                    var blocked = settings.json.blockedCount !== undefined ? settings.json.blockedCount : 0;
-
-                    $('#stat-total').text(total);
-                    $('#stat-ongoing').text(ongoing);
-                    $('#stat-finished').text(finished);
-                    $('#stat-blocked').text(blocked);
-
-                    if (blocked > 0) {
-                        $('#alert-blocked-banner').removeClass('d-none').addClass('d-flex');
-                        $('#alert-blocked-count').text(blocked);
-                    } else {
-                        $('#alert-blocked-banner').removeClass('d-flex').addClass('d-none');
+                try {
+                    if(window.feather) {
+                        feather.replace();
                     }
+                } catch(e) {
+                    console.warn(e);
                 }
+
+                if (settings.json) {
+                    updateStats(settings.json);
+                }
+            }
+        });
+
+        $('#tableMonitoring').on('xhr.dt', function(e, settings, json, xhr) {
+            if (json) {
+                updateStats(json);
             }
         });
 
@@ -192,25 +206,25 @@
         }
 
         $('#groupFilter').on('change', function() {
-            table.draw();
+            table.ajax.reload(null, true);
         });
 
         $('#statusFilter').on('change', function() {
             syncActiveCard($(this).val());
-            table.draw();
+            table.ajax.reload(null, true);
         });
 
         $('.stat-filter-card').on('click', function() {
             var filter = $(this).data('filter');
             $('#statusFilter').val(filter);
             syncActiveCard(filter);
-            table.draw();
+            table.ajax.reload(null, true);
         });
 
         $('#btn-show-blocked').on('click', function() {
             $('#statusFilter').val('blocked');
             syncActiveCard('blocked');
-            table.draw();
+            table.ajax.reload(null, true);
         });
 
         $('#btnRefresh').on('click', function() {

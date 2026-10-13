@@ -132,11 +132,11 @@ class ExamMonitoringController extends Controller
                 $students = $students->filter(function($student) use ($results, $sf) {
                     $res = $results->get($student->id);
                     if ($sf === 'blocked') return $res && $res->status === 'blocked';
-                    if ($sf === 'ongoing') return $res && $res->status !== 'blocked' && !$res->finished_at;
+                    if ($sf === 'ongoing') return $res && $res->status !== 'blocked' && !$res->finished_at && $res->status !== 'finished';
                     if ($sf === 'finished') return $res && ($res->status === 'finished' || $res->finished_at);
                     if ($sf === 'not_started') return !$res;
                     return true;
-                });
+                })->values();
             }
 
             return \Yajra\DataTables\Facades\DataTables::of($students)
