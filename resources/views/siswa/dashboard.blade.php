@@ -502,10 +502,10 @@
         @endforeach
         @endif
 
-        {{-- SELESAI --}}
+        {{-- SELESAI & BERAKHIR --}}
         @if($finished->count() > 0)
         <div class="section-header">
-            <h2>Ujian Selesai</h2>
+            <h2>Riwayat Ujian (Selesai & Berakhir)</h2>
             <div class="line"></div>
         </div>
         @foreach($finished as $exam)
@@ -515,8 +515,10 @@
             <div class="card-body-content">
                 @if($isBlocked)
                     <span class="exam-tag tag-blocked">⚠️ Diblokir</span>
-                @else
+                @elseif($res && $res->finished_at)
                     <span class="exam-tag tag-finished">✅ Selesai</span>
+                @else
+                    <span class="exam-tag" style="background: #f1f5f9; color: #64748b; border: 1px solid #e2e8f0;">⏱️ Waktu Habis</span>
                 @endif
                 <div class="exam-title">{{ $exam->name }}</div>
                 <div class="exam-event">{{ $exam->examEvent->name }}</div>
@@ -524,8 +526,10 @@
                     <div class="detail-item">
                         @if($isBlocked)
                             <span class="text-danger">Ujian diblokir. Hubungi Pengawas untuk reset.</span>
+                        @elseif($res && $res->finished_at)
+                            Selesai pada {{ \Carbon\Carbon::parse($res->finished_at)->format('d/m/Y H:i') }}
                         @else
-                            Selesai pada {{ $exam->end_at->format('d/m/Y') }}
+                            <span class="text-muted">Tidak dikerjakan (Batas waktu berakhir pada {{ $exam->end_at->format('d/m/Y H:i') }})</span>
                         @endif
                     </div>
                     @if(!$isBlocked && $res && $res->finished_at)

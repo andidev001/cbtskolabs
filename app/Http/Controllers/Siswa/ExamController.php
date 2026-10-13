@@ -32,13 +32,8 @@ class ExamController extends Controller
         $subject = $schedule->bankSoal->subject;
         abort_if($subject && $subject->religion_id !== null && $subject->religion_id != $siswa->religion_id, 403, 'Ujian ini tidak tersedia untuk Anda (Beda Agama).');
 
-        // Validasi Sesi Siswa
+        // Validasi Sesi Siswa (Informasional)
         $siswaSession = \App\Models\ExamSession::where('name', $siswa->sesi)->first();
-        if ($siswaSession) {
-            $curTime = $now->format('H:i:s');
-            abort_if($curTime < $siswaSession->start_time, 403, 'Sesi Anda belum dimulai.');
-            abort_if($curTime > $siswaSession->end_time, 403, 'Waktu sesi Anda telah berakhir.');
-        }
 
         // Validasi Token (Server Side)
         if ($schedule->token) {
@@ -103,13 +98,8 @@ class ExamController extends Controller
 
         abort_if($now->gt($schedule->end_at), 403, 'Waktu ujian telah berakhir.');
 
-        // Validasi Sesi Siswa
+        // Validasi Sesi Siswa (Informasional)
         $siswaSession = \App\Models\ExamSession::where('name', $siswa->sesi)->first();
-        if ($siswaSession) {
-            $curTime = $now->format('H:i:s');
-            abort_if($curTime < $siswaSession->start_time, 403, 'Sesi Anda belum dimulai.');
-            abort_if($curTime > $siswaSession->end_time, 403, 'Waktu sesi Anda telah berakhir.');
-        }
 
         // Cek apakah sudah selesai atau diblokir
         $result = ExamResult::where('exam_schedule_id', $scheduleId)

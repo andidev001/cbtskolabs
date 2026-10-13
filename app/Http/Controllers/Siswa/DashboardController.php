@@ -37,25 +37,22 @@ class DashboardController extends Controller
             ->where('is_active', true)
             ->orderBy('start_at')
             ->get()
-            ->map(function ($s) use ($now, $results, $siswaSession) {
+            ->map(function ($s) use ($now, $results) {
             $res = $results->get($s->id);
-            $curTime = $now->format('H:i:s');
             
             $s->status_ujian = match (true) {
                     $res && $res->status === 'blocked' => 'blocked',
                     $res && $res->finished_at !== null => 'finished',
                     $now->lt($s->start_at) => 'upcoming', // belum mulai
-                    $now->gt($s->end_at) => 'finished', // waktu habis
-                    $siswaSession && $curTime < $siswaSession->start_time => 'upcoming', // Sesi belum mulai
-                    $siswaSession && $curTime > $siswaSession->end_time => 'finished', // Sesi sudah lewat
-                    default => 'ongoing',
+                    $now->gt($s->end_at) => 'expired', // batas waktu jadwal ujian habis
+                    default => 'ongoing', // jadwal masih aktif & belum selesai -> Ujian Berlangsung
                 };
             return $s;
         });
 
         $upcoming = $schedules->where('status_ujian', 'upcoming');
         $ongoing = $schedules->where('status_ujian', 'ongoing');
-        $finished = $schedules->whereIn('status_ujian', ['finished', 'blocked']);
+        $finished = $schedules->whereIn('status_ujian', ['finished', 'blocked', 'expired']);
 
         return view('siswa.dashboard', compact('siswa', 'schedules', 'upcoming', 'ongoing', 'finished', 'now', 'results', 'siswaSession'));
     }
