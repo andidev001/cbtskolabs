@@ -431,16 +431,24 @@ class ExamController extends Controller
     public function block(Request $request, $scheduleId)
     {
         $siswa = Auth::guard('siswa')->user();
-        ExamResult::updateOrCreate(
-            ['exam_schedule_id' => $scheduleId, 'siswa_id' => $siswa->id],
-            ['finished_at' => now(), 'status' => 'blocked']
-        );
-        session()->forget(["exam_start_{$scheduleId}_{$siswa->id}", "exam_questions_{$scheduleId}_{$siswa->id}"]);
+        if ($siswa) {
+            ExamResult::updateOrCreate(
+                ['exam_schedule_id' => $scheduleId, 'siswa_id' => $siswa->id],
+                ['finished_at' => now(), 'status' => 'blocked']
+            );
+            session()->forget(["exam_start_{$scheduleId}_{$siswa->id}", "exam_questions_{$scheduleId}_{$siswa->id}"]);
+            
+            $siswa->update([
+                'is_logged_in' => false,
+                'session_id' => null
+            ]);
+
+            Auth::guard('siswa')->logout();
+        }
         
-        Auth::guard('siswa')->logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        return redirect()->route('siswa.login')->with('error', 'Anda dikeluarkan karena terindikasi melakukan kecurangan (Pindah Tab/Membuka Aplikasi Lain). Silakan hubungi pengawas untuk mereset ujian Anda.');
+        return redirect()->route('siswa.login')->with('error', 'Akun Anda terkunci karena membuka tab baru atau aplikasi lain saat ujian. Anda tidak dapat login kembali sebelum Pengawas membuka blokir Anda.');
     }
 }

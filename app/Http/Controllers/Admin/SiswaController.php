@@ -197,6 +197,6 @@ class SiswaController extends Controller
             'is_logged_in' => false,
             'session_id' => null
         ]);
-        return redirect()->back()->with('success', 'Status login siswa berhasil direset.');
+        \App\Models\ExamResult::where('siswa_id', $id)->where('status', 'blocked')->update(['status' => 'ongoing', 'finished_at' => null]); return redirect()->back()->with('success', 'Status login dan blokir ujian siswa berhasil direset.');
     }
 }

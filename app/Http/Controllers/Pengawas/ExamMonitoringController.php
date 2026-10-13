@@ -235,7 +235,7 @@ class ExamMonitoringController extends Controller
                 'status' => 'ongoing',
                 'finished_at' => null
             ]);
-            return redirect()->back()->with('success', 'Blokir ujian berhasil dibuka. Siswa kini bisa melanjutkan ujian.');
+            $siswa = \App\Models\Siswa::find($siswaId); if ($siswa) { $siswa->update(['is_logged_in' => false, 'session_id' => null]); } return redirect()->back()->with('success', 'Blokir ujian berhasil dibuka. Siswa kini bisa login dan melanjutkan ujian.');
         }
 
         return redirect()->back()->with('error', 'Status siswa bukan terblokir.');
@@ -249,6 +249,6 @@ class ExamMonitoringController extends Controller
             'session_id' => null
         ]);
 
-        return redirect()->back()->with('success', 'Status login siswa berhasil direset. Siswa kini bisa login kembali dari perangkat lain.');
+        \App\Models\ExamResult::where('siswa_id', $siswaId)->where('status', 'blocked')->update(['status' => 'ongoing', 'finished_at' => null]); return redirect()->back()->with('success', 'Status login dan blokir ujian siswa berhasil direset.');
     }
 }

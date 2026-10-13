@@ -3,8 +3,11 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Models\Siswa;
+use App\Models\ExamResult;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 
 class SiswaLoginController extends Controller
 {
@@ -23,7 +26,25 @@ class SiswaLoginController extends Controller
             'password' => 'required|string',
         ]);
 
-        if (Auth::guard('siswa')->attempt(['username' => $request->username, 'password' => $request->password], $request->remember)) {
+        $siswa = Siswa::where('username', $request->username)->first();
+
+        if ($siswa && Hash::check($request->password, $siswa->password)) {
+            // Cek apakah siswa terblokir karena kecurangan ujian (buka tab/aplikasi lain)
+            $blockedExam = ExamResult::where('siswa_id', $siswa->id)
+                ->where('status', 'blocked')
+                ->first();
+
+            if ($blockedExam) {
+                return back()->with('error', 'Login ditolak! Akun Anda terkunci karena membuka tab baru atau aplikasi lain saat ujian. Silakan hubungi Pengawas untuk membuka blokir.')
+                    ->withInput($request->only('username', 'remember'));
+            }
+
+            Auth::guard('siswa')->login($siswa, $request->boolean('remember'));
+            $siswa->update([
+                'is_logged_in' => true,
+                'session_id' => session()->getId(),
+            ]);
+
             $request->session()->regenerate();
             return redirect()->route('siswa.dashboard');
         }
@@ -35,6 +56,13 @@ class SiswaLoginController extends Controller
 
     public function logout(Request $request)
     {
+        $siswa = Auth::guard('siswa')->user();
+        if ($siswa) {
+            $siswa->update([
+                'is_logged_in' => false,
+                'session_id' => null,
+            ]);
+        }
         Auth::guard('siswa')->logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();

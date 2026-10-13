@@ -1144,7 +1144,7 @@
         cheatDetectorActive = false;
 
         document.body.classList.add('screen-protected');
-        const msg = reason || 'Deteksi Kecurangan: Anda keluar dari halaman ujian. Anda akan diblokir dari ujian ini.';
+        const msg = reason || 'Deteksi Kecurangan: Anda keluar dari halaman ujian (membuka tab/aplikasi lain). Akun Anda telah dikunci dan tidak bisa login kembali. Silakan hubungi Pengawas untuk membuka blokir!';
         alert(msg);
         document.getElementById('antiCheatForm').submit();
     }
