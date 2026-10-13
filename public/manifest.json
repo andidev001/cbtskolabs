@@ -1,9 +1,9 @@
 {
-  "id": "/",
+  "id": "/siswa/login",
   "name": "SKOLABS CBT - Ujian Siswa",
   "short_name": "CBT Siswa",
   "description": "Aplikasi Ujian Siswa SKOLABS CBT Mode ExamBrowser",
-  "start_url": "/",
+  "start_url": "/siswa/login?mode=pwa",
   "scope": "/",
   "display": "fullscreen",
   "orientation": "portrait",

@@ -17,6 +17,14 @@
 	<meta name="apple-mobile-web-app-title" content="CBT Siswa">
 	<link rel="apple-touch-icon" href="{{ asset('icons/icon-192x192.png') }}">
 	<script>
+		// Cek jika dibuka dari shortcut PWA / mode aplikasi
+		try {
+			var _urlP = new URLSearchParams(window.location.search);
+			if (_urlP.get('mode') === 'pwa' || _urlP.get('source') === 'pwa') {
+				localStorage.setItem('pwa_cbt_installed', '1');
+			}
+		} catch(e) {}
+
 		// Tangkap event sebelum browser selesai parsing agar tidak hilang
 		window.deferredPwaPrompt = null;
 		window.addEventListener('beforeinstallprompt', function(e) {
@@ -335,6 +343,13 @@
             color: #334155;
             line-height: 1.45;
         }
+
+        /* Otomatis sembunyikan tombol jika dijalankan di mode aplikasi / PWA */
+        @media all and (display-mode: standalone), (display-mode: fullscreen), (display-mode: minimal-ui) {
+            #pwa-install-container {
+                display: none !important;
+            }
+        }
     </style>
 </head>
 <body>
@@ -369,14 +384,7 @@
             <h2 class="welcome-title">Selamat Datang</h2>
             <p class="welcome-sub">Silakan login menggunakan username dan password yang Anda miliki</p>
 
-            {{-- PWA ExamBrowser Status / Install Banner --}}
-            <div id="pwa-installed-badge" style="display: none; text-align: center;">
-                <span class="pwa-active-badge">
-                    <svg style="width: 15px; height: 15px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>
-                    Mode ExamBrowser Aktif
-                </span>
-            </div>
-
+            {{-- Tombol Install PWA (Otomatis hilang jika aplikasi sudah terpasang) --}}
             <div id="pwa-install-container" style="display: none; text-align: center; margin-bottom: 22px;">
                 <button type="button" id="btn-install-pwa" class="btn-install-pwa">
                     <svg style="width: 17px; height: 17px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
@@ -510,42 +518,64 @@
         let deferredPrompt = window.deferredPwaPrompt || null;
         const installBtn = document.getElementById('btn-install-pwa');
         const installContainer = document.getElementById('pwa-install-container');
-        const activeBadge = document.getElementById('pwa-installed-badge');
         const modalGuide = document.getElementById('pwa-modal-guide');
         const guideIos = document.getElementById('pwa-guide-ios');
         const guideAndroid = document.getElementById('pwa-guide-android');
         const guideDesktop = document.getElementById('pwa-guide-desktop');
         const sslNotice = document.getElementById('pwa-ssl-notice');
 
-        // Check if currently opened in standalone PWA mode
-        const isStandalone = window.matchMedia('(display-mode: standalone)').matches 
-            || window.navigator.standalone === true 
-            || document.referrer.includes('android-app://');
-
-        if (isStandalone) {
-            installContainer.style.display = 'none';
-            activeBadge.style.display = 'block';
-        } else {
-            installContainer.style.display = 'block';
-            activeBadge.style.display = 'none';
+        // Fungsi menyembunyikan tombol install total jika sudah terpasang
+        function hideInstallButton() {
+            if (installContainer) {
+                installContainer.style.display = 'none';
+            }
         }
 
-        // Catch prompt if it fires now
+        // Cek apakah aplikasi dibuka di mode aplikasi (standalone/fullscreen PWA)
+        const currentUrlParams = new URLSearchParams(window.location.search);
+        const isStandalone = window.matchMedia('(display-mode: standalone)').matches 
+            || window.matchMedia('(display-mode: fullscreen)').matches 
+            || window.matchMedia('(display-mode: minimal-ui)').matches 
+            || window.navigator.standalone === true 
+            || document.referrer.includes('android-app://')
+            || currentUrlParams.get('mode') === 'pwa'
+            || currentUrlParams.get('source') === 'pwa';
+
+        const isInstalledFlag = localStorage.getItem('pwa_cbt_installed') === '1';
+
+        if (isStandalone || isInstalledFlag) {
+            hideInstallButton();
+        } else {
+            installContainer.style.display = 'block';
+        }
+
+        // Deteksi bawaan browser untuk aplikasi terpasang
+        if ('getInstalledRelatedApps' in navigator) {
+            navigator.getInstalledRelatedApps().then(apps => {
+                if (apps && apps.length > 0) {
+                    localStorage.setItem('pwa_cbt_installed', '1');
+                    hideInstallButton();
+                }
+            }).catch(() => {});
+        }
+
+        // Catch prompt jika baru terpanggil
         window.addEventListener('beforeinstallprompt', (e) => {
             e.preventDefault();
             deferredPrompt = e;
             window.deferredPwaPrompt = e;
-            installContainer.style.display = 'block';
-            activeBadge.style.display = 'none';
+            if (!isStandalone && localStorage.getItem('pwa_cbt_installed') !== '1') {
+                installContainer.style.display = 'block';
+            }
             console.log('[PWA] Prompt event siap dijalankan');
         });
 
-        // App Installed event
+        // App Installed event: sembunyikan tombol seketika
         window.addEventListener('appinstalled', () => {
             deferredPrompt = null;
             window.deferredPwaPrompt = null;
-            installContainer.style.display = 'none';
-            activeBadge.style.display = 'block';
+            localStorage.setItem('pwa_cbt_installed', '1');
+            hideInstallButton();
         });
 
         // Handle Install Button Click
@@ -556,8 +586,8 @@
                     promptEvent.prompt();
                     const choice = await promptEvent.userChoice;
                     if (choice && choice.outcome === 'accepted') {
-                        installContainer.style.display = 'none';
-                        activeBadge.style.display = 'block';
+                        localStorage.setItem('pwa_cbt_installed', '1');
+                        hideInstallButton();
                     }
                     deferredPrompt = null;
                     window.deferredPwaPrompt = null;
