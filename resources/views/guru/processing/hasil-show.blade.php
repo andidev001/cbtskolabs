@@ -78,14 +78,14 @@
     <div class="card-header bg-white fw-semibold d-flex justify-content-between align-items-center">
         <span>Daftar Nilai Siswa</span>
         <div class="d-flex flex-wrap align-items-center gap-2">
-            <form action="{{ route('guru.processing.hasil.recalculate', $schedule->id) }}" method="POST" id="form-recalculate" class="d-inline">
+            <form action="{{ route('guru.processing.hasil.recalculate', $schedule->id) }}" method="POST" id="form-recalculate" class="d-inline m-0">
                 @csrf
-                <button type="button" class="btn btn-sm btn-outline-primary" id="btn-recalculate" onclick="if(confirm('Kalkulasi ulang nilai semua siswa yang telah selesai ujian ini?')) this.form.submit();">
-                    <i data-feather="refresh-cw" style="width: 14px; height: 14px;"></i> Hitung Ulang Nilai
+                <button type="button" class="btn btn-sm btn-outline-primary text-nowrap d-inline-flex align-items-center" id="btn-recalculate" onclick="if(confirm('Kalkulasi ulang nilai semua siswa yang telah selesai ujian ini?')) this.form.submit();">
+                    <i data-feather="refresh-cw" class="me-1" style="width: 14px; height: 14px;"></i> Hitung Ulang Nilai
                 </button>
             </form>
-            <a href="{{ route('guru.processing.hasil.export-excel', $schedule->id) }}" id="btn-export-excel" class="btn btn-sm btn-outline-success">
-                <i data-feather="file-text" style="width: 14px; height: 14px;"></i> Export Excel
+            <a href="{{ route('guru.processing.hasil.export-excel', $schedule->id) }}" id="btn-export-excel" class="btn btn-sm btn-outline-success text-nowrap d-inline-flex align-items-center">
+                <i data-feather="file-text" class="me-1" style="width: 14px; height: 14px;"></i> Export Excel
             </a>
             <select id="filter-kelas" class="form-select form-select-sm" style="width: auto; min-width: 130px;">
                 <option value="" data-id="">Semua Kelas</option>

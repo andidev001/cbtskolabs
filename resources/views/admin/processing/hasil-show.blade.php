@@ -20,35 +20,33 @@
                 </div>
                 @endif
 
-                <div class="d-flex justify-content-between align-items-center mb-4">
+                <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
                     <div>
                         <h4 class="mb-1"><strong>Hasil Ujian: {{ $schedule->name }}</strong></h4>
                         <p class="text-muted small mb-0">{{ $schedule->examEvent->name }} | {{ $schedule->bankSoal->name }}</p>
                     </div>
-                    <div class="d-flex gap-2">
-                        <form action="{{ route('admin.processing.hasil.reset', $schedule->id) }}" method="POST" id="form-delete-all">
+                    <div class="d-flex flex-wrap align-items-center gap-2">
+                        <form action="{{ route('admin.processing.hasil.reset', $schedule->id) }}" method="POST" id="form-delete-all" class="d-inline m-0">
                             @csrf
-                            <button type="button" class="btn btn-outline-danger btn-sm" id="btn-delete-all">
-                                <i data-feather="trash-2" class="align-middle me-1" style="width: 14px; height: 14px;"></i> Hapus Semua Hasil
+                            <button type="button" class="btn btn-outline-danger btn-sm text-nowrap d-inline-flex align-items-center" id="btn-delete-all">
+                                <i data-feather="trash-2" class="me-1" style="width: 14px; height: 14px;"></i> Hapus Semua Hasil
                             </button>
                         </form>
-                        <form action="{{ route('admin.processing.hasil.recalculate', $schedule->id) }}" method="POST" id="form-recalculate">
+                        <form action="{{ route('admin.processing.hasil.recalculate', $schedule->id) }}" method="POST" id="form-recalculate" class="d-inline m-0">
                             @csrf
-                            <button type="button" class="btn btn-outline-primary btn-sm" id="btn-recalculate" onclick="if(confirm('Kalkulasi ulang nilai semua siswa yang telah selesai ujian ini?')) this.form.submit();">
-                                <i data-feather="refresh-cw" class="align-middle me-1" style="width: 14px; height: 14px;"></i> Hitung Ulang Nilai
+                            <button type="button" class="btn btn-outline-primary btn-sm text-nowrap d-inline-flex align-items-center" id="btn-recalculate" onclick="if(confirm('Kalkulasi ulang nilai semua siswa yang telah selesai ujian ini?')) this.form.submit();">
+                                <i data-feather="refresh-cw" class="me-1" style="width: 14px; height: 14px;"></i> Hitung Ulang Nilai
                             </button>
                         </form>
-                        <div class="d-flex align-items-center gap-2">
-                            <select name="group_id" class="form-select form-select-sm" style="width: 150px;">
-                                <option value="">Semua Kelas</option>
-                                @foreach($groups as $group)
-                                    <option value="{{ $group->id }}">{{ $group->name }}</option>
-                                @endforeach
-                            </select>
-                            <a href="{{ route('admin.processing.hasil.export-excel', ['id' => $schedule->id, 'group_id' => request('group_id')]) }}" id="exportBtn" class="btn btn-success btn-sm text-nowrap">
-                                <i data-feather="download" class="align-middle me-1" style="width: 14px; height: 14px;"></i> Export Excel
-                            </a>
-                        </div>
+                        <select name="group_id" class="form-select form-select-sm" style="width: auto; min-width: 140px;">
+                            <option value="">Semua Kelas</option>
+                            @foreach($groups as $group)
+                                <option value="{{ $group->id }}">{{ $group->name }}</option>
+                            @endforeach
+                        </select>
+                        <a href="{{ route('admin.processing.hasil.export-excel', ['id' => $schedule->id, 'group_id' => request('group_id')]) }}" id="exportBtn" class="btn btn-success btn-sm text-nowrap d-inline-flex align-items-center">
+                            <i data-feather="download" class="me-1" style="width: 14px; height: 14px;"></i> Export Excel
+                        </a>
                     </div>
                 </div>
 
