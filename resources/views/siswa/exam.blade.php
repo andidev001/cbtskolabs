@@ -19,11 +19,30 @@
     <link href="{{ asset('assets/adminkit/css/app.css') }}" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
     <style>
+        html, body {
+            -webkit-user-select: none !important;
+            -moz-user-select: none !important;
+            -ms-user-select: none !important;
+            user-select: none !important;
+            -webkit-touch-callout: none !important;
+            overscroll-behavior: none !important;
+            overscroll-behavior-y: none !important;
+            touch-action: pan-y !important;
+        }
+
         body { 
             background: #e9ecef; 
             font-family: 'Roboto', sans-serif; 
             margin: 0; 
             color: #333;
+        }
+
+        /* Proteksi Layar saat Blur / Screenshot / Pindah Aplikasi */
+        body.screen-protected {
+            filter: blur(40px) brightness(0.1) !important;
+            opacity: 0.05 !important;
+            transition: filter 0.05s ease, opacity 0.05s ease !important;
+            pointer-events: none !important;
         }
         
         /* â”€â”€ Header â”€â”€ */
@@ -1103,39 +1122,107 @@
         document.getElementById('finishForm').submit();
     }
 
+    // ── Keamanan Global (Selalu Aktif) ──
+    document.addEventListener('contextmenu', e => e.preventDefault());
+    document.addEventListener('copy', e => e.preventDefault());
+    document.addEventListener('cut', e => e.preventDefault());
+    document.addEventListener('paste', e => e.preventDefault());
+    document.addEventListener('selectstart', e => e.preventDefault());
+    document.addEventListener('dragstart', e => e.preventDefault());
+
+    // Layar Tetap Menyala (Screen Wake Lock API)
+    if ('wakeLock' in navigator) {
+        navigator.wakeLock.request('screen').catch(() => {});
+    }
+
     // ── Anti-Cheat Logic ──
     @if($schedule->enforce_focus)
     let cheatDetectorActive = true;
     
-    function kickOut() {
+    function kickOut(reason) {
         if (!cheatDetectorActive) return;
         cheatDetectorActive = false;
 
-        alert('Deteksi Kecurangan: Anda keluar dari halaman ujian. Anda akan diblokir dari ujian ini.');
+        document.body.classList.add('screen-protected');
+        const msg = reason || 'Deteksi Kecurangan: Anda keluar dari halaman ujian. Anda akan diblokir dari ujian ini.';
+        alert(msg);
         document.getElementById('antiCheatForm').submit();
     }
 
+    // 1. Deteksi Pindah Tab / Minimalisir Aplikasi
     document.addEventListener('visibilitychange', () => {
-        if (document.visibilityState === 'hidden' && cheatDetectorActive) kickOut();
+        if (document.visibilityState === 'hidden' && cheatDetectorActive) {
+            document.body.classList.add('screen-protected');
+            kickOut('Deteksi Kecurangan: Anda berpindah tab atau meminimalkan aplikasi!');
+        } else {
+            document.body.classList.remove('screen-protected');
+        }
     });
 
-    // Deteksi Split Screen (Layar Terbelah) di Mobile
+    // 2. Deteksi Kehilangan Fokus Window (Tarik status bar / notifikasi / tombol screenshot)
+    window.addEventListener('blur', () => {
+        document.body.classList.add('screen-protected');
+        if (cheatDetectorActive) {
+            setTimeout(() => {
+                if (document.hidden || !document.hasFocus()) {
+                    kickOut('Deteksi Kecurangan: Anda membuka panel notifikasi atau meninggalkan jendela ujian!');
+                }
+            }, 300);
+        }
+    });
+
+    window.addEventListener('focus', () => {
+        document.body.classList.remove('screen-protected');
+    });
+
+    // 3. Deteksi Split Screen (Layar Terbelah) di Mobile
     window.addEventListener('resize', () => {
         if (!cheatDetectorActive) return;
         const activeTag = document.activeElement ? document.activeElement.tagName : '';
         const isEditing = activeTag === 'INPUT' || activeTag === 'TEXTAREA';
-        // Saat split screen di HP, tinggi viewport berkurang drastis di bawah 65% layar asli
         if (!isEditing && (window.innerHeight < (window.screen.availHeight * 0.65))) {
-            alert('Deteksi Kecurangan: Fitur Split Screen / Layar Terbelah tidak diizinkan selama ujian!');
-            kickOut();
+            document.body.classList.add('screen-protected');
+            kickOut('Deteksi Kecurangan: Fitur Split Screen / Layar Terbelah tidak diizinkan!');
         }
     });
 
-    document.addEventListener('contextmenu', e => e.preventDefault());
-    document.addEventListener('copy', e => e.preventDefault());
-    document.addEventListener('cut', e => e.preventDefault());
+    // 4. Blokir Gesture 3 Jari & Multi-touch (Mencegah Screenshot Gestur Bawaan HP)
+    document.addEventListener('touchstart', (e) => {
+        if (e.touches.length >= 2) {
+            e.preventDefault();
+        }
+        // Cegah tarik dari status bar paling atas (40px teratas)
+        if (e.touches[0].clientY < 40) {
+            e.preventDefault();
+        }
+    }, { passive: false });
+
+    document.addEventListener('touchmove', (e) => {
+        if (e.touches.length >= 2) {
+            e.preventDefault();
+        }
+    }, { passive: false });
+
+    // 5. Blokir Tombol Pintasan Screenshot Keyboard & Developer Tools
+    window.addEventListener('keyup', (e) => {
+        if (e.key === 'PrintScreen' || e.keyCode === 44) {
+            if (navigator.clipboard) navigator.clipboard.writeText('');
+            document.body.classList.add('screen-protected');
+            setTimeout(() => document.body.classList.remove('screen-protected'), 1500);
+            if (cheatDetectorActive) kickOut('Tangkapan Layar (Screenshot) terdeteksi!');
+        }
+    });
+
     document.onkeydown = function(e) {
-        if (e.keyCode == 123 || (e.ctrlKey && e.shiftKey && e.keyCode == 73)) return false;
+        if (
+            e.keyCode === 123 ||
+            e.keyCode === 44 ||
+            (e.ctrlKey && (e.key === 'u' || e.key === 's' || e.key === 'p' || e.key === 'a' || e.key === 'c' || e.key === 'v' || e.key === 'x')) ||
+            (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'J' || e.key === 'C' || e.key === 'S')) ||
+            (e.metaKey && e.shiftKey)
+        ) {
+            return false;
+        }
     };
     @endif
 
@@ -1192,8 +1279,10 @@ document.addEventListener("DOMContentLoaded", function() {
         
         function onFullScreenChange() {
             let isFullScreen = document.fullscreenElement || document.webkitFullscreenElement || document.msFullscreenElement;
-            let isStandalonePwa = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
-            if (isFullScreen || isStandalonePwa) {
+            let isPwaMode = window.matchMedia('(display-mode: standalone)').matches 
+                || window.matchMedia('(display-mode: fullscreen)').matches 
+                || window.navigator.standalone === true;
+            if (isFullScreen || isPwaMode) {
                 document.body.classList.add('is-fullscreen');
             } else {
                 document.body.classList.remove('is-fullscreen');
@@ -1204,6 +1293,14 @@ document.addEventListener("DOMContentLoaded", function() {
         document.addEventListener("webkitfullscreenchange", onFullScreenChange);
         document.addEventListener("msfullscreenchange", onFullScreenChange);
         onFullScreenChange();
+
+        // Minta layar penuh otomatis pada sentuhan pertama jika belum penuh
+        document.addEventListener('touchstart', function autoFs() {
+            let isFs = document.fullscreenElement || document.webkitFullscreenElement || document.msFullscreenElement;
+            if (!isFs && docElm.requestFullscreen) {
+                docElm.requestFullscreen().catch(() => {});
+            }
+        }, { once: true });
     }
 });
 </script>
