@@ -17,5 +17,6 @@ class VerifyCsrfToken extends Middleware
         'admin/logout',
         'guru/logout',
         'pengawas/logout',
+        'siswa/exam/*/block',
     ];
 }

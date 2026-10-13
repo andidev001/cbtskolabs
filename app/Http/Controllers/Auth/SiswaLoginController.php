@@ -24,11 +24,12 @@ class SiswaLoginController extends Controller
         ]);
 
         if (Auth::guard('siswa')->attempt(['username' => $request->username, 'password' => $request->password], $request->remember)) {
-            return redirect()->intended(route('siswa.dashboard'));
+            $request->session()->regenerate();
+            return redirect()->route('siswa.dashboard');
         }
 
         return back()->withErrors([
-            'username' => 'The provided credentials do not match our records.',
+            'username' => 'Username atau Password salah.',
         ])->withInput($request->only('username', 'remember'));
     }
 
