@@ -422,9 +422,21 @@ class ExamController extends Controller
     {
         $siswa = Auth::guard('siswa')->user();
         if ($siswa) {
+            $reason = $request->input('reason', 'Membuka tab baru atau aplikasi lain');
+            $data = [
+                'finished_at' => now(),
+                'status' => 'blocked',
+            ];
+
+            try {
+                if (\Illuminate\Support\Facades\Schema::hasColumn('exam_results', 'block_reason')) {
+                    $data['block_reason'] = $reason;
+                }
+            } catch (\Throwable $e) {}
+
             ExamResult::updateOrCreate(
                 ['exam_schedule_id' => $scheduleId, 'siswa_id' => $siswa->id],
-                ['finished_at' => now(), 'status' => 'blocked']
+                $data
             );
             session()->forget(["exam_start_{$scheduleId}_{$siswa->id}", "exam_questions_{$scheduleId}_{$siswa->id}"]);
             
@@ -439,6 +451,8 @@ class ExamController extends Controller
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        return redirect()->route('siswa.login')->with('error', 'Akun Anda terkunci karena membuka tab baru atau aplikasi lain saat ujian. Anda tidak dapat login kembali sebelum Pengawas membuka blokir Anda.');
+        $errorMsg = 'Akun Anda terkunci karena pelanggaran ujian: ' . ($request->input('reason') ?? 'Membuka tab baru atau aplikasi lain') . '. Silakan hubungi Pengawas untuk membuka blokir.';
+
+        return redirect()->route('siswa.login')->with('error', $errorMsg);
     }
 }

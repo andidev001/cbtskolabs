@@ -17,6 +17,8 @@ class ExamResult extends Model
         'total_questions',
         'correct_answers',
         'score',
+        'status',
+        'block_reason',
     ];
 
     protected $casts = [

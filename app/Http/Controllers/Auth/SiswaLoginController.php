@@ -35,7 +35,14 @@ class SiswaLoginController extends Controller
                 ->first();
 
             if ($blockedExam) {
-                return back()->with('error', 'Login ditolak! Akun Anda terkunci karena membuka tab baru atau aplikasi lain saat ujian. Silakan hubungi Pengawas untuk membuka blokir.')
+                $reasonText = '';
+                try {
+                    if (!empty($blockedExam->block_reason)) {
+                        $reasonText = ' (' . $blockedExam->block_reason . ')';
+                    }
+                } catch (\Throwable $e) {}
+
+                return back()->with('error', 'Login ditolak! Akun Anda terkunci karena pelanggaran saat ujian' . $reasonText . '. Silakan hubungi Pengawas untuk membuka blokir.')
                     ->withInput($request->only('username', 'remember'));
             }
 

@@ -106,8 +106,48 @@ class ExamMonitoringController extends Controller
                 ->get()
                 ->keyBy('siswa_id');
 
+            // Hitung statistik untuk ringkasan & kartu filter
+            $totalCount = $students->count();
+            $blockedCount = 0;
+            $ongoingCount = 0;
+            $finishedCount = 0;
+            $notStartedCount = 0;
+
+            foreach ($students as $student) {
+                $res = $results->get($student->id);
+                if (!$res) {
+                    $notStartedCount++;
+                } elseif ($res->status === 'blocked') {
+                    $blockedCount++;
+                } elseif ($res->status === 'finished' || $res->finished_at) {
+                    $finishedCount++;
+                } else {
+                    $ongoingCount++;
+                }
+            }
+
+            // Filter status jika dipilih
+            if ($request->has('status_filter') && $request->status_filter != '') {
+                $sf = $request->status_filter;
+                $students = $students->filter(function($student) use ($results, $sf) {
+                    $res = $results->get($student->id);
+                    if ($sf === 'blocked') return $res && $res->status === 'blocked';
+                    if ($sf === 'ongoing') return $res && $res->status !== 'blocked' && !$res->finished_at;
+                    if ($sf === 'finished') return $res && ($res->status === 'finished' || $res->finished_at);
+                    if ($sf === 'not_started') return !$res;
+                    return true;
+                });
+            }
+
             return \Yajra\DataTables\Facades\DataTables::of($students)
                 ->addIndexColumn()
+                ->with([
+                    'totalCount' => $totalCount,
+                    'blockedCount' => $blockedCount,
+                    'ongoingCount' => $ongoingCount,
+                    'finishedCount' => $finishedCount,
+                    'notStartedCount' => $notStartedCount,
+                ])
                 ->addColumn('nomer_ujian', function($row) {
                     return $row->nomer_ujian;
                 })
@@ -123,13 +163,17 @@ class ExamMonitoringController extends Controller
                         return '<span class="badge bg-secondary">Belum Mulai</span>';
                     }
                     if ($result->status === 'blocked') {
-                        return '<span class="badge bg-danger">Diblokir</span>';
+                        $reason = !empty($result->block_reason) ? htmlspecialchars($result->block_reason) : 'Membuka tab/aplikasi lain';
+                        return '<span class="badge bg-danger"><i data-feather="alert-triangle" style="width: 12px; height: 12px;" class="align-middle me-1"></i> Diblokir</span>' .
+                               '<div class="text-danger fw-bold mt-1" style="font-size: 0.72rem; line-height: 1.2;">' . $reason . '</div>';
                     }
                     if ($result->status === 'finished' || $result->finished_at) {
                         return '<span class="badge bg-success">Selesai</span>';
                     }
                     $html = '<span class="badge bg-primary">Sedang Mengerjakan</span>';
-                    $html .= '<div class="small text-muted mt-1" style="font-size: 0.7rem;">Mulai: ' . $result->started_at->format('H:i') . '</div>';
+                    if ($result->started_at) {
+                        $html .= '<div class="small text-muted mt-1" style="font-size: 0.7rem;">Mulai: ' . $result->started_at->format('H:i') . '</div>';
+                    }
                     return $html;
                 })
                 ->addColumn('progress', function($row) use ($results, $answerCounts, $totalQuestions) {
@@ -239,11 +283,22 @@ class ExamMonitoringController extends Controller
             ->first();
 
         if ($result && $result->status === 'blocked') {
-            $result->update([
+            $resetData = [
                 'status' => 'ongoing',
-                'finished_at' => null
-            ]);
-            $siswa = \App\Models\Siswa::find($siswaId); if ($siswa) { $siswa->update(['is_logged_in' => false, 'session_id' => null]); } return redirect()->back()->with('success', 'Blokir ujian berhasil dibuka. Siswa kini bisa login dan melanjutkan ujian.');
+                'finished_at' => null,
+            ];
+            try {
+                if (\Illuminate\Support\Facades\Schema::hasColumn('exam_results', 'block_reason')) {
+                    $resetData['block_reason'] = null;
+                }
+            } catch (\Throwable $e) {}
+
+            $result->update($resetData);
+            $siswa = \App\Models\Siswa::find($siswaId);
+            if ($siswa) {
+                $siswa->update(['is_logged_in' => false, 'session_id' => null]);
+            }
+            return redirect()->back()->with('success', 'Blokir ujian berhasil dibuka. Siswa kini bisa login dan melanjutkan ujian.');
         }
 
         return redirect()->back()->with('error', 'Status siswa bukan terblokir.');
@@ -257,6 +312,14 @@ class ExamMonitoringController extends Controller
             'session_id' => null
         ]);
 
-        \App\Models\ExamResult::where('siswa_id', $siswaId)->where('status', 'blocked')->update(['status' => 'ongoing', 'finished_at' => null]); return redirect()->back()->with('success', 'Status login dan blokir ujian siswa berhasil direset.');
+        $resetData = ['status' => 'ongoing', 'finished_at' => null];
+        try {
+            if (\Illuminate\Support\Facades\Schema::hasColumn('exam_results', 'block_reason')) {
+                $resetData['block_reason'] = null;
+            }
+        } catch (\Throwable $e) {}
+
+        \App\Models\ExamResult::where('siswa_id', $siswaId)->where('status', 'blocked')->update($resetData);
+        return redirect()->back()->with('success', 'Status login dan blokir ujian siswa berhasil direset.');
     }
 }

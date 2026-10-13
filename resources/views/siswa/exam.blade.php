@@ -1144,9 +1144,23 @@
         cheatDetectorActive = false;
 
         document.body.classList.add('screen-protected');
-        const msg = reason || 'Deteksi Kecurangan: Anda keluar dari halaman ujian (membuka tab/aplikasi lain). Akun Anda telah dikunci dan tidak bisa login kembali. Silakan hubungi Pengawas untuk membuka blokir!';
-        alert(msg);
-        document.getElementById('antiCheatForm').submit();
+        const form = document.getElementById('antiCheatForm');
+        if (form) {
+            const inputReason = document.getElementById('antiCheatReason');
+            if (inputReason) {
+                inputReason.value = reason || 'Membuka tab baru atau aplikasi lain';
+            }
+            try {
+                const formData = new FormData(form);
+                if (navigator.sendBeacon) {
+                    navigator.sendBeacon(form.action, formData);
+                } else {
+                    fetch(form.action, { method: 'POST', body: formData, keepalive: true }).catch(() => {});
+                }
+            } catch (err) {}
+
+            form.submit();
+        }
     }
 
     // 1. Deteksi Pindah Tab / Minimalisir Aplikasi
@@ -1256,6 +1270,7 @@
 
 <form action="{{ route('siswa.exam.block', $schedule->id) }}" method="POST" id="antiCheatForm" style="display:none;">
     @csrf
+    <input type="hidden" name="reason" id="antiCheatReason" value="">
 </form>
 
 <script>

@@ -197,6 +197,14 @@ class SiswaController extends Controller
             'is_logged_in' => false,
             'session_id' => null
         ]);
-        \App\Models\ExamResult::where('siswa_id', $id)->where('status', 'blocked')->update(['status' => 'ongoing', 'finished_at' => null]); return redirect()->back()->with('success', 'Status login dan blokir ujian siswa berhasil direset.');
+
+        $resetData = ['status' => 'ongoing', 'finished_at' => null];
+        try {
+            if (\Illuminate\Support\Facades\Schema::hasColumn('exam_results', 'block_reason')) {
+                $resetData['block_reason'] = null;
+            }
+        } catch (\Throwable $e) {}
+        \App\Models\ExamResult::where('siswa_id', $id)->where('status', 'blocked')->update($resetData);
+        return redirect()->back()->with('success', 'Status login dan blokir ujian siswa berhasil direset.');
     }
 }
