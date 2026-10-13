@@ -1,0 +1,25 @@
+{
+  "name": "SKOLABS CBT - Ujian Siswa",
+  "short_name": "CBT Siswa",
+  "description": "Aplikasi Ujian Siswa SKOLABS CBT Mode ExamBrowser",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#1e40af",
+  "theme_color": "#1e40af",
+  "icons": [
+    {
+      "src": "/icons/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

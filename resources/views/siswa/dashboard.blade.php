@@ -9,6 +9,13 @@
         $favicon = $app_logo ? \Storage::url($app_logo) : asset('logoskolabs.png');
     @endphp
     <link rel="shortcut icon" href="{{ $favicon }}" />
+    <link rel="manifest" href="{{ asset('manifest.json') }}">
+    <meta name="theme-color" content="#1e40af">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="CBT Siswa">
+    <link rel="apple-touch-icon" href="{{ asset('icons/icon-192x192.png') }}">
     <link href="{{ asset('assets/adminkit/css/app.css') }}" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>

@@ -9,6 +9,13 @@
         $favicon = $app_logo ? \Storage::url($app_logo) : asset('logoskolabs.png');
     @endphp
     <link rel="shortcut icon" href="{{ $favicon }}" />
+    <link rel="manifest" href="{{ asset('manifest.json') }}">
+    <meta name="theme-color" content="#1a4da1">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="CBT Siswa">
+    <link rel="apple-touch-icon" href="{{ asset('icons/icon-192x192.png') }}">
     <link href="{{ asset('assets/adminkit/css/app.css') }}" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
     <style>
@@ -1112,10 +1119,21 @@
         if (document.visibilityState === 'hidden' && cheatDetectorActive) kickOut();
     });
 
-    // Remove window blur as it triggers too easily on modals
-    // window.addEventListener('blur', () => kickOut());
+    // Deteksi Split Screen (Layar Terbelah) di Mobile
+    window.addEventListener('resize', () => {
+        if (!cheatDetectorActive) return;
+        const activeTag = document.activeElement ? document.activeElement.tagName : '';
+        const isEditing = activeTag === 'INPUT' || activeTag === 'TEXTAREA';
+        // Saat split screen di HP, tinggi viewport berkurang drastis di bawah 65% layar asli
+        if (!isEditing && (window.innerHeight < (window.screen.availHeight * 0.65))) {
+            alert('Deteksi Kecurangan: Fitur Split Screen / Layar Terbelah tidak diizinkan selama ujian!');
+            kickOut();
+        }
+    });
 
     document.addEventListener('contextmenu', e => e.preventDefault());
+    document.addEventListener('copy', e => e.preventDefault());
+    document.addEventListener('cut', e => e.preventDefault());
     document.onkeydown = function(e) {
         if (e.keyCode == 123 || (e.ctrlKey && e.shiftKey && e.keyCode == 73)) return false;
     };
@@ -1174,7 +1192,8 @@ document.addEventListener("DOMContentLoaded", function() {
         
         function onFullScreenChange() {
             let isFullScreen = document.fullscreenElement || document.webkitFullscreenElement || document.msFullscreenElement;
-            if (isFullScreen) {
+            let isStandalonePwa = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+            if (isFullScreen || isStandalonePwa) {
                 document.body.classList.add('is-fullscreen');
             } else {
                 document.body.classList.remove('is-fullscreen');
