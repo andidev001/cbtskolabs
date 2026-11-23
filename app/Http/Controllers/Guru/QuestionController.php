@@ -129,7 +129,27 @@ class QuestionController extends Controller
         $this->authorizedBankSoal($question->bank_soal_id);
         $bankSoalId = $question->bank_soal_id;
         $question->delete();
+        \Illuminate\Support\Facades\Cache::forget("bank_soal_questions_{$bankSoalId}");
         return redirect()->route('guru.bank-soal.show', $bankSoalId)->with('success', 'Soal berhasil dihapus.');
+    }
+
+    public function bulkDestroy(Request $request, BankSoal $bankSoal)
+    {
+        $this->authorizedBankSoal($bankSoal->id);
+
+        $request->validate([
+            'question_ids' => 'required|array|min:1',
+            'question_ids.*' => 'integer',
+        ]);
+
+        $deletedCount = Question::where('bank_soal_id', $bankSoal->id)
+            ->whereIn('id', $request->question_ids)
+            ->delete();
+
+        \Illuminate\Support\Facades\Cache::forget("bank_soal_questions_{$bankSoal->id}");
+
+        return redirect()->route('guru.bank-soal.show', $bankSoal->id)
+            ->with('success', $deletedCount . ' soal terpilih berhasil dihapus.');
     }
     
     public function uploadImage(Request $request)

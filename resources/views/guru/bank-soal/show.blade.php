@@ -46,15 +46,28 @@
             </div>
         </div>
 
+        <form id="bulk-delete-form" action="{{ route('guru.question.bulk-destroy', $bankSoal->id) }}" method="POST" class="d-none">
+            @csrf
+            @method('DELETE')
+            <div id="bulk-delete-inputs"></div>
+        </form>
+
         <div class="card shadow-sm border-0">
-            <div class="card-header bg-white border-bottom">
-                <h5 class="card-title mb-0">Daftar Pertanyaan</h5>
+            <div class="card-header bg-white border-bottom d-flex justify-content-between align-items-center py-2">
+                <h5 class="card-title mb-0">Daftar Pertanyaan ({{ $bankSoal->questions->count() }} Soal)</h5>
+                <button type="button" id="btn-bulk-delete" class="btn btn-danger btn-sm d-none">
+                    <i class="align-middle me-1" data-feather="trash-2" style="width: 14px; height: 14px;"></i>
+                    Hapus Terpilih (<span id="selected-count">0</span>)
+                </button>
             </div>
             <div class="card-body p-0">
                 <div class="table-responsive">
                     <table class="table table-hover mb-0">
                         <thead class="bg-light">
                             <tr>
+                                <th width="40" class="text-center">
+                                    <input type="checkbox" class="form-check-input" id="check-all-questions" title="Pilih Semua">
+                                </th>
                                 <th width="50" class="text-center">No</th>
                                 <th>Pertanyaan</th>
                                 <th width="100" class="text-center">Tipe</th>
@@ -64,8 +77,11 @@
                         <tbody>
                             @forelse($bankSoal->questions as $index => $q)
                                 <tr>
-                                    <td class="text-center">{{ $index + 1 }}</td>
-                                    <td>
+                                    <td class="text-center align-middle">
+                                        <input type="checkbox" class="form-check-input question-checkbox" value="{{ $q->id }}">
+                                    </td>
+                                    <td class="text-center align-middle">{{ $index + 1 }}</td>
+                                    <td class="align-middle">
                                         <div>{!! Str::limit(strip_tags($q->question_text), 150) !!}</div>
                                         @if(preg_match_all('/<img[^>]+src=["\']([^"\']+)["\'][^>]*>/i', $q->question_text, $imgMatches))
                                             <div class="d-flex flex-wrap gap-2 mt-1">
@@ -75,10 +91,10 @@
                                             </div>
                                         @endif
                                     </td>
-                                    <td class="text-center">
+                                    <td class="text-center align-middle">
                                         <span class="badge bg-{{ $q->type == 'PG' ? 'primary' : 'info' }}">{{ $q->type }}</span>
                                     </td>
-                                    <td class="text-center">
+                                    <td class="text-center align-middle">
                                         <div class="btn-group btn-group-sm">
                                             <a href="{{ route('guru.question.show', $q->id) }}" class="btn btn-primary text-white" title="Lihat Soal">
                                                 <i data-feather="eye" style="width: 14px; height: 14px;"></i>
@@ -98,7 +114,7 @@
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="4" class="text-center py-5">
+                                    <td colspan="5" class="text-center py-5">
                                         <div class="text-muted">
                                             <i class="mb-2" data-feather="help-circle" style="width: 48px; height: 48px;"></i>
                                             <p>Belum ada soal di Bank Soal ini.</p>
@@ -113,4 +129,85 @@
         </div>
     </div>
 </div>
+
+@push('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const checkAll = document.getElementById('check-all-questions');
+    const checkboxes = document.querySelectorAll('.question-checkbox');
+    const btnBulkDelete = document.getElementById('btn-bulk-delete');
+    const selectedCountEl = document.getElementById('selected-count');
+    const bulkForm = document.getElementById('bulk-delete-form');
+    const bulkInputs = document.getElementById('bulk-delete-inputs');
+
+    function updateSelectionState() {
+        const checked = document.querySelectorAll('.question-checkbox:checked');
+        const count = checked.length;
+        selectedCountEl.textContent = count;
+
+        if (count > 0) {
+            btnBulkDelete.classList.remove('d-none');
+        } else {
+            btnBulkDelete.classList.add('d-none');
+        }
+
+        if (checkAll && checkboxes.length > 0) {
+            checkAll.checked = (count === checkboxes.length);
+            checkAll.indeterminate = (count > 0 && count < checkboxes.length);
+        }
+    }
+
+    if (checkAll) {
+        checkAll.addEventListener('change', function() {
+            checkboxes.forEach(cb => {
+                cb.checked = checkAll.checked;
+            });
+            updateSelectionState();
+        });
+    }
+
+    checkboxes.forEach(cb => {
+        cb.addEventListener('change', updateSelectionState);
+    });
+
+    if (btnBulkDelete) {
+        btnBulkDelete.addEventListener('click', function() {
+            const checked = document.querySelectorAll('.question-checkbox:checked');
+            if (checked.length === 0) return;
+
+            const submitBulk = function() {
+                bulkInputs.innerHTML = '';
+                checked.forEach(cb => {
+                    const input = document.createElement('input');
+                    input.type = 'hidden';
+                    input.name = 'question_ids[]';
+                    input.value = cb.value;
+                    bulkInputs.appendChild(input);
+                });
+                bulkForm.submit();
+            };
+
+            if (typeof Swal !== 'undefined') {
+                Swal.fire({
+                    title: 'Hapus ' + checked.length + ' Soal Terpilih?',
+                    text: 'Soal yang dihapus tidak dapat dikembalikan!',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#dc3545',
+                    cancelButtonColor: '#6c757d',
+                    confirmButtonText: 'Ya, Hapus!',
+                    cancelButtonText: 'Batal'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        submitBulk();
+                    }
+                });
+            } else if (confirm('Yakin ingin menghapus ' + checked.length + ' soal terpilih?')) {
+                submitBulk();
+            }
+        });
+    }
+});
+</script>
+@endpush
 @endsection

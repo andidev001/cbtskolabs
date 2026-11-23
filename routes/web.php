@@ -202,6 +202,7 @@ Route::prefix('admin')->group(function () {
 
 
             // Question Management within Bank Soal
+            Route::delete('bank-soal/{bankSoal}/questions/bulk-destroy', [QuestionController::class , 'bulkDestroy'])->name('admin.question.bulk-destroy');
             Route::get('bank-soal/{bankSoal}/question/create', [QuestionController::class , 'create'])->name('admin.question.create');
             Route::post('bank-soal/{bankSoal}/question', [QuestionController::class , 'store'])->name('admin.question.store');
             Route::post('question/upload-image', [QuestionController::class , 'uploadImage'])->name('admin.question.upload-image');
@@ -246,6 +247,7 @@ Route::prefix('guru')->group(function () {
             Route::post('bank-soal/{bankSoal}/process-import-word', [GuruBankSoalController::class , 'processImportWord'])->name('guru.bank-soal.process-import-word');
 
             // Question Management dalam Bank Soal
+            Route::delete('bank-soal/{bankSoal}/questions/bulk-destroy', [GuruQuestionController::class , 'bulkDestroy'])->name('guru.question.bulk-destroy');
             Route::post('question/upload-image', [GuruQuestionController::class , 'uploadImage'])->name('guru.question.upload-image');
             Route::get('bank-soal/{bankSoal}/question/create', [GuruQuestionController::class , 'create'])->name('guru.question.create');
             Route::post('bank-soal/{bankSoal}/question', [GuruQuestionController::class , 'store'])->name('guru.question.store');
