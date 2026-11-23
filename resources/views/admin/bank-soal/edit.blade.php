@@ -216,6 +216,69 @@
 @push('scripts')
 <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
 <link href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" rel="stylesheet" />
+<style>
+    .select2-container--bootstrap-5 .select2-selection {
+        min-height: 33px !important;
+        padding: 0.25rem 0.65rem !important;
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+        font-size: 0.82rem !important;
+        font-weight: 400 !important;
+        color: #495057 !important;
+        border: 1px solid #dee2e6 !important;
+        border-radius: 5px !important;
+        background-color: #fff !important;
+        box-shadow: none !important;
+        -webkit-font-smoothing: antialiased;
+    }
+    .select2-container--bootstrap-5 .select2-selection--single .select2-selection__rendered {
+        color: #495057 !important;
+        font-weight: 400 !important;
+        line-height: 1.5 !important;
+        padding: 0 !important;
+    }
+    .select2-container--bootstrap-5.select2-container--focus .select2-selection,
+    .select2-container--bootstrap-5.select2-container--open .select2-selection {
+        border-color: #9ec5fe !important;
+        box-shadow: 0 0 0 0.15rem rgba(25, 103, 210, 0.15) !important;
+    }
+    .select2-container--bootstrap-5 .select2-dropdown {
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+        font-size: 0.82rem !important;
+        color: #495057 !important;
+        border: 1px solid #dee2e6 !important;
+        border-radius: 5px !important;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08) !important;
+        -webkit-font-smoothing: antialiased;
+    }
+    .select2-container--bootstrap-5 .select2-dropdown .select2-search .select2-search__field {
+        font-size: 0.82rem !important;
+        color: #495057 !important;
+        padding: 0.3rem 0.6rem !important;
+        border: 1px solid #dee2e6 !important;
+        border-radius: 4px !important;
+        box-shadow: none !important;
+    }
+    .select2-container--bootstrap-5 .select2-dropdown .select2-search .select2-search__field:focus {
+        border-color: #9ec5fe !important;
+        box-shadow: 0 0 0 0.15rem rgba(25, 103, 210, 0.15) !important;
+    }
+    .select2-container--bootstrap-5 .select2-dropdown .select2-results__options .select2-results__option {
+        padding: 0.28rem 0.65rem !important;
+        font-size: 0.82rem !important;
+        font-weight: 400 !important;
+        color: #495057 !important;
+    }
+    .select2-container--bootstrap-5 .select2-dropdown .select2-results__options .select2-results__option--highlighted,
+    .select2-container--bootstrap-5 .select2-dropdown .select2-results__options .select2-results__option--selected {
+        background-color: #1967d2 !important;
+        color: #ffffff !important;
+    }
+    .select2-container--bootstrap-5 .select2-selection--single .select2-selection__clear {
+        width: 0.6rem !important;
+        height: 0.6rem !important;
+        opacity: 0.45;
+    }
+</style>
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 <script>
 $(function() {
@@ -223,12 +286,17 @@ $(function() {
         theme: 'bootstrap-5',
         width: '100%',
         placeholder: '-- Pilih Mata Pelajaran --'
+    }).on('select2:open', function() {
+        document.querySelector('.select2-container--open .select2-search__field')?.setAttribute('placeholder', 'Cari mata pelajaran...');
     });
+
     $('#guru-select').select2({
         theme: 'bootstrap-5',
         width: '100%',
         placeholder: '-- Semua Guru Mapel Ini (Umum / Admin) --',
         allowClear: true
+    }).on('select2:open', function() {
+        document.querySelector('.select2-container--open .select2-search__field')?.setAttribute('placeholder', 'Ketik nama atau NIP guru...');
     });
 });
 </script>
