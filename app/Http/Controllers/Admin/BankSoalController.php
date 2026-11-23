@@ -217,7 +217,7 @@ class BankSoalController extends Controller
                 }, $fullText);
             }
 
-            $fullText = preg_replace('/TIPE:\s*(PG|PGK|LS|MJ|MT|BS|ST|IS|UR|Essay)/i', '###TIPE:###', $fullText);
+            $fullText = preg_replace('/TIPE:\s*(PG|PGK|LS|MJ|MT|BS|ST|IS|UR|Essay)/i', '###TIPE:$1###', $fullText);
             
             // Because TIPE might appear *before* S:X), we should split by S:X) but include the TIPE if it's there.
             // A better way is to split by S:X), but the chunk BEFORE S:1) might contain TIPE: PGK.
@@ -245,6 +245,7 @@ class BankSoalController extends Controller
                 $questionData = [
                     'bank_soal_id' => $bankSoal->id,
                     'type' => $qBlock['type'],
+                    'cognitive_level' => null,
                     'layout' => 'v'
                 ];
 
@@ -259,7 +260,10 @@ class BankSoalController extends Controller
                     $line = trim($line);
                     if ($line == '') continue;
 
-                    if (preg_match('/^A:\)/i', $line)) {
+                    if (preg_match('/^LEVEL:\s*(C[1-6]|L[1-3])/i', $line, $matches)) {
+                        $questionData['cognitive_level'] = strtoupper(trim($matches[1]));
+                    }
+                    elseif (preg_match('/^A:\)/i', $line)) {
                         $questionData['option_a'] = trim(substr($line, 3));
                         $currentOption = 'option_a';
                     }

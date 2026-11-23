@@ -126,9 +126,9 @@ class GuruController extends Controller
     }
 
     /** Halaman mapping guru → mata pelajaran */
-        public function importView()
+    public function importView()
     {
-        return view('admin.guru.import');
+        return redirect()->route('admin.guru.index');
     }
 
     public function import(Request $request)
