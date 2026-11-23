@@ -24,6 +24,7 @@
                         <th width="40">No</th>
                         <th>Kode</th>
                         <th>Mata Pelajaran</th>
+                        <th>Guru Pengampu</th>
                         <th>Nama Bank Soal</th>
                         <th class="text-center">Jumlah Soal</th>
                         <th class="text-center">Status</th>
@@ -54,6 +55,7 @@ $(function() {
                 }
             },
             {data: 'subject_name', name: 'subject.name'},
+            {data: 'guru_name', name: 'guru.name', defaultContent: '-'},
             {
                 data: 'name', 
                 name: 'name',

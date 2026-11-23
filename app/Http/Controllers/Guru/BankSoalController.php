@@ -23,14 +23,17 @@ class BankSoalController extends Controller
             ->toArray();
     }
 
+    private function myBankSoalQuery()
+    {
+        return BankSoal::forGuru(Auth::guard('guru')->user());
+    }
+
     public function index(Request $request)
     {
-        $subjectIds = $this->mySubjectIds();
-
         if ($request->ajax()) {
-            $data = BankSoal::with('subject')
-                ->withCount('questions')
-                ->whereIn('subject_id', $subjectIds);
+            $data = $this->myBankSoalQuery()
+                ->with('subject')
+                ->withCount('questions');
 
             return DataTables::of($data)
                 ->addIndexColumn()
@@ -77,6 +80,7 @@ class BankSoalController extends Controller
         ]);
 
         $data = $request->all();
+        $data['guru_id'] = Auth::guard('guru')->id();
         $data['status'] = 0; // draft dulu, aktifkan setelah soal terisi
 
         BankSoal::create($data);
@@ -85,15 +89,15 @@ class BankSoalController extends Controller
 
     public function show(string $id)
     {
-        $bankSoal = BankSoal::with(['subject', 'questions'])
-            ->whereIn('subject_id', $this->mySubjectIds())
+        $bankSoal = $this->myBankSoalQuery()
+            ->with(['subject', 'questions'])
             ->findOrFail($id);
         return view('guru.bank-soal.show', compact('bankSoal'));
     }
 
     public function edit(string $id)
     {
-        $bankSoal = BankSoal::whereIn('subject_id', $this->mySubjectIds())->findOrFail($id);
+        $bankSoal = $this->myBankSoalQuery()->findOrFail($id);
         $subjects = Subject::whereIn('id', $this->mySubjectIds())->orderBy('name')->get();
         return view('guru.bank-soal.edit', compact('bankSoal', 'subjects'));
     }
@@ -101,7 +105,7 @@ class BankSoalController extends Controller
     public function update(Request $request, string $id)
     {
         $subjectIds = $this->mySubjectIds();
-        $bankSoal = BankSoal::whereIn('subject_id', $subjectIds)->findOrFail($id);
+        $bankSoal = $this->myBankSoalQuery()->findOrFail($id);
 
         $request->validate([
             'subject_id' => 'required|in:' . implode(',', $subjectIds),
@@ -110,6 +114,7 @@ class BankSoalController extends Controller
         ]);
 
         $data = $request->all();
+        $data['guru_id'] = $bankSoal->guru_id ?? Auth::guard('guru')->id();
         $data['status'] = $request->has('status') ? 1 : 0;
         $bankSoal->update($data);
 
@@ -118,27 +123,21 @@ class BankSoalController extends Controller
 
     public function destroy(string $id)
     {
-        $bankSoal = BankSoal::whereIn('subject_id', $this->mySubjectIds())->findOrFail($id);
+        $bankSoal = $this->myBankSoalQuery()->findOrFail($id);
         $bankSoal->delete();
         return redirect()->route('guru.bank-soal.index')->with('success', 'Bank Soal berhasil dihapus.');
     }
 
 public function importWord(string $bankSoalId)
     {
-        $bankSoal = BankSoal::findOrFail($bankSoalId);
-        $guru = \Illuminate\Support\Facades\Auth::guard('guru')->user();
-        $subjectIds = $guru->subjects()->pluck('subjects.id')->toArray();
-        if(!in_array($bankSoal->subject_id, $subjectIds)) abort(403);
+        $bankSoal = $this->myBankSoalQuery()->findOrFail($bankSoalId);
 
         return view('guru.bank-soal.import', compact('bankSoal'));
     }
 
     public function processImportWord(Request $request, string $bankSoalId)
     {
-        $bankSoal = BankSoal::findOrFail($bankSoalId);
-        $guru = \Illuminate\Support\Facades\Auth::guard('guru')->user();
-        $subjectIds = $guru->subjects()->pluck('subjects.id')->toArray();
-        if(!in_array($bankSoal->subject_id, $subjectIds)) abort(403);
+        $bankSoal = $this->myBankSoalQuery()->findOrFail($bankSoalId);
 
 
         $request->validate([

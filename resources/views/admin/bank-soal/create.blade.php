@@ -28,6 +28,20 @@
                     </div>
 
                     <div class="mb-3">
+                        <label class="form-label text-muted">Guru Pengampu / Pemilik (Opsional)</label>
+                        <select name="guru_id" class="form-select border-1 @error('guru_id') is-invalid @enderror">
+                            <option value="">-- Semua Guru Mapel Ini (Umum / Admin) --</option>
+                            @foreach($gurus as $guru)
+                                <option value="{{ $guru->id }}" {{ old('guru_id') == $guru->id ? 'selected' : '' }}>
+                                    {{ $guru->name }} @if($guru->nip) ({{ $guru->nip }}) @endif
+                                </option>
+                            @endforeach
+                        </select>
+                        @error('guru_id') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                        <small class="text-muted">Jika dipilih, bank soal & hasil ujiannya hanya muncul di akun guru tersebut.</small>
+                    </div>
+
+                    <div class="mb-3">
                         <label class="form-label text-muted">Kode banksoal</label>
                         <input type="text" name="code" class="form-control border-1 @error('code') is-invalid @enderror" value="{{ old('code', 'BKSL-GBM-' . date('Y')) }}" required>
                         @error('code') <div class="invalid-feedback">{{ $message }}</div> @enderror

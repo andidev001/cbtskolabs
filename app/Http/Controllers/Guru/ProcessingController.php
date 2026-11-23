@@ -21,7 +21,7 @@ class ProcessingController extends Controller
 
     private function myBankSoalIds(): array
     {
-        return BankSoal::whereIn('subject_id', $this->mySubjectIds())
+        return BankSoal::forGuru(Auth::guard('guru')->user())
             ->pluck('id')->toArray();
     }
 
@@ -36,7 +36,7 @@ class ProcessingController extends Controller
     {
         if ($request->ajax()) {
             $data = $this->mySchedules()
-                ->whereHas('bankSoal.questions', fn($q) => $q->where('type', 'Essay'))
+                ->whereHas('bankSoal.questions', fn($q) => $q->whereIn('type', ['Essay', 'UR']))
                 ->select('exam_schedules.*');
 
             return DataTables::of($data)

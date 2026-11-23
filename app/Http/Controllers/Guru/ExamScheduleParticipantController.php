@@ -12,8 +12,8 @@ class ExamScheduleParticipantController extends Controller
 {
     private function checkAuthorization(ExamSchedule $schedule)
     {
-        $guruSubjectIds = auth('guru')->user()->subjects->pluck('id')->toArray();
-        if (!empty($guruSubjectIds) && $schedule->bankSoal && !in_array($schedule->bankSoal->subject_id, $guruSubjectIds)) {
+        $guru = auth('guru')->user();
+        if (!$schedule->bankSoal || !$schedule->bankSoal->isOwnedByGuru($guru)) {
             abort(403, 'Anda tidak memiliki hak akses untuk mengelola peserta jadwal ujian ini.');
         }
     }

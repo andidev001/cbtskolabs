@@ -13,8 +13,7 @@ class QuestionController extends Controller
     private function authorizedBankSoal($bankSoalId)
     {
         $guru = Auth::guard('guru')->user();
-        $subjectIds = $guru->subjects()->pluck('subjects.id')->toArray();
-        return BankSoal::whereIn('subject_id', $subjectIds)->findOrFail($bankSoalId);
+        return BankSoal::forGuru($guru)->findOrFail($bankSoalId);
     }
 
     public function create(Request $request, BankSoal $bankSoal)

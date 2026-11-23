@@ -14,7 +14,11 @@ class DaftarHadirController extends Controller
     public function index(Request $request)
     {
         if ($request->ajax()) {
+            $guru = auth('guru')->user();
             $data = ExamSchedule::with(['examEvent', 'bankSoal', 'groups'])
+                ->whereHas('bankSoal', function ($q) use ($guru) {
+                    $q->forGuru($guru);
+                })
                 ->where('is_active', true)
                 ->whereDate('start_at', '<=', now()->toDateString())
                 ->whereDate('end_at', '>=', now()->toDateString())

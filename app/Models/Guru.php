@@ -36,6 +36,12 @@ class Guru extends Authenticatable
         return $this->belongsToMany(Subject::class , 'guru_subject');
     }
 
+    /** Bank soal yang dimiliki guru ini */
+    public function bankSoals()
+    {
+        return $this->hasMany(BankSoal::class);
+    }
+
     /** Daftar nama mata pelajaran (helper) */
     public function subjectNames(): string
     {

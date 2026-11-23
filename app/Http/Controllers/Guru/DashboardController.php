@@ -13,19 +13,18 @@ class DashboardController extends Controller
     public function index()
     {
         $guru = Auth::guard('guru')->user();
-        $mapels = $guru->subjects()->pluck('subjects.id');
 
-        // Bank soal milik mapel guru
-        $totalBankSoal = BankSoal::whereIn('subject_id', $mapels)->count();
+        // Bank soal milik guru ini
+        $totalBankSoal = BankSoal::forGuru($guru)->count();
 
-        // Jadwal ujian yang menggunakan bank soal milik guru
-        $totalJadwal = ExamSchedule::whereHas('bankSoal', function ($q) use ($mapels) {
-            $q->whereIn('subject_id', $mapels);
+        // Jadwal ujian yang menggunakan bank soal milik guru ini
+        $totalJadwal = ExamSchedule::whereHas('bankSoal', function ($q) use ($guru) {
+            $q->forGuru($guru);
         })->count();
 
-        // Jumlah hasil ujian
-        $totalNilai = ExamResult::whereHas('examSchedule.bankSoal', function ($q) use ($mapels) {
-            $q->whereIn('subject_id', $mapels);
+        // Jumlah hasil ujian dari jadwal milik guru ini
+        $totalNilai = ExamResult::whereHas('examSchedule.bankSoal', function ($q) use ($guru) {
+            $q->forGuru($guru);
         })->count();
 
         return view('guru.dashboard', compact('guru', 'totalBankSoal', 'totalJadwal', 'totalNilai'));

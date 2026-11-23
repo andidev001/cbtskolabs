@@ -13,20 +13,20 @@ class ExamScheduleController extends Controller
 {
     private function authorizedSchedule(ExamSchedule $examSchedule)
     {
-        $guruSubjectIds = auth('guru')->user()->subjects->pluck('id')->toArray();
-        if (!in_array($examSchedule->bankSoal->subject_id, $guruSubjectIds)) {
+        $guru = auth('guru')->user();
+        if (!$examSchedule->bankSoal || !$examSchedule->bankSoal->isOwnedByGuru($guru)) {
             abort(403, 'Unauthorized action.');
         }
     }
 
     public function index(Request $request)
     {
-        $guruSubjectIds = auth('guru')->user()->subjects->pluck('id')->toArray();
+        $guru = auth('guru')->user();
         
         if ($request->ajax()) {
             $data = ExamSchedule::with(['examEvent', 'bankSoal'])
-                ->whereHas('bankSoal', function ($q) use ($guruSubjectIds) {
-                    $q->whereIn('subject_id', $guruSubjectIds);
+                ->whereHas('bankSoal', function ($q) use ($guru) {
+                    $q->forGuru($guru);
                 })
                 ->select('exam_schedules.*')->get();
                 
@@ -77,7 +77,7 @@ class ExamScheduleController extends Controller
                 ->make(true);
         }
         $examEvents = ExamEvent::where('is_active', true)->get();
-        $bankSoals = BankSoal::where('status', true)->whereIn('subject_id', $guruSubjectIds)->get();
+        $bankSoals = BankSoal::where('status', true)->forGuru($guru)->get();
         return view('guru.exam-schedule.index', compact('examEvents', 'bankSoals'));
     }
 
@@ -93,8 +93,7 @@ class ExamScheduleController extends Controller
         ]);
         
         $bankSoal = BankSoal::findOrFail($request->bank_soal_id);
-        $guruSubjectIds = auth('guru')->user()->subjects->pluck('id')->toArray();
-        if (!in_array($bankSoal->subject_id, $guruSubjectIds)) {
+        if (!$bankSoal->isOwnedByGuru(auth('guru')->user())) {
             abort(403, 'Unauthorized action.');
         }
 
@@ -123,8 +122,7 @@ class ExamScheduleController extends Controller
         ]);
         
         $bankSoal = BankSoal::findOrFail($request->bank_soal_id);
-        $guruSubjectIds = auth('guru')->user()->subjects->pluck('id')->toArray();
-        if (!in_array($bankSoal->subject_id, $guruSubjectIds)) {
+        if (!$bankSoal->isOwnedByGuru(auth('guru')->user())) {
             abort(403, 'Unauthorized action.');
         }
 

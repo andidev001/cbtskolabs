@@ -11,8 +11,8 @@ class ExamStatusController extends Controller
 {
     private function authorizedSchedule(ExamSchedule $examSchedule)
     {
-        $guruSubjectIds = auth('guru')->user()->subjects->pluck('id')->toArray();
-        if (!in_array($examSchedule->bankSoal->subject_id, $guruSubjectIds)) {
+        $guru = auth('guru')->user();
+        if (!$examSchedule->bankSoal || !$examSchedule->bankSoal->isOwnedByGuru($guru)) {
             abort(403, 'Unauthorized action.');
         }
     }
@@ -20,10 +20,10 @@ class ExamStatusController extends Controller
     public function index(Request $request)
     {
         if ($request->ajax()) {
-            $guruSubjectIds = auth('guru')->user()->subjects->pluck('id')->toArray();
+            $guru = auth('guru')->user();
             $data = ExamSchedule::with(['examEvent', 'bankSoal'])
-                ->whereHas('bankSoal', function ($q) use ($guruSubjectIds) {
-                    $q->whereIn('subject_id', $guruSubjectIds);
+                ->whereHas('bankSoal', function ($q) use ($guru) {
+                    $q->forGuru($guru);
                 })
                 ->where('is_active', true)
                 ->select('exam_schedules.*')

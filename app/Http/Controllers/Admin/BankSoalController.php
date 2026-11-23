@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 
 use App\Models\BankSoal;
+use App\Models\Guru;
 use App\Models\Subject;
 use App\Models\Question;
 use PhpOffice\PhpWord\PhpWord;
@@ -17,11 +18,14 @@ class BankSoalController extends Controller
     public function index(Request $request)
     {
         if ($request->ajax()) {
-            $data = BankSoal::with('subject')->withCount('questions');
+            $data = BankSoal::with(['subject', 'guru'])->withCount('questions');
             return \Yajra\DataTables\Facades\DataTables::of($data)
                 ->addIndexColumn()
                 ->addColumn('subject_name', function ($row) {
                 return $row->subject->name ?? '-';
+            })
+                ->addColumn('guru_name', function ($row) {
+                return $row->guru ? $row->guru->name : '<span class="text-muted small">Semua Guru / Admin</span>';
             })
                 ->addColumn('status_label', function ($row) {
                 $checked = $row->status ? 'checked' : '';
@@ -41,7 +45,7 @@ class BankSoalController extends Controller
                 $btn .= '</div>';
                 return $btn;
             })
-                ->rawColumns(['status_label', 'action'])
+                ->rawColumns(['guru_name', 'status_label', 'action'])
                 ->make(true);
         }
         return view('admin.bank-soal.index');
@@ -50,13 +54,15 @@ class BankSoalController extends Controller
     public function create()
     {
         $subjects = Subject::all();
-        return view('admin.bank-soal.create', compact('subjects'));
+        $gurus = Guru::where('is_active', true)->orderBy('name')->get();
+        return view('admin.bank-soal.create', compact('subjects', 'gurus'));
     }
 
     public function store(Request $request)
     {
         $request->validate([
             'subject_id' => 'required|exists:subjects,id',
+            'guru_id' => 'nullable|exists:gurus,id',
             'code' => 'required|unique:bank_soals,code',
             'name' => 'required',
             'pg_count' => 'numeric', 'pg_percent' => 'numeric',
@@ -72,6 +78,7 @@ class BankSoalController extends Controller
         ]);
 
         $data = $request->all();
+        $data['guru_id'] = $request->input('guru_id') ?: null;
         $data['status'] = $request->has('status') ? 1 : 0;
 
         BankSoal::create($data);
@@ -89,7 +96,8 @@ class BankSoalController extends Controller
     {
         $bankSoal = BankSoal::findOrFail($id);
         $subjects = Subject::all();
-        return view('admin.bank-soal.edit', compact('bankSoal', 'subjects'));
+        $gurus = Guru::where('is_active', true)->orderBy('name')->get();
+        return view('admin.bank-soal.edit', compact('bankSoal', 'subjects', 'gurus'));
     }
 
     public function update(Request $request, string $id)
@@ -98,6 +106,7 @@ class BankSoalController extends Controller
 
         $request->validate([
             'subject_id' => 'required|exists:subjects,id',
+            'guru_id' => 'nullable|exists:gurus,id',
             'code' => 'required|unique:bank_soals,code,' . $id,
             'name' => 'required',
             'pg_count' => 'numeric', 'pg_percent' => 'numeric',
@@ -113,6 +122,7 @@ class BankSoalController extends Controller
         ]);
 
         $data = $request->all();
+        $data['guru_id'] = $request->input('guru_id') ?: null;
         $data['status'] = $request->has('status') ? 1 : 0;
 
         $bankSoal->update($data);
