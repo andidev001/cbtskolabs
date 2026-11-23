@@ -16,8 +16,8 @@
                 <div class="card-body">
                     <div class="mb-3">
                         <label class="form-label text-muted">Mata pelajaran</label>
-                        <select name="subject_id" class="form-select border-1 @error('subject_id') is-invalid @enderror" required>
-                            <option value="">-- Pilih --</option>
+                        <select name="subject_id" id="subject-select" class="form-select border-1 @error('subject_id') is-invalid @enderror" required>
+                            <option value="">-- Pilih Mata Pelajaran --</option>
                             @foreach($subjects as $subject)
                                 <option value="{{ $subject->id }}" {{ old('subject_id') == $subject->id ? 'selected' : '' }}>
                                     {{ $subject->name }}
@@ -29,7 +29,7 @@
 
                     <div class="mb-3">
                         <label class="form-label text-muted">Guru Pengampu / Pemilik (Opsional)</label>
-                        <select name="guru_id" class="form-select border-1 @error('guru_id') is-invalid @enderror">
+                        <select name="guru_id" id="guru-select" class="form-select border-1 @error('guru_id') is-invalid @enderror">
                             <option value="">-- Semua Guru Mapel Ini (Umum / Admin) --</option>
                             @foreach($gurus as $guru)
                                 <option value="{{ $guru->id }}" {{ old('guru_id') == $guru->id ? 'selected' : '' }}>
@@ -174,4 +174,25 @@
         feather.replace();
     });
 </script>
+
+@push('scripts')
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<link href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" rel="stylesheet" />
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+<script>
+$(function() {
+    $('#subject-select').select2({
+        theme: 'bootstrap-5',
+        width: '100%',
+        placeholder: '-- Pilih Mata Pelajaran --'
+    });
+    $('#guru-select').select2({
+        theme: 'bootstrap-5',
+        width: '100%',
+        placeholder: '-- Semua Guru Mapel Ini (Umum / Admin) --',
+        allowClear: true
+    });
+});
+</script>
+@endpush
 @endsection
