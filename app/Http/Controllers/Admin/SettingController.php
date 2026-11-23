@@ -70,25 +70,70 @@ class SettingController extends Controller
     }
     public function backup()
     {
-        $database = env('DB_DATABASE');
-        $username = env('DB_USERNAME');
-        $password = env('DB_PASSWORD');
-        $host = env('DB_HOST');
-        
-        $date = date('Y-m-d_H-i-s');
-        $filename = "backup_{$database}_{$date}.sql";
-        $path = storage_path("app/public/{$filename}");
-        
-        $passArg = $password ? "-p\"$password\"" : "";
-        $command = "mysqldump --user=\"$username\" $passArg --host=\"$host\" \"$database\" > \"$path\"";
-        
-        exec($command, $output, $returnVar);
-        
-        if ($returnVar === 0 && file_exists($path)) {
-            return response()->download($path)->deleteFileAfterSend(true);
+        try {
+            $pdo = \Illuminate\Support\Facades\DB::connection()->getPdo();
+            $database = \Illuminate\Support\Facades\DB::connection()->getDatabaseName();
+
+            $date = date('Y-m-d_H-i-s');
+            $filename = "backup_{$database}_{$date}.sql";
+
+            $sql = "-- Database Backup: {$database}\n";
+            $sql .= "-- Generated at: " . date('Y-m-d H:i:s') . "\n\n";
+            $sql .= "SET FOREIGN_KEY_CHECKS=0;\n";
+            $sql .= "SET SQL_MODE = \"NO_AUTO_VALUE_ON_ZERO\";\n\n";
+
+            $tablesStmt = $pdo->query('SHOW FULL TABLES WHERE Table_type = \'BASE TABLE\'');
+            $tables = $tablesStmt->fetchAll(\PDO::FETCH_NUM);
+
+            foreach ($tables as $tableRow) {
+                $table = $tableRow[0];
+
+                $sql .= "-- --------------------------------------------------------\n";
+                $sql .= "-- Struktur dari tabel `{$table}`\n";
+                $sql .= "-- --------------------------------------------------------\n\n";
+                $sql .= "DROP TABLE IF EXISTS `{$table}`;\n";
+
+                $createStmt = $pdo->query("SHOW CREATE TABLE `{$table}`");
+                $createRow = $createStmt->fetch(\PDO::FETCH_NUM);
+                if (!empty($createRow[1])) {
+                    $sql .= $createRow[1] . ";\n\n";
+                }
+
+                $rowsStmt = $pdo->query("SELECT * FROM `{$table}`");
+                $rows = $rowsStmt->fetchAll(\PDO::FETCH_ASSOC);
+
+                if (!empty($rows)) {
+                    $columns = array_map(fn($col) => "`{$col}`", array_keys($rows[0]));
+                    $colList = implode(', ', $columns);
+
+                    foreach (array_chunk($rows, 100) as $chunk) {
+                        $valuesList = [];
+                        foreach ($chunk as $row) {
+                            $vals = [];
+                            foreach ($row as $val) {
+                                if (is_null($val)) {
+                                    $vals[] = 'NULL';
+                                } else {
+                                    $vals[] = $pdo->quote((string) $val);
+                                }
+                            }
+                            $valuesList[] = '(' . implode(', ', $vals) . ')';
+                        }
+                        $sql .= "INSERT INTO `{$table}` ({$colList}) VALUES\n" . implode(",\n", $valuesList) . ";\n";
+                    }
+                    $sql .= "\n";
+                }
+            }
+
+            $sql .= "SET FOREIGN_KEY_CHECKS=1;\n";
+
+            return response($sql, 200, [
+                'Content-Type' => 'application/sql; charset=UTF-8',
+                'Content-Disposition' => 'attachment; filename="' . $filename . '"',
+            ]);
+        } catch (\Throwable $e) {
+            return back()->with('error', 'Gagal membuat backup database: ' . $e->getMessage());
         }
-        
-        return back()->with('error', 'Gagal membuat backup database. Pastikan mysqldump tersedia di server.');
     }
 
     public function restore(\Illuminate\Http\Request $request)
@@ -100,16 +145,16 @@ class SettingController extends Controller
         try {
             $file = $request->file('backup_file');
             
-            if ($file->getClientOriginalExtension() !== 'sql') {
+            if (strtolower($file->getClientOriginalExtension()) !== 'sql') {
                 return back()->with('error', 'File harus berformat .sql');
             }
             
             $sql = file_get_contents($file->getRealPath());
             
-            \Illuminate\Support\Facades\DB::unprepared($sql);
+            \Illuminate\Support\Facades\DB::unprepared("SET FOREIGN_KEY_CHECKS=0;\n" . $sql . "\nSET FOREIGN_KEY_CHECKS=1;");
             
             return back()->with('success', 'Database berhasil di-restore.');
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             return back()->with('error', 'Gagal me-restore database: ' . $e->getMessage());
         }
     }
