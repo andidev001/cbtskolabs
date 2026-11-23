@@ -149,7 +149,17 @@ public function importWord(string $bankSoalId)
             $file = $request->file('file');
             $path = $file->getRealPath();
 
-            $images = [];
+            $targetDir = public_path('uploads/questions');
+            if (!file_exists($targetDir)) {
+                @mkdir($targetDir, 0775, true);
+            }
+
+            $mediaByTarget = [];
+            $orderedImages = [];
+            $rIdToUrl = [];
+            $documentXml = '';
+            $relsXml = '';
+
             $zip = new \ZipArchive();
             if ($zip->open($path) === TRUE) {
                 for ($i = 0; $i < $zip->numFiles; $i++) {
@@ -157,49 +167,142 @@ public function importWord(string $bankSoalId)
                     if (strpos($entry, 'word/media/') === 0) {
                         $imageName = basename($entry);
                         $imageData = $zip->getFromIndex($i);
-                        $extension = pathinfo($imageName, PATHINFO_EXTENSION);
+                        $extension = strtolower(pathinfo($imageName, PATHINFO_EXTENSION)) ?: 'png';
 
                         $newName = uniqid('word_img_') . '.' . $extension;
-                        \Storage::disk('public')->put('questions/images/' . $newName, $imageData);
-                        $images[$imageName] = \Storage::url('questions/images/' . $newName);
+                        file_put_contents($targetDir . '/' . $newName, $imageData);
+                        $imgUrl = '/uploads/questions/' . $newName;
+
+                        $relTarget = substr($entry, strlen('word/')); // e.g. media/image1.png
+                        $mediaByTarget[$relTarget] = $imgUrl;
+                        $mediaByTarget[$imageName] = $imgUrl;
+                        $orderedImages[] = $imgUrl;
                     }
+                }
+
+                $relsContent = $zip->getFromName('word/_rels/document.xml.rels');
+                if ($relsContent !== false) {
+                    $relsXml = $relsContent;
+                }
+                $docContent = $zip->getFromName('word/document.xml');
+                if ($docContent !== false) {
+                    $documentXml = $docContent;
                 }
                 $zip->close();
             }
 
-            $phpWord = IOFactory::load($path);
-            $fullText = '';
-
-            foreach ($phpWord->getSections() as $section) {
-                foreach ($section->getElements() as $element) {
-                    if (method_exists($element, 'getText')) {
-                        $fullText .= $element->getText() . "\n";
-                    }
-                    elseif ($element instanceof \PhpOffice\PhpWord\Element\Image) {
-                        $fullText .= "[IMAGE_PLACEHOLDER]\n";
-                    }
-                    elseif (method_exists($element, 'getElements')) {
-                        foreach ($element->getElements() as $childElement) {
-                            if (method_exists($childElement, 'getText')) {
-                                $fullText .= $childElement->getText();
-                            }
-                            elseif ($childElement instanceof \PhpOffice\PhpWord\Element\Image) {
-                                $fullText .= "[IMAGE_PLACEHOLDER]";
+            if ($relsXml) {
+                if (preg_match_all('/<Relationship\b[^>]*>/i', $relsXml, $relTags)) {
+                    foreach ($relTags[0] as $tag) {
+                        $id = null;
+                        $target = null;
+                        if (preg_match('/\bId=["\']([^"\']+)["\']/i', $tag, $mId)) {
+                            $id = $mId[1];
+                        }
+                        if (preg_match('/\bTarget=["\']([^"\']+)["\']/i', $tag, $mTarget)) {
+                            $target = ltrim($mTarget[1], '/');
+                            if (strpos($target, 'word/') === 0) {
+                                $target = substr($target, 5);
                             }
                         }
-                        $fullText .= "\n";
+                        if ($id && $target) {
+                            if (isset($mediaByTarget[$target])) {
+                                $rIdToUrl[$id] = $mediaByTarget[$target];
+                            } elseif (isset($mediaByTarget[basename($target)])) {
+                                $rIdToUrl[$id] = $mediaByTarget[basename($target)];
+                            }
+                        }
                     }
                 }
             }
 
-            if (strpos($fullText, '[IMAGE_PLACEHOLDER]') !== false && !empty($images)) {
-                $imageUrls = array_values($images);
-                $imgIndex = 0;
-                $fullText = preg_replace_callback('/\[IMAGE_PLACEHOLDER\]/', function ($matches) use ($imageUrls, &$imgIndex) {
-                    $url = isset($imageUrls[$imgIndex]) ? $imageUrls[$imgIndex] : '';
-                    $imgIndex++;
-                    return $url ? '<img src="' . $url . '" class="img-fluid my-2 d-block">' : '';
-                }, $fullText);
+            $fullText = '';
+            $fallbackImgIndex = 0;
+
+            if ($documentXml) {
+                // Remove mc:Fallback blocks so duplicate VML fallback images/text are not processed twice
+                $cleanXml = preg_replace('/<mc:Fallback\b[\s\S]*?<\/mc:Fallback>/i', '', $documentXml);
+                // Remove deleted track-changes text and field instructions
+                $cleanXml = preg_replace('/<w:(?:delText|instrText)\b[\s\S]*?<\/w:(?:delText|instrText)>/i', '', $cleanXml);
+
+                // Replace <w:drawing>, <w:pict>, <w:object>, <a:blip>, <v:imagedata> blocks with image placeholders
+                $cleanXml = preg_replace_callback('/<w:(?:drawing|pict|object)\b[\s\S]*?<\/w:(?:drawing|pict|object)>|<a:blip\b[^>]*\/?>|<v:imagedata\b[^>]*\/?>/i', function ($m) use ($rIdToUrl, $orderedImages, &$fallbackImgIndex) {
+                    $block = $m[0];
+                    $url = '';
+                    if (preg_match('/\b(?:r:embed|r:id|o:relid)=["\']([^"\']+)["\']/i', $block, $rm)) {
+                        $rId = $rm[1];
+                        if (isset($rIdToUrl[$rId])) {
+                            $url = $rIdToUrl[$rId];
+                        }
+                    }
+                    if (!$url && isset($orderedImages[$fallbackImgIndex])) {
+                        $url = $orderedImages[$fallbackImgIndex];
+                    }
+                    $fallbackImgIndex++;
+                    if ($url) {
+                        return '<w:t>[[IMG_URL:' . $url . ']]</w:t>';
+                    }
+                    return '';
+                }, $cleanXml);
+
+                // Convert line breaks and tabs inside paragraphs
+                $cleanXml = preg_replace('/<w:(?:br|cr)\b[^>]*\/?>/i', "<w:t>\n</w:t>", $cleanXml);
+                $cleanXml = preg_replace('/<w:tab\b[^>]*\/?>/i', '<w:t> </w:t>', $cleanXml);
+
+                if (preg_match_all('/<w:p(?:\s[^>]*)?>[\s\S]*?<\/w:p>/i', $cleanXml, $pMatches)) {
+                    foreach ($pMatches[0] as $pXml) {
+                        $pText = '';
+                        if (preg_match_all('/<w:t(?:\s[^>]*)?>([\s\S]*?)<\/w:t>/i', $pXml, $tMatches)) {
+                            $pText = html_entity_decode(implode('', $tMatches[1]), ENT_QUOTES | ENT_XML1, 'UTF-8');
+                        }
+                        // Replace [[IMG_URL:...]] with <img> tag
+                        $pText = preg_replace_callback('/\[\[IMG_URL:([^\]]+)\]\]/', function ($im) {
+                            return '<img src="' . $im[1] . '" class="img-fluid my-2 d-block" style="max-width: 100%; height: auto;">';
+                        }, $pText);
+
+                        // If Word placed an anchored image before a prefix like S:1) or A:) in the same paragraph, move the prefix to the front
+                        if (preg_match('/^((?:\s*<img[^>]+>\s*)+)((?:TIPE:\s*[a-zA-Z]+\s*)?(?:S:\d+\)|[A-E]:\)|KIRI:\)|KANAN:\)|ITEM:\)|JAWAB:|LEVEL:).*)$/is', trim($pText), $pm)) {
+                            $pText = $pm[2] . "\n" . trim($pm[1]);
+                        }
+
+                        if (trim($pText) !== '') {
+                            $fullText .= $pText . "\n";
+                        }
+                    }
+                }
+            }
+
+            // Fallback to PhpWord if document.xml yielded empty text
+            if (trim($fullText) === '') {
+                $phpWord = IOFactory::load($path);
+                $extractElement = function ($el) use (&$extractElement, &$fullText) {
+                    if ($el instanceof \PhpOffice\PhpWord\Element\Image) {
+                        $fullText .= "[IMAGE_PLACEHOLDER]";
+                    } elseif (method_exists($el, 'getElements')) {
+                        foreach ($el->getElements() as $child) {
+                            $extractElement($child);
+                        }
+                    } elseif (method_exists($el, 'getText')) {
+                        $txt = $el->getText();
+                        if (is_string($txt)) {
+                            $fullText .= $txt;
+                        }
+                    }
+                };
+                foreach ($phpWord->getSections() as $section) {
+                    foreach ($section->getElements() as $element) {
+                        $extractElement($element);
+                        $fullText .= "\n";
+                    }
+                }
+                if (strpos($fullText, '[IMAGE_PLACEHOLDER]') !== false && !empty($orderedImages)) {
+                    $imgIndex = 0;
+                    $fullText = preg_replace_callback('/\[IMAGE_PLACEHOLDER\]/', function () use ($orderedImages, &$imgIndex) {
+                        $url = $orderedImages[$imgIndex] ?? '';
+                        $imgIndex++;
+                        return $url ? '<img src="' . $url . '" class="img-fluid my-2 d-block" style="max-width: 100%; height: auto;">' : '';
+                    }, $fullText);
+                }
             }
 
             $fullText = preg_replace('/TIPE:\s*(PG|PGK|LS|MJ|MT|BS|ST|IS|UR|Essay)/i', '###TIPE:$1###', $fullText);

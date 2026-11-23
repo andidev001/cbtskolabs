@@ -60,7 +60,14 @@
                                 <tr>
                                     <td class="text-center">{{ $index + 1 }}</td>
                                     <td>
-                                        {!! Str::limit(strip_tags($q->question_text), 150) !!}
+                                        <div>{!! Str::limit(strip_tags($q->question_text), 150) !!}</div>
+                                        @if(preg_match_all('/<img[^>]+src=["\']([^"\']+)["\'][^>]*>/i', $q->question_text, $imgMatches))
+                                            <div class="d-flex flex-wrap gap-2 mt-1">
+                                                @foreach($imgMatches[1] as $imgSrc)
+                                                    <img src="{{ $imgSrc }}" alt="Gambar Soal" class="img-thumbnail" style="max-height: 60px; width: auto;">
+                                                @endforeach
+                                            </div>
+                                        @endif
                                     </td>
                                     <td class="text-center">
                                         <span class="badge bg-{{ $q->type == 'PG' ? 'primary' : 'info' }}">{{ $q->type }}</span>
