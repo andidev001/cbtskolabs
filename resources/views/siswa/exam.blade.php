@@ -17,7 +17,8 @@
     <meta name="apple-mobile-web-app-title" content="CBT Siswa">
     <link rel="apple-touch-icon" href="{{ asset('icons/icon-192x192.png') }}">
     <link href="{{ asset('assets/adminkit/css/app.css') }}" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
     <style>
         html, body {
             -webkit-user-select: none !important;
@@ -238,11 +239,16 @@
         }
         .question-text {
             font-size: 1.1rem;
-            line-height: 1.6;
+            line-height: 1.85;
             margin-bottom: 25px;
             overflow-x: auto;
+            font-family: 'Roboto', 'Amiri', 'Traditional Arabic', 'Scheherazade New', sans-serif;
         }
         .question-text img { max-width: 100%; height: auto; border-radius: 4px; }
+        .option-text {
+            line-height: 1.8;
+            font-family: 'Roboto', 'Amiri', 'Traditional Arabic', 'Scheherazade New', sans-serif;
+        }
         
         .options-list {
             display: flex;
@@ -638,6 +644,8 @@
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
 <script>
     // ── Global State ──
     let currentNo = {{ $no }};
@@ -1067,6 +1075,20 @@
                 }
             });
         }
+
+        if (typeof renderMathInElement === 'function') {
+            try {
+                renderMathInElement(document.getElementById('questionContainer'), {
+                    delimiters: [
+                        {left: '$$', right: '$$', display: true},
+                        {left: '\\[', right: '\\]', display: true},
+                        {left: '\\(', right: '\\)', display: false}
+                    ],
+                    throwOnError: false
+                });
+            } catch (e) {}
+        }
+
         window.scrollTo(0, 0);
     }
 

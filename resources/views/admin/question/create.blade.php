@@ -182,6 +182,8 @@
             versionCheck: false,
             height: id === 'question_text' ? 150 : 80,
             filebrowserImageUploadUrl: "{{ route('admin.question.upload-image', ['_token' => csrf_token()]) }}",
+            imageUploadUrl: "{{ route('admin.question.upload-image', ['_token' => csrf_token(), 'responseType' => 'json']) }}",
+            uploadUrl: "{{ route('admin.question.upload-image', ['_token' => csrf_token(), 'responseType' => 'json']) }}",
             filebrowserUploadMethod: 'form',
             extraPlugins: 'uploadimage,clipboard',
             toolbar: [

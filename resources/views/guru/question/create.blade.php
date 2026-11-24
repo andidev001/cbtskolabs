@@ -195,6 +195,8 @@
             versionCheck: false,
             height: id === 'question_text' ? 150 : 80,
             filebrowserImageUploadUrl: "{{ route('guru.question.upload-image', ['_token' => csrf_token()]) }}",
+            imageUploadUrl: "{{ route('guru.question.upload-image', ['_token' => csrf_token(), 'responseType' => 'json']) }}",
+            uploadUrl: "{{ route('guru.question.upload-image', ['_token' => csrf_token(), 'responseType' => 'json']) }}",
             filebrowserUploadMethod: 'form',
             extraPlugins: 'uploadimage,clipboard',
             toolbar: [

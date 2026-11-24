@@ -65,6 +65,7 @@ class QuestionController extends Controller
         }
 
         Question::create($data);
+        \Illuminate\Support\Facades\Cache::forget("bank_soal_questions_{$bankSoal->id}");
 
         return redirect()->route('admin.bank-soal.show', $bankSoal->id)->with('success', 'Soal berhasil ditambahkan.');
     }
@@ -119,6 +120,7 @@ class QuestionController extends Controller
         }
 
         $question->update($data);
+        \Illuminate\Support\Facades\Cache::forget("bank_soal_questions_{$question->bank_soal_id}");
 
         return redirect()->route('admin.bank-soal.show', $question->bank_soal_id)->with('success', 'Soal berhasil diperbarui.');
     }
@@ -154,15 +156,27 @@ class QuestionController extends Controller
     public function uploadImage(Request $request)
     {
         if ($request->hasFile('upload')) {
-            $originName = $request->file('upload')->getClientOriginalName();
-            $fileName = pathinfo($originName, PATHINFO_FILENAME);
-            $extension = $request->file('upload')->getClientOriginalExtension();
-            $fileName = $fileName . '_' . time() . '.' . $extension;
+            $file = $request->file('upload');
+            $extension = strtolower($file->getClientOriginalExtension()) ?: 'png';
+            $fileName = 'qimg_' . time() . '_' . uniqid() . '.' . $extension;
 
-            $request->file('upload')->storeAs('public/images/questions', $fileName);
+            $targetDir = public_path('uploads/questions');
+            if (!file_exists($targetDir)) {
+                @mkdir($targetDir, 0775, true);
+            }
+
+            $file->move($targetDir, $fileName);
+            $url = '/uploads/questions/' . $fileName;
+
+            if ($request->input('responseType') === 'json' || !$request->filled('CKEditorFuncNum') || $request->expectsJson()) {
+                return response()->json([
+                    'uploaded' => 1,
+                    'fileName' => $fileName,
+                    'url' => $url
+                ]);
+            }
 
             $CKEditorFuncNum = $request->input('CKEditorFuncNum');
-            $url = asset('storage/images/questions/' . $fileName);
             $msg = 'Gambar berhasil diunggah';
             $response = "<script>window.parent.CKEDITOR.tools.callFunction($CKEditorFuncNum, '$url', '$msg')</script>";
 
@@ -170,5 +184,10 @@ class QuestionController extends Controller
             echo $response;
             exit;
         }
+
+        return response()->json([
+            'uploaded' => 0,
+            'error' => ['message' => 'File gambar tidak ditemukan.']
+        ], 400);
     }
 }

@@ -239,6 +239,8 @@ class BankSoalController extends Controller
                 $cleanXml = preg_replace('/<mc:Fallback\b[\s\S]*?<\/mc:Fallback>/i', '', $documentXml);
                 // Remove deleted track-changes text and field instructions
                 $cleanXml = preg_replace('/<w:(?:delText|instrText)\b[\s\S]*?<\/w:(?:delText|instrText)>/i', '', $cleanXml);
+                // Convert Word Equations (<m:oMath>) into inline LaTeX \( ... \)
+                $cleanXml = \App\Support\WordMathConverter::convertOmmlInXml($cleanXml);
 
                 // Replace <w:drawing>, <w:pict>, <w:object>, <a:blip>, <v:imagedata> blocks with image placeholders
                 $cleanXml = preg_replace_callback('/<w:(?:drawing|pict|object)\b[\s\S]*?<\/w:(?:drawing|pict|object)>|<a:blip\b[^>]*\/?>|<v:imagedata\b[^>]*\/?>/i', function ($m) use ($rIdToUrl, $orderedImages, &$fallbackImgIndex) {
@@ -464,8 +466,9 @@ class BankSoalController extends Controller
             }
 
             if ($importedCount > 0) {
+                \Illuminate\Support\Facades\Cache::forget("bank_soal_questions_{$bankSoal->id}");
                 return redirect()->route('admin.bank-soal.show', $bankSoal->id)
-                    ->with('success', "Berhasil mengimpor $importedCount soal dari file Word (termasuk deteksi gambar).");
+                    ->with('success', "Berhasil mengimpor $importedCount soal dari file Word (termasuk deteksi gambar & rumus).");
             }
             else {
                 return redirect()->back()
