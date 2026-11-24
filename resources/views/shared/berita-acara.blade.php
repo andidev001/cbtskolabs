@@ -36,15 +36,15 @@
     <button type="button" class="btn-print" onclick="window.print()">Cetak Berita Acara</button>
     <div class="kop-surat">
         @php
-            $app_logo = \App\Models\Setting::get('app_logo');
-            $favicon = $app_logo ? \Storage::url($app_logo) : asset('logoskolabs.png');
+            $favicon = \App\Models\Setting::logoUrl('logoskolabs.png');
             $app_name = \App\Models\Setting::get('app_name', 'SKOLABS CBT');
+            $app_alamat = \App\Models\Setting::get('alamat');
         @endphp
         <img src="{{ $favicon }}" alt="Logo" class="logo">
         <div class="kop-text">
             <h2>PANITIA PELAKSANAAN UJIAN</h2>
             <h3>{{ strtoupper($app_name) }}</h3>
-            <p>Alamat: ______________________________________________________________</p>
+            <p>Alamat: {{ $app_alamat ?: '______________________________________________________________' }}</p>
         </div>
     </div>
     @php

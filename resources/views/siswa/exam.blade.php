@@ -5,8 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>SKOLABS CBT - {{ $schedule->name }}</title>
     @php
-        $app_logo = \App\Models\Setting::get('app_logo');
-        $favicon = $app_logo ? \Storage::url($app_logo) : asset('logoskolabs.png');
+        $favicon = \App\Models\Setting::logoUrl('logoskolabs.png');
     @endphp
     <link rel="shortcut icon" href="{{ $favicon }}" />
     <link rel="manifest" href="{{ asset('manifest.json') }}">
@@ -514,11 +513,11 @@
 <header class="header">
     <div class="header-left">
         @php
-            $app_logo = \App\Models\Setting::get('app_logo');
+            $app_logo_url = \App\Models\Setting::logoUrl(null);
             $app_name = \App\Models\Setting::get('app_name', 'SKOLABS CBT');
         @endphp
-        @if($app_logo)
-            <img src="{{ Storage::url($app_logo) }}" alt="Logo" style="height: 40px; margin-right: 15px; border-radius: 50%; object-fit: cover;">
+        @if($app_logo_url)
+            <img src="{{ $app_logo_url }}" alt="Logo" style="height: 40px; margin-right: 15px; border-radius: 50%; object-fit: cover;">
         @else
             <img src="{{ asset('logoskolabs.png') }}" alt="Logo" style="height: 40px; margin-right: 15px; object-fit: contain; filter: brightness(0) invert(1);">
         @endif

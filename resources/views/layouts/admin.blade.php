@@ -6,8 +6,7 @@
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
 	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 	@php
-		$app_logo = \App\Models\Setting::get('app_logo');
-		$favicon = $app_logo ? \Storage::url($app_logo) : asset('logoskolabs.png');
+		$favicon = \App\Models\Setting::logoUrl('logoskolabs.png');
 	@endphp
 	<link rel="shortcut icon" href="{{ $favicon }}" />
 	<title>@yield('title') | SKOLABS CBT</title>
@@ -534,38 +533,41 @@
 
     // Global Confirm Delete Override (Intercept onclick or onsubmit)
     document.addEventListener('DOMContentLoaded', function() {
-        // Intercept .btn-delete
+        // Intercept .btn-delete or inline onclick="return confirm(...)"
         document.body.addEventListener('click', function(e) {
-            var el = e.target.closest('.btn-delete');
+            var el = e.target.closest('[onclick*="confirm("], .btn-delete');
             if (el) {
-                e.preventDefault();
-                e.stopImmediatePropagation();
+                var onclickAttr = el.getAttribute('onclick');
+                if ((onclickAttr && onclickAttr.includes('confirm(')) || el.classList.contains('btn-delete')) {
+                    e.preventDefault();
+                    e.stopImmediatePropagation();
 
-                var form = el.closest('form');
-                var href = el.getAttribute('href');
+                    var form = el.closest('form');
+                    var href = el.getAttribute('href');
 
-                Swal.fire({
-                    title: 'Apakah Anda Yakin?',
-                    text: 'Data yang dihapus tidak dapat dikembalikan!',
-                    icon: 'warning',
-                    showCancelButton: true,
-                    confirmButtonColor: '#dc3545',
-                    cancelButtonColor: '#6c757d',
-                    confirmButtonText: '<i data-feather="trash-2"></i> Ya, Hapus!',
-                    cancelButtonText: 'Batal'
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        el.removeAttribute('onclick'); // prevent recursion
-                        if (form) {
-                            form.submit();
-                        } else if (href) {
-                            window.location.href = href;
+                    Swal.fire({
+                        title: 'Apakah Anda Yakin?',
+                        text: 'Data yang dihapus tidak dapat dikembalikan!',
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonColor: '#dc3545',
+                        cancelButtonColor: '#6c757d',
+                        confirmButtonText: '<i data-feather="trash-2"></i> Ya, Hapus!',
+                        cancelButtonText: 'Batal'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            el.removeAttribute('onclick'); // prevent recursion
+                            if (form) {
+                                form.submit();
+                            } else if (href) {
+                                window.location.href = href;
+                            }
                         }
-                    }
-                });
+                    });
 
-                if(typeof feather !== 'undefined') {
-                    setTimeout(function() { feather.replace(); }, 10);
+                    if(typeof feather !== 'undefined') {
+                        setTimeout(function() { feather.replace(); }, 10);
+                    }
                 }
             }
         }, true); // Use capture phase!

@@ -5,8 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <title>Sign In Guru | SKOLABS CBT</title>
     @php
-        $app_logo = \App\Models\Setting::get('app_logo');
-        $favicon = $app_logo ? \Storage::url($app_logo) : asset('logoskolabs.png');
+        $favicon = \App\Models\Setting::logoUrl('logoskolabs.png');
     @endphp
     <link rel="shortcut icon" href="{{ $favicon }}" />
     
@@ -241,11 +240,11 @@
             <div class="col-lg-6 left-content">
                 <div class="logo-container">
                     @php
-                        $app_logo = \App\Models\Setting::get('app_logo');
+                        $app_logo_url = \App\Models\Setting::logoUrl(null);
                         $app_name = \App\Models\Setting::get('app_name', 'SKOLABS CBT');
                     @endphp
-                    @if($app_logo)
-                        <img src="{{ Storage::url($app_logo) }}" alt="Logo">
+                    @if($app_logo_url)
+                        <img src="{{ $app_logo_url }}" alt="Logo">
                     @else
                         <img src="{{ asset('logoskolabs.png') }}" alt="Logo" style="height: 60px; object-fit: contain;">
                     @endif

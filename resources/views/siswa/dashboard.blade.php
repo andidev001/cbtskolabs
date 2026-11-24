@@ -5,8 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <title>Dashboard Ujian | SKOLABS CBT</title>
     @php
-        $app_logo = \App\Models\Setting::get('app_logo');
-        $favicon = $app_logo ? \Storage::url($app_logo) : asset('logoskolabs.png');
+        $favicon = \App\Models\Setting::logoUrl('logoskolabs.png');
     @endphp
     <link rel="shortcut icon" href="{{ $favicon }}" />
     <link rel="manifest" href="{{ asset('manifest.json') }}">

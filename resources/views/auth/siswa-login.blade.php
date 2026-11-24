@@ -5,8 +5,7 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<title>Siswa Login | SKOLABS CBT</title>
 	@php
-		$app_logo = \App\Models\Setting::get('app_logo');
-		$favicon = $app_logo ? \Storage::url($app_logo) : asset('logoskolabs.png');
+		$favicon = \App\Models\Setting::logoUrl('logoskolabs.png');
 	@endphp
 	<link rel="shortcut icon" href="{{ $favicon }}" />
 	<link rel="manifest" href="{{ asset('manifest.json') }}">
@@ -355,14 +354,14 @@
 <body>
 
     @php
-        $app_logo = \App\Models\Setting::get('app_logo');
+        $app_logo_url = \App\Models\Setting::logoUrl(null);
         $app_name = \App\Models\Setting::get('app_name', 'SKOLABS CBT');
     @endphp
 
     <div class="header-bg">
         <div class="school-info">
-            @if($app_logo)
-                <img src="{{ Storage::url($app_logo) }}" alt="Logo">
+            @if($app_logo_url)
+                <img src="{{ $app_logo_url }}" alt="Logo">
             @else
                 <img src="{{ asset('logoskolabs.png') }}" alt="Logo" style="height: 55px; object-fit: contain; border-radius: 50%; box-shadow: 0 4px 10px rgba(0,0,0,0.1); background: #fff; padding: 2px;">
             @endif

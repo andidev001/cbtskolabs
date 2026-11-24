@@ -32,6 +32,6 @@ class Authenticate extends Middleware
             return route('siswa.login');
         }
 
-        return route('login');
+        return route('siswa.login');
     }
 }

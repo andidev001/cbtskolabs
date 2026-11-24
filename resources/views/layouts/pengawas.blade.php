@@ -7,8 +7,7 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 	<meta name="csrf-token" content="{{ csrf_token() }}">
 	@php
-		$app_logo = \App\Models\Setting::get('app_logo');
-		$favicon = $app_logo ? \Storage::url($app_logo) : asset('logoskolabs.png');
+		$favicon = \App\Models\Setting::logoUrl('logoskolabs.png');
 	@endphp
 	<link rel="shortcut icon" href="{{ $favicon }}" />
 	<title>@yield('title') | SKOLABS CBT — Pengawas</title>
