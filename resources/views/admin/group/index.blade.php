@@ -128,6 +128,8 @@ $(function() {
             {
                 data: 'siswas_count', 
                 name: 'siswas_count',
+                searchable: false,
+                orderable: false,
                 className: 'text-center',
                 render: function(data) {
                     return '<span class="badge rounded-pill bg-primary" style="background-color:#3b31c1!important;">' + data + ' peserta</span>';

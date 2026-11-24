@@ -22,10 +22,11 @@ $(function() {
         processing: true, serverSide: true,
         ajax: "{{ route('guru.processing.hasil.index') }}",
         columns: [
-            {data:'DT_RowIndex', orderable:false, searchable:false},
-            {data:'event_name'}, {data:'bank_soal_name'},
-            {data:'peserta', className:'text-center'},
-            {data:'action', orderable:false, searchable:false, className:'text-center'},
+            {data:'DT_RowIndex', name:'DT_RowIndex', orderable:false, searchable:false},
+            {data:'event_name', name:'examEvent.name'},
+            {data:'bank_soal_name', name:'bankSoal.name'},
+            {data:'peserta', name:'peserta', orderable:false, searchable:false, className:'text-center'},
+            {data:'action', name:'action', orderable:false, searchable:false, className:'text-center'},
         ],
         language: {url:'//cdn.datatables.net/plug-ins/1.13.7/i18n/id.json'},
         drawCallback: function(){ feather.replace(); }

@@ -64,6 +64,8 @@ $(function() {
             {
                 data: 'questions_count', 
                 name: 'questions_count',
+                searchable: false,
+                orderable: false,
                 className: 'text-center',
                 render: function(data, type, row) {
                     return '<span class="badge bg-secondary">' + data + ' / ' + row.pg_count + '</span>';

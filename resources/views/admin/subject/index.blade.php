@@ -173,6 +173,8 @@ $(function() {
             {
                 data: 'religion_name', 
                 name: 'religion_name',
+                searchable: false,
+                orderable: false,
                 render: function(data) {
                     if (data === 'Umum (Semua Agama)') {
                         return '<span class="text-muted small"><i data-feather="globe" style="width:12px;height:12px"></i> ' + data + '</span>';

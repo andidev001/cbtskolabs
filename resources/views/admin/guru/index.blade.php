@@ -270,7 +270,7 @@ $(function() {
                        '<small class="text-muted">' + (row.nip || '-') + '</small>';
             }},
             {data: 'username', name: 'username'},
-            {data: 'mapel', name: 'mapel', orderable: false},
+            {data: 'mapel', name: 'mapel', orderable: false, searchable: false},
             {data: 'status', name: 'status', orderable: false, searchable: false, className: 'text-center'},
             {data: 'action', name: 'action', orderable: false, searchable: false, className: 'text-center'},
         ],

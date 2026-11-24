@@ -62,6 +62,8 @@ $(function() {
             {
                 data: 'questions_count', 
                 name: 'questions_count',
+                searchable: false,
+                orderable: false,
                 className: 'text-center',
                 render: function(data, type, row) {
                     let parts = [];
