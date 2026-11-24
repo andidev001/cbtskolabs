@@ -21,7 +21,7 @@
                 {!! $question->question_text !!}
             </div>
 
-            @if(in_array($question->type, ['PG', 'LS', 'PGK']))
+            @if(in_array($question->type, ['PG', 'LS', 'PGK', 'BS', 'ST']))
                 <div class="options">
                     @foreach(['a', 'b', 'c', 'd', 'e'] as $opt)
                         @php $field = 'option_' . $opt; @endphp
@@ -29,10 +29,10 @@
                             @php
                                 $isKunci = false;
                                 if ($question->type == 'PGK' && $question->answer) {
-                                    $kunciArr = json_decode($question->answer, true) ?: [];
+                                    $kunciArr = array_map('strtolower', json_decode($question->answer, true) ?: []);
                                     $isKunci = in_array($opt, $kunciArr);
                                 } else {
-                                    $isKunci = ($question->answer == $opt);
+                                    $isKunci = (strtolower((string) $question->answer) == $opt);
                                 }
                             @endphp
                             <div class="d-flex mb-2 p-2 rounded {{ $isKunci ? 'bg-success text-white' : 'bg-white border' }}">

@@ -65,19 +65,23 @@ class BankSoalController extends Controller
             'guru_id' => 'nullable|exists:gurus,id',
             'code' => 'required|unique:bank_soals,code',
             'name' => 'required',
-            'pg_count' => 'numeric', 'pg_percent' => 'numeric',
-            'pgk_count' => 'numeric', 'pgk_percent' => 'numeric',
-            'ls_count' => 'numeric', 'ls_percent' => 'numeric',
-            'mj_count' => 'numeric', 'mj_percent' => 'numeric',
-            'is_count' => 'numeric', 'is_percent' => 'numeric',
-            'ur_count' => 'numeric', 'ur_percent' => 'numeric',
-            'mt_count' => 'numeric', 'mt_percent' => 'numeric',
-            'bs_count' => 'numeric', 'bs_percent' => 'numeric',
-            'st_count' => 'numeric', 'st_percent' => 'numeric',
+            'pg_count' => 'nullable|numeric|min:0', 'pg_percent' => 'nullable|numeric|min:0',
+            'pgk_count' => 'nullable|numeric|min:0', 'pgk_percent' => 'nullable|numeric|min:0',
+            'ls_count' => 'nullable|numeric|min:0', 'ls_percent' => 'nullable|numeric|min:0',
+            'mj_count' => 'nullable|numeric|min:0', 'mj_percent' => 'nullable|numeric|min:0',
+            'is_count' => 'nullable|numeric|min:0', 'is_percent' => 'nullable|numeric|min:0',
+            'ur_count' => 'nullable|numeric|min:0', 'ur_percent' => 'nullable|numeric|min:0',
+            'mt_count' => 'nullable|numeric|min:0', 'mt_percent' => 'nullable|numeric|min:0',
+            'bs_count' => 'nullable|numeric|min:0', 'bs_percent' => 'nullable|numeric|min:0',
+            'st_count' => 'nullable|numeric|min:0', 'st_percent' => 'nullable|numeric|min:0',
             'status' => 'nullable|boolean',
         ]);
 
         $data = $request->all();
+        foreach (['pg', 'pgk', 'ls', 'mj', 'is', 'ur', 'mt', 'bs', 'st'] as $tKey) {
+            $data["{$tKey}_count"] = $request->input("{$tKey}_count") ?: 0;
+            $data["{$tKey}_percent"] = $request->input("{$tKey}_percent") ?: 0;
+        }
         $data['guru_id'] = $request->input('guru_id') ?: null;
         $data['status'] = $request->has('status') ? 1 : 0;
 
@@ -109,19 +113,23 @@ class BankSoalController extends Controller
             'guru_id' => 'nullable|exists:gurus,id',
             'code' => 'required|unique:bank_soals,code,' . $id,
             'name' => 'required',
-            'pg_count' => 'numeric', 'pg_percent' => 'numeric',
-            'pgk_count' => 'numeric', 'pgk_percent' => 'numeric',
-            'ls_count' => 'numeric', 'ls_percent' => 'numeric',
-            'mj_count' => 'numeric', 'mj_percent' => 'numeric',
-            'is_count' => 'numeric', 'is_percent' => 'numeric',
-            'ur_count' => 'numeric', 'ur_percent' => 'numeric',
-            'mt_count' => 'numeric', 'mt_percent' => 'numeric',
-            'bs_count' => 'numeric', 'bs_percent' => 'numeric',
-            'st_count' => 'numeric', 'st_percent' => 'numeric',
+            'pg_count' => 'nullable|numeric|min:0', 'pg_percent' => 'nullable|numeric|min:0',
+            'pgk_count' => 'nullable|numeric|min:0', 'pgk_percent' => 'nullable|numeric|min:0',
+            'ls_count' => 'nullable|numeric|min:0', 'ls_percent' => 'nullable|numeric|min:0',
+            'mj_count' => 'nullable|numeric|min:0', 'mj_percent' => 'nullable|numeric|min:0',
+            'is_count' => 'nullable|numeric|min:0', 'is_percent' => 'nullable|numeric|min:0',
+            'ur_count' => 'nullable|numeric|min:0', 'ur_percent' => 'nullable|numeric|min:0',
+            'mt_count' => 'nullable|numeric|min:0', 'mt_percent' => 'nullable|numeric|min:0',
+            'bs_count' => 'nullable|numeric|min:0', 'bs_percent' => 'nullable|numeric|min:0',
+            'st_count' => 'nullable|numeric|min:0', 'st_percent' => 'nullable|numeric|min:0',
             'status' => 'nullable|boolean',
         ]);
 
         $data = $request->all();
+        foreach (['pg', 'pgk', 'ls', 'mj', 'is', 'ur', 'mt', 'bs', 'st'] as $tKey) {
+            $data["{$tKey}_count"] = $request->input("{$tKey}_count") ?: 0;
+            $data["{$tKey}_percent"] = $request->input("{$tKey}_percent") ?: 0;
+        }
         $data['guru_id'] = $request->input('guru_id') ?: null;
         $data['status'] = $request->has('status') ? 1 : 0;
 

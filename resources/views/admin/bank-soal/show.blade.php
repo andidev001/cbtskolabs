@@ -28,11 +28,17 @@
                                 <i class="align-middle" data-feather="plus"></i> Tambah Soal
                             </button>
                             <div class="dropdown-menu dropdown-menu-end">
-                                <a class="dropdown-item" href="{{ route('admin.question.create', ['bankSoal' => $bankSoal->id, 'type' => 'PG']) }}">Pilihan Ganda</a>
-                                <a class="dropdown-item" href="{{ route('admin.question.create', ['bankSoal' => $bankSoal->id, 'type' => 'Essay']) }}">Essay</a>
+                                <a class="dropdown-item" href="{{ route('admin.question.create', ['bankSoal' => $bankSoal->id, 'type' => 'pg']) }}">Pilihan Ganda</a>
+                                <a class="dropdown-item" href="{{ route('admin.question.create', ['bankSoal' => $bankSoal->id, 'type' => 'pgk']) }}">PG Kompleks</a>
+                                <a class="dropdown-item" href="{{ route('admin.question.create', ['bankSoal' => $bankSoal->id, 'type' => 'ls']) }}">Listening</a>
+                                <a class="dropdown-item" href="{{ route('admin.question.create', ['bankSoal' => $bankSoal->id, 'type' => 'mj']) }}">Menjodohkan</a>
+                                <a class="dropdown-item" href="{{ route('admin.question.create', ['bankSoal' => $bankSoal->id, 'type' => 'is']) }}">Isian Singkat</a>
+                                <a class="dropdown-item" href="{{ route('admin.question.create', ['bankSoal' => $bankSoal->id, 'type' => 'ur']) }}">Uraian / Essay</a>
+                                <a class="dropdown-item" href="{{ route('admin.question.create', ['bankSoal' => $bankSoal->id, 'type' => 'mt']) }}">Mengurutkan</a>
+                                <a class="dropdown-item" href="{{ route('admin.question.create', ['bankSoal' => $bankSoal->id, 'type' => 'bs']) }}">Benar / Salah</a>
+                                <a class="dropdown-item" href="{{ route('admin.question.create', ['bankSoal' => $bankSoal->id, 'type' => 'st']) }}">Setuju / Tidak</a>
                                 <div class="dropdown-divider"></div>
                                 <a class="dropdown-item" href="{{ route('admin.bank-soal.import-word', $bankSoal->id) }}">Import dari Word (Docx)</a>
-                                <a class="dropdown-item" href="#">Import dari Excel</a>
                             </div>
                         </div>
                     </div>

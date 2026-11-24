@@ -61,7 +61,7 @@ class ItemAnalysisExport implements FromCollection, WithHeadings, WithMapping, S
             $lowerCorrect = 0;
 
             foreach ($ansForQ as $a) {
-                $isCorrect = (strtoupper($a->answer) === strtoupper($q->answer) || $a->score > 0);
+                $isCorrect = ExamResult::isAnswerCorrect($q, $a);
                 if ($isCorrect) {
                     $correctCount++;
                     if (in_array($a->siswa_id, $upperSiswaIds)) {

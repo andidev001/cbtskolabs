@@ -80,6 +80,10 @@ class BankSoalController extends Controller
         ]);
 
         $data = $request->all();
+        foreach (['pg', 'pgk', 'ls', 'mj', 'is', 'ur', 'mt', 'bs', 'st'] as $tKey) {
+            $data["{$tKey}_count"] = $request->input("{$tKey}_count") ?: 0;
+            $data["{$tKey}_percent"] = $request->input("{$tKey}_percent") ?: 0;
+        }
         $data['guru_id'] = Auth::guard('guru')->id();
         $data['status'] = 0; // draft dulu, aktifkan setelah soal terisi
 
@@ -114,6 +118,10 @@ class BankSoalController extends Controller
         ]);
 
         $data = $request->all();
+        foreach (['pg', 'pgk', 'ls', 'mj', 'is', 'ur', 'mt', 'bs', 'st'] as $tKey) {
+            $data["{$tKey}_count"] = $request->input("{$tKey}_count") ?: 0;
+            $data["{$tKey}_percent"] = $request->input("{$tKey}_percent") ?: 0;
+        }
         $data['guru_id'] = $bankSoal->guru_id ?? Auth::guard('guru')->id();
         $data['status'] = $request->has('status') ? 1 : 0;
         $bankSoal->update($data);
