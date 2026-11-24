@@ -64,6 +64,7 @@ class ExamScheduleController extends Controller
                     data-is_active="' . $row->is_active . '"
                     data-randomize_questions="' . ($row->randomize_questions ? '1' : '0') . '"
                     data-randomize_options="' . ($row->randomize_options ? '1' : '0') . '"
+                    data-enforce_focus="' . ($row->enforce_focus ? '1' : '0') . '"
                 ><i class="align-middle" data-feather="edit-2" style="width: 13px; height: 13px;"></i></button>';
                 $btn .= '<form action="' . route('guru.exam-schedule.destroy', $row->id) . '" method="POST" class="d-inline">
                                     ' . csrf_field() . '
@@ -101,6 +102,7 @@ class ExamScheduleController extends Controller
         $data['is_active'] = $request->has('is_active') ? 1 : 0;
         $data['randomize_questions'] = $request->has('randomize_questions') ? 1 : 0;
         $data['randomize_options'] = $request->has('randomize_options') ? 1 : 0;
+        $data['enforce_focus'] = $request->has('enforce_focus') ? 1 : 0;
 
         ExamSchedule::create($data);
 
@@ -130,8 +132,10 @@ class ExamScheduleController extends Controller
         $data['is_active'] = $request->has('is_active') ? 1 : 0;
         $data['randomize_questions'] = $request->has('randomize_questions') ? 1 : 0;
         $data['randomize_options'] = $request->has('randomize_options') ? 1 : 0;
+        $data['enforce_focus'] = $request->has('enforce_focus') ? 1 : 0;
 
         $examSchedule->update($data);
+        \Illuminate\Support\Facades\Cache::forget("exam_sched_meta_{$examSchedule->id}");
 
         return redirect()->route('guru.exam-schedule.index')->with('success', 'Jadwal ujian berhasil diperbarui.');
     }

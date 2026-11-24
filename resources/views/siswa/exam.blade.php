@@ -809,6 +809,15 @@
 
     function gotoQuestion(no) {
         if (no === currentNo && document.getElementById('qText').innerHTML !== '') return;
+
+        // Pastikan jawaban soal saat ini (terutama Isian Singkat / Essay) langsung disimpan sebelum pindah nomor
+        if (typeof saveTimeout !== 'undefined' && saveTimeout) {
+            clearTimeout(saveTimeout);
+            saveTimeout = null;
+            doSaveAnswer(false);
+        } else if (document.getElementById('essayAnswer')) {
+            doSaveAnswer(false);
+        }
         
         showLoading(true);
         // Correcting the URL to match Route::get('/exam/{schedule}/soal/{no}', ...)
@@ -1263,9 +1272,35 @@
     document.addEventListener('copy', e => e.preventDefault());
     document.addEventListener('cut', e => e.preventDefault());
     document.addEventListener('paste', e => e.preventDefault());
-    document.addEventListener('selectstart', e => e.preventDefault());
-    document.addEventListener('dragstart', e => e.preventDefault());
-    document.addEventListener('drop', e => e.preventDefault());
+    document.addEventListener('selectstart', e => {
+        const tag = e.target && e.target.tagName ? e.target.tagName : '';
+        if (tag === 'INPUT' || tag === 'TEXTAREA') return;
+        e.preventDefault();
+    });
+    document.addEventListener('dragstart', e => {
+        if (e.target && e.target.closest && e.target.closest('.mj-item, .mj-dropzone, #mj-pool')) return;
+        e.preventDefault();
+    });
+    document.addEventListener('drop', e => {
+        if (e.target && e.target.closest && e.target.closest('.mj-item, .mj-dropzone, #mj-pool')) return;
+        e.preventDefault();
+    });
+
+    // Blokir pembukaan jendela/tab baru via window.open atau klik tengah (middle-click)
+    window.open = function() {
+        if (typeof kickOut === 'function') {
+            kickOut('Deteksi Kecurangan: Membuka layar atau tab baru tidak diizinkan!');
+        }
+        return null;
+    };
+    document.addEventListener('auxclick', e => {
+        if (e.button === 1) {
+            e.preventDefault();
+            if (typeof kickOut === 'function') {
+                kickOut('Deteksi Kecurangan: Membuka tab baru tidak diizinkan!');
+            }
+        }
+    });
 
     // Layar Tetap Menyala (Screen Wake Lock API)
     if ('wakeLock' in navigator) {
@@ -1275,6 +1310,8 @@
     // ── Anti-Cheat Logic ──
     @if($schedule->enforce_focus)
     let cheatDetectorActive = true;
+    let examFocusArmed = false;
+    let blurTimer = null;
     
     function kickOut(reason) {
         if (!cheatDetectorActive) return;
@@ -1300,48 +1337,86 @@
         }
     }
 
-    // 1. Deteksi Pindah Tab / Minimalisir Aplikasi
-    document.addEventListener('visibilitychange', () => {
-        if (document.visibilityState === 'hidden' && cheatDetectorActive) {
+    // Fungsi pengecekan Split Screen / Multi-Window / Jendela Diperkecil (Berjalan saat mulai, saat resize, dan setiap 1 detik)
+    function checkSplitOrResize() {
+        if (!cheatDetectorActive) return;
+        const activeTag = document.activeElement ? document.activeElement.tagName : '';
+        const isEditing = activeTag === 'INPUT' || activeTag === 'TEXTAREA';
+
+        const availW = window.screen.availWidth || window.screen.width || window.innerWidth;
+        const availH = window.screen.availHeight || window.screen.height || window.innerHeight;
+
+        // Deteksi lebar layar terbelah (Split Screen ke samping / Windows Snap / Floating Window)
+        const isWidthSplit = (window.innerWidth < availW * 0.75) || (window.outerWidth > 0 && window.outerWidth < availW * 0.75);
+        // Deteksi tinggi layar terbelah (Split Screen atas-bawah di HP/Tablet, abaikan jika keyboard virtual sedang terbuka untuk ketik)
+        const isHeightSplit = !isEditing && (window.innerHeight < availH * 0.65);
+
+        if (isWidthSplit || isHeightSplit) {
             document.body.classList.add('screen-protected');
-            kickOut('Deteksi Kecurangan: Anda berpindah tab atau meminimalkan aplikasi!');
+            kickOut('Deteksi Kecurangan: Fitur Split Screen / Layar Terbelah atau memperkecil jendela tidak diizinkan!');
+        }
+    }
+
+    // 1. Deteksi Pindah Tab / Minimalisir Aplikasi / Buka Layar Baru
+    document.addEventListener('visibilitychange', () => {
+        if ((document.visibilityState === 'hidden' || document.hidden) && cheatDetectorActive) {
+            document.body.classList.add('screen-protected');
+            kickOut('Deteksi Kecurangan: Anda berpindah tab, membuka layar baru, atau meminimalkan aplikasi!');
         } else {
             document.body.classList.remove('screen-protected');
         }
     });
 
-    // 2. Deteksi Kehilangan Fokus Window (Tarik status bar / notifikasi / klik luar jendela ujian)
+    window.addEventListener('pagehide', () => {
+        if (cheatDetectorActive && !isSubmittingFinish) {
+            kickOut('Deteksi Kecurangan: Anda meninggalkan halaman ujian!');
+        }
+    });
+
+    // 2. Deteksi Kehilangan Fokus Window (Floating Window / Pop-up App / Pindah Jendela / Tarik Notifikasi)
     window.addEventListener('blur', () => {
         document.body.classList.add('screen-protected');
         if (cheatDetectorActive) {
-            setTimeout(() => {
-                if (document.hidden || !document.hasFocus()) {
-                    kickOut('Deteksi Kecurangan: Anda membuka jendela lain atau meninggalkan layar ujian!');
+            clearTimeout(blurTimer);
+            blurTimer = setTimeout(() => {
+                if (cheatDetectorActive && (document.hidden || !document.hasFocus())) {
+                    kickOut('Deteksi Kecurangan: Anda membuka layar/jendela lain atau meninggalkan layar ujian!');
                 }
-            }, 250);
+            }, 300);
         }
     });
 
     window.addEventListener('focus', () => {
+        clearTimeout(blurTimer);
         document.body.classList.remove('screen-protected');
     });
 
-    // 3. Deteksi Split Screen (Layar Terbelah) di Mobile & Desktop (Windows Snap / Resize Jendela)
-    window.addEventListener('resize', () => {
+    // 3. Deteksi Split Screen (Layar Terbelah) saat Resize maupun sejak awal ujian dibuka
+    window.addEventListener('resize', checkSplitOrResize);
+    if (window.visualViewport) {
+        window.visualViewport.addEventListener('resize', checkSplitOrResize);
+    }
+
+    // Watchdog periodik setiap 1 detik untuk menangkap Split Screen yang sudah aktif sejak awal atau Floating Window
+    setInterval(() => {
         if (!cheatDetectorActive) return;
-        const activeTag = document.activeElement ? document.activeElement.tagName : '';
-        const isEditing = activeTag === 'INPUT' || activeTag === 'TEXTAREA';
-        if (isEditing) return;
 
-        // Cek Split Screen Vertikal (Mobile) & Horizontal (Desktop Windows Snap / Resize ke samping)
-        const isHeightSplit = window.innerHeight < (window.screen.availHeight * 0.65);
-        const isWidthSplit = window.innerWidth < (window.screen.availWidth * 0.70);
-
-        if (isHeightSplit || isWidthSplit) {
+        if (document.hidden || document.visibilityState === 'hidden') {
             document.body.classList.add('screen-protected');
-            kickOut('Deteksi Kecurangan: Fitur Split Screen / Layar Terbelah atau memperkecil jendela tidak diizinkan!');
+            kickOut('Deteksi Kecurangan: Anda berpindah tab atau meminimalkan aplikasi!');
+            return;
         }
-    });
+
+        if (document.body.classList.contains('is-fullscreen')) {
+            examFocusArmed = true;
+            checkSplitOrResize();
+
+            if (!document.hasFocus()) {
+                document.body.classList.add('screen-protected');
+                kickOut('Deteksi Kecurangan: Anda membuka aplikasi mengambang (Floating Window) atau berpindah layar!');
+            }
+        }
+    }, 1000);
 
     // 4. Blokir Gesture 3 Jari & Multi-touch (Mencegah Screenshot Gestur Bawaan HP)
     document.addEventListener('touchstart', (e) => {

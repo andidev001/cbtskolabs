@@ -102,6 +102,10 @@
                                 <input class="form-check-input" type="checkbox" name="randomize_options" id="randomize_options" value="1" checked>
                                 <label class="form-check-label fw-bold" for="randomize_options">Acak Jawaban</label>
                             </div>
+                            <div class="form-check form-switch mb-2">
+                                <input class="form-check-input" type="checkbox" name="enforce_focus" id="enforce_focus" value="1" checked>
+                                <label class="form-check-label fw-bold text-danger" for="enforce_focus">Anti-Curang</label>
+                            </div>
                         </div>
                     </div>
                     <div class="d-flex justify-content-end">
@@ -182,6 +186,10 @@
                                 <input class="form-check-input" type="checkbox" name="randomize_options" id="edit_randomize_options" value="1">
                                 <label class="form-check-label fw-bold" for="edit_randomize_options">Acak Jawaban</label>
                             </div>
+                            <div class="form-check form-switch mb-2">
+                                <input class="form-check-input" type="checkbox" name="enforce_focus" id="edit_enforce_focus" value="1">
+                                <label class="form-check-label fw-bold text-danger" for="edit_enforce_focus">Anti-Curang</label>
+                            </div>
                         </div>
                     </div>
                     <div class="d-flex justify-content-end">
@@ -241,6 +249,7 @@ $(function() {
         let is_active = $(this).data('is_active');
         let randomize_questions = $(this).data('randomize_questions');
         let randomize_options = $(this).data('randomize_options');
+        let enforce_focus = $(this).data('enforce_focus');
         let token = $(this).data('token');
 
         $('#editForm').attr('action', `/admin/exam-schedule/${id}`);
@@ -268,6 +277,12 @@ $(function() {
             $('#edit_randomize_options').prop('checked', true);
         } else {
             $('#edit_randomize_options').prop('checked', false);
+        }
+
+        if(enforce_focus == 1 || enforce_focus === undefined) {
+            $('#edit_enforce_focus').prop('checked', true);
+        } else {
+            $('#edit_enforce_focus').prop('checked', false);
         }
 
         var editModal = new bootstrap.Modal(document.getElementById('editModal'));

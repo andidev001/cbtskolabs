@@ -509,6 +509,7 @@ class ExamProcessingController extends Controller
         }
 
         $schedule->update($data);
+        \Illuminate\Support\Facades\Cache::forget("exam_sched_meta_{$schedule->id}");
 
         if ($request->ajax()) {
             return response()->json(['success' => true]);

@@ -84,7 +84,11 @@ class ExamController extends Controller
         
         // Cache metadata jadwal ujian selama 60 detik (mengurangi 98% beban query schedule)
         $schedule = Cache::remember("exam_sched_meta_{$scheduleId}", 60, function () use ($scheduleId) {
-            return ExamSchedule::select('id', 'name', 'exam_event_id', 'bank_soal_id', 'end_at', 'duration', 'enforce_focus')
+            return ExamSchedule::select(
+                'id', 'name', 'exam_event_id', 'bank_soal_id',
+                'end_at', 'duration', 'enforce_focus',
+                'randomize_questions', 'randomize_options'
+            )
                 ->with([
                 'bankSoal:id,name,subject_id',
                 'bankSoal.subject:id,name,religion_id',
