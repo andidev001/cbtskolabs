@@ -161,10 +161,10 @@ class ProcessingController extends Controller
         $schedule = $this->mySchedules()->findOrFail($scheduleId);
         $results = ExamResult::where('exam_schedule_id', $schedule->id)->whereNotNull('finished_at')->get();
         foreach ($results as $res) {
-            \App\Jobs\CalculateExamScoreJob::dispatch($schedule->id, $res->siswa_id);
+            ExamResult::recalculateExisting($schedule->id, $res->siswa_id);
         }
 
-        return back()->with('success', 'Kalkulasi ulang nilai untuk ' . $results->count() . ' siswa berhasil dimasukkan ke antrean background.');
+        return back()->with('success', 'Nilai untuk ' . $results->count() . ' siswa berhasil dihitung ulang.');
     }
 
     /** ── Leger Nilai ── */

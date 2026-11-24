@@ -200,10 +200,10 @@ class ExamProcessingController extends Controller
     {
         $results = ExamResult::where('exam_schedule_id', $scheduleId)->whereNotNull('finished_at')->get();
         foreach ($results as $res) {
-            \App\Jobs\CalculateExamScoreJob::dispatch($scheduleId, $res->siswa_id);
+            ExamResult::recalculateExisting($scheduleId, $res->siswa_id);
         }
 
-        return back()->with('success', 'Kalkulasi ulang nilai untuk ' . $results->count() . ' siswa berhasil dimasukkan ke antrean background.');
+        return back()->with('success', 'Nilai untuk ' . $results->count() . ' siswa berhasil dihitung ulang.');
     }
 
     public function hasilExportExcel(Request $request, $scheduleId)

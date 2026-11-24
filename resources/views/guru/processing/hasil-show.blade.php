@@ -80,7 +80,7 @@
         <div class="d-flex flex-wrap align-items-center gap-2">
             <form action="{{ route('guru.processing.hasil.recalculate', $schedule->id) }}" method="POST" id="form-recalculate" class="d-inline m-0">
                 @csrf
-                <button type="button" class="btn btn-sm btn-outline-primary text-nowrap d-inline-flex align-items-center" id="btn-recalculate" onclick="if(confirm('Kalkulasi ulang nilai semua siswa yang telah selesai ujian ini?')) this.form.submit();">
+                <button type="button" class="btn btn-sm btn-outline-primary text-nowrap d-inline-flex align-items-center" id="btn-recalculate">
                     <i data-feather="refresh-cw" class="me-1" style="width: 14px; height: 14px;"></i> Hitung Ulang Nilai
                 </button>
             </form>
@@ -178,6 +178,25 @@ $(function() {
             exportUrl += "?group_id=" + id;
         }
         $('#btn-export-excel').attr('href', exportUrl);
+    });
+
+    // SweetAlert for Hitung Ulang Nilai
+    $('#btn-recalculate').on('click', function(e) {
+        e.preventDefault();
+        Swal.fire({
+            title: 'Hitung Ulang Nilai?',
+            text: "Kalkulasi ulang nilai semua siswa yang telah selesai pada jadwal ujian ini?",
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: '#4361ee',
+            cancelButtonColor: '#6c757d',
+            confirmButtonText: 'Ya, Hitung Ulang!',
+            cancelButtonText: 'Batal'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                $('#form-recalculate').submit();
+            }
+        });
     });
 });
 </script>
