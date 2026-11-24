@@ -22,9 +22,18 @@ self.addEventListener('fetch', (event) => {
     if (event.request.method !== 'GET') {
         return;
     }
+
+    const url = new URL(event.request.url);
+    // Jangan intersep endpoint ping atau request AJAX soal ujian agar deteksi online/offline akurat
+    if (url.pathname === '/ping' || event.request.headers.get('X-Requested-With') === 'XMLHttpRequest') {
+        return;
+    }
+
     event.respondWith(
         fetch(event.request).catch(() => {
-            return caches.match(event.request);
+            return caches.match(event.request).then((cachedResponse) => {
+                return cachedResponse || Response.error();
+            });
         })
     );
 });

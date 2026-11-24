@@ -1311,6 +1311,7 @@
     @if($schedule->enforce_focus)
     let cheatDetectorActive = true;
     let examFocusArmed = false;
+    let unfocusedCount = 0;
     let blurTimer = null;
     
     function kickOut(reason) {
@@ -1341,15 +1342,15 @@
     function checkSplitOrResize() {
         if (!cheatDetectorActive) return;
         const activeTag = document.activeElement ? document.activeElement.tagName : '';
-        const isEditing = activeTag === 'INPUT' || activeTag === 'TEXTAREA';
+        const isEditing = activeTag === 'INPUT' || activeTag === 'TEXTAREA' || activeTag === 'SELECT';
 
         const availW = window.screen.availWidth || window.screen.width || window.innerWidth;
         const availH = window.screen.availHeight || window.screen.height || window.innerHeight;
 
         // Deteksi lebar layar terbelah (Split Screen ke samping / Windows Snap / Floating Window)
-        const isWidthSplit = (window.innerWidth < availW * 0.75) || (window.outerWidth > 0 && window.outerWidth < availW * 0.75);
-        // Deteksi tinggi layar terbelah (Split Screen atas-bawah di HP/Tablet, abaikan jika keyboard virtual sedang terbuka untuk ketik)
-        const isHeightSplit = !isEditing && (window.innerHeight < availH * 0.65);
+        const isWidthSplit = (window.innerWidth < availW * 0.72) || (window.outerWidth > 0 && window.outerWidth < availW * 0.72);
+        // Deteksi tinggi layar terbelah (Split Screen atas-bawah di HP/Tablet Android, abaikan jika keyboard virtual sedang terbuka)
+        const isHeightSplit = !isEditing && (window.innerHeight < availH * 0.60);
 
         if (isWidthSplit || isHeightSplit) {
             document.body.classList.add('screen-protected');
@@ -1375,19 +1376,29 @@
 
     // 2. Deteksi Kehilangan Fokus Window (Floating Window / Pop-up App / Pindah Jendela / Tarik Notifikasi)
     window.addEventListener('blur', () => {
+        const activeTag = document.activeElement ? document.activeElement.tagName : '';
+        if (activeTag === 'SELECT') return; // Abaikan dialog native dropdown <select> di Android
+
         document.body.classList.add('screen-protected');
         if (cheatDetectorActive) {
             clearTimeout(blurTimer);
             blurTimer = setTimeout(() => {
+                const curTag = document.activeElement ? document.activeElement.tagName : '';
+                if (curTag === 'SELECT') {
+                    document.body.classList.remove('screen-protected');
+                    return;
+                }
                 if (cheatDetectorActive && (document.hidden || !document.hasFocus())) {
                     kickOut('Deteksi Kecurangan: Anda membuka layar/jendela lain atau meninggalkan layar ujian!');
                 }
-            }, 300);
+            }, 400);
         }
     });
 
     window.addEventListener('focus', () => {
         clearTimeout(blurTimer);
+        unfocusedCount = 0;
+        examFocusArmed = true;
         document.body.classList.remove('screen-protected');
     });
 
@@ -1397,7 +1408,7 @@
         window.visualViewport.addEventListener('resize', checkSplitOrResize);
     }
 
-    // Watchdog periodik setiap 1 detik untuk menangkap Split Screen yang sudah aktif sejak awal atau Floating Window
+    // Watchdog periodik setiap 1 detik untuk menangkap Split Screen yang sudah aktif sejak awal atau Floating Window di Android
     setInterval(() => {
         if (!cheatDetectorActive) return;
 
@@ -1407,13 +1418,21 @@
             return;
         }
 
-        if (document.body.classList.contains('is-fullscreen')) {
+        if (document.hasFocus()) {
             examFocusArmed = true;
+            unfocusedCount = 0;
+        }
+
+        if (document.body.classList.contains('is-fullscreen')) {
             checkSplitOrResize();
 
-            if (!document.hasFocus()) {
+            const activeTag = document.activeElement ? document.activeElement.tagName : '';
+            if (examFocusArmed && !document.hasFocus() && activeTag !== 'SELECT') {
+                unfocusedCount++;
                 document.body.classList.add('screen-protected');
-                kickOut('Deteksi Kecurangan: Anda membuka aplikasi mengambang (Floating Window) atau berpindah layar!');
+                if (unfocusedCount >= 2) {
+                    kickOut('Deteksi Kecurangan: Anda membuka aplikasi mengambang (Floating Window) atau berpindah layar!');
+                }
             }
         }
     }, 1000);
