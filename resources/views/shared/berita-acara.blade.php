@@ -47,8 +47,11 @@
             <p>Alamat: ______________________________________________________________</p>
         </div>
     </div>
+    @php
+        $examDate = \Carbon\Carbon::parse($schedule->start_at)->locale('id');
+    @endphp
     <div class="title">BERITA ACARA PELAKSANAAN UJIAN</div>
-    <p>Pada hari ini <strong>{{ \Carbon\Carbon::now()->translatedFormat('l') }}</strong> tanggal <strong>{{ \Carbon\Carbon::now()->format('d') }}</strong> bulan <strong>{{ \Carbon\Carbon::now()->translatedFormat('F') }}</strong> tahun <strong>{{ \Carbon\Carbon::now()->format('Y') }}</strong>, telah dilaksanakan ujian untuk mata pelajaran / bank soal <strong>{{ $schedule->bankSoal->name }}</strong> dari pukul <strong>{{ \Carbon\Carbon::parse($schedule->start_at)->format('H:i') }}</strong> sampai dengan <strong>{{ \Carbon\Carbon::parse($schedule->end_at)->format('H:i') }}</strong>.</p>
+    <p>Pada hari ini <strong>{{ $examDate->translatedFormat('l') }}</strong> tanggal <strong>{{ $examDate->format('d') }}</strong> bulan <strong>{{ $examDate->translatedFormat('F') }}</strong> tahun <strong>{{ $examDate->format('Y') }}</strong>, telah dilaksanakan ujian untuk mata pelajaran / bank soal <strong>{{ $schedule->bankSoal->name }}</strong> dari pukul <strong>{{ \Carbon\Carbon::parse($schedule->start_at)->format('H:i') }}</strong> sampai dengan <strong>{{ \Carbon\Carbon::parse($schedule->end_at)->format('H:i') }}</strong>.</p>
     <table class="table-info">
         <tr><td>Nama Ujian</td><td>:</td><td class="text-bold">{{ $schedule->name }}</td></tr>
         <tr><td>Event Ujian</td><td>:</td><td>{{ $schedule->examEvent->name ?? '-' }}</td></tr>

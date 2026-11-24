@@ -107,7 +107,7 @@
                     <td>{{ $schedule->bankSoal->subject->name ?? $schedule->bankSoal->name }}</td>
                     <td>Hari/Tanggal</td>
                     <td>:</td>
-                    <td>{{ \Carbon\Carbon::parse($schedule->start_at)->translatedFormat('l, d F Y') }}</td>
+                    <td>{{ \Carbon\Carbon::parse($schedule->start_at)->locale('id')->translatedFormat('l, d F Y') }}</td>
                 </tr>
                 <tr>
                     <td>Kelas / Grup</td>
