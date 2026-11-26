@@ -330,24 +330,45 @@ class BankSoalController extends Controller
                 }
             }
 
-            $fullText = preg_replace('/TIPE:\s*(PG|PGK|LS|MJ|MT|BS|ST|IS|UR|Essay)/i', '###TIPE:$1###', $fullText);
+            $fullText = preg_replace('/TIPE:\s*(Pilihan\s*Ganda\s*Kompleks|PG\s*Kompleks|Pilihan\s*Ganda|Listening|Menjodohkan|Isian\s*Singkat|Uraian\s*\/\s*Essay|Uraian|Essay|Mengurutkan|Benar\s*\/\s*Salah|Benar\s*Salah|Setuju\s*\/\s*Tidak(?:\s*Setuju)?|Setuju\s*Tidak|PGK|PG|LS|MJ|MT|BS|ST|IS|UR)/i', '###TIPE:$1###', $fullText);
             
             // Because TIPE might appear *before* S:X), we should split by S:X) but include the TIPE if it's there.
-            // A better way is to split by S:X), but the chunk BEFORE S:1) might contain TIPE: PGK.
-            $questionBlocks = preg_split('/(###TIPE:[a-zA-Z]+###\s*)?S:\d+\)/i', $fullText, -1, PREG_SPLIT_DELIM_CAPTURE);
+            $questionBlocks = preg_split('/(###TIPE:[^#]+###\s*)?S:\d+\)/i', $fullText, -1, PREG_SPLIT_DELIM_CAPTURE);
             $importedCount = 0;
 
             $blocks = [];
             $currentType = 'PG';
             
+            $normalizeWordType = function (string $raw): string {
+                $t = strtoupper(trim(preg_replace('/\s+/', ' ', $raw)));
+                if (in_array($t, ['PGK', 'PG KOMPLEKS', 'PILIHAN GANDA KOMPLEKS'], true)) return 'PGK';
+                if (in_array($t, ['PG', 'PILIHAN GANDA'], true)) return 'PG';
+                if (in_array($t, ['LS', 'LISTENING'], true)) return 'LS';
+                if (in_array($t, ['MJ', 'MENJODOHKAN'], true)) return 'MJ';
+                if (in_array($t, ['IS', 'ISIAN SINGKAT'], true)) return 'IS';
+                if (in_array($t, ['UR', 'ESSAY', 'URAIAN', 'URAIAN / ESSAY'], true)) return 'UR';
+                if (in_array($t, ['MT', 'MENGURUTKAN'], true)) return 'MT';
+                if (in_array($t, ['BS', 'BENAR / SALAH', 'BENAR SALAH'], true)) return 'BS';
+                if (in_array($t, ['ST', 'SETUJU / TIDAK', 'SETUJU / TIDAK SETUJU', 'SETUJU TIDAK'], true)) return 'ST';
+                return $t;
+            };
+
             foreach ($questionBlocks as $block) {
                 $block = trim($block);
                 if ($block == '') continue;
                 
-                if (preg_match('/^###TIPE:([a-zA-Z]+)###/', $block, $m)) {
-                    $currentType = strtoupper($m[1]);
-                    if($currentType == 'ESSAY') $currentType = 'UR';
+                if (preg_match('/^###TIPE:([^#]+)###$/', $block, $m)) {
+                    $currentType = $normalizeWordType($m[1]);
                 } else {
+                    // Check if block also contains an inline ###TIPE:...### on a later line
+                    if (preg_match('/###TIPE:([^#]+)###/', $block, $im)) {
+                        // Do not consume next question's TIPE tag if it was at the very end of the block
+                        if (preg_match('/^(.*?)###TIPE:([^#]+)###\s*$/s', $block, $endM)) {
+                            $blocks[] = ['type' => $currentType, 'content' => trim($endM[1])];
+                            $currentType = $normalizeWordType($endM[2]);
+                            continue;
+                        }
+                    }
                     $blocks[] = ['type' => $currentType, 'content' => $block];
                     $currentType = 'PG'; // reset default
                 }
@@ -412,18 +433,26 @@ class BankSoalController extends Controller
                         $ansRaw = trim($matches[1]);
                         
                         if ($questionData['type'] === 'PGK') {
-                            // parse "A, B, C" to ["a", "b", "c"]
-                            $arr = array_map('trim', explode(',', $ansRaw));
-                            $arr = array_map('strtolower', $arr);
-                            $questionData['answer'] = json_encode(array_values(array_filter($arr)));
-                        } else if (in_array($questionData['type'], ['BS', 'ST'])) {
-                            if (stripos($ansRaw, 'benar') !== false || stripos($ansRaw, 'setuju') !== false || strtolower($ansRaw) == 'a') {
-                                $questionData['answer'] = 'a';
-                            } else {
+                            // parse "A, B, C" or "A;C" to ["a", "b", "c"]
+                            $arr = preg_split('/[,;\s]+/', $ansRaw, -1, PREG_SPLIT_NO_EMPTY);
+                            $arr = array_map(fn($v) => strtolower(substr(trim($v), 0, 1)), $arr);
+                            $questionData['answer'] = json_encode(array_values(array_unique(array_filter($arr))));
+                        } else if ($questionData['type'] === 'BS') {
+                            if (stripos($ansRaw, 'salah') !== false || strtolower($ansRaw) === 'b' || strtolower($ansRaw) === 's') {
                                 $questionData['answer'] = 'b';
+                            } else {
+                                $questionData['answer'] = 'a';
                             }
+                        } else if ($questionData['type'] === 'ST') {
+                            if (stripos($ansRaw, 'tidak') !== false || strtolower($ansRaw) === 'b' || strtolower($ansRaw) === 'ts' || strtolower($ansRaw) === 't') {
+                                $questionData['answer'] = 'b';
+                            } else {
+                                $questionData['answer'] = 'a';
+                            }
+                        } else if (in_array($questionData['type'], ['PG', 'LS'], true)) {
+                            $questionData['answer'] = strtolower(substr($ansRaw, 0, 1));
                         } else {
-                            $questionData['answer'] = $questionData['type'] == 'PG' ? strtolower(substr($ansRaw, 0, 1)) : $ansRaw;
+                            $questionData['answer'] = $ansRaw;
                         }
                         $currentOption = 'answer';
                     }
@@ -498,11 +527,13 @@ class BankSoalController extends Controller
         $section->addText('PANDUAN IMPORT SOAL SKOLABS CBT', ['bold' => true, 'size' => 14], ['alignment' => Jc::CENTER]);
         $section->addText('1. Jangan mengubah format S:X) untuk nomor soal.');
         $section->addText('2. Secara default soal dianggap PG. Untuk tipe lain, tambahkan TIPE: [Jenis] di atas nomor soal.');
-        $section->addText('3. Jenis TIPE yang didukung: PG, PGK, MJ, MT, BS, ST, IS, UR.');
+        $section->addText('3. Jenis TIPE yang didukung (9 Tipe Soal): PG, PGK, LS, MJ, IS, UR, MT, BS, ST.');
+        $section->addText('4. Anda juga bisa menambahkan Level Kognitif dengan format LEVEL: C1 (hingga C6) di bawah nomor soal.');
         $section->addTextBreak(1);
 
         $section->addText('TIPE: PG');
         $section->addText('S:1) Ini adalah contoh soal Pilihan Ganda biasa.');
+        $section->addText('LEVEL: C2');
         $section->addText('A:) Pilihan Pertama');
         $section->addText('B:) Pilihan Kedua');
         $section->addText('C:) Pilihan Ketiga');
@@ -520,34 +551,48 @@ class BankSoalController extends Controller
         $section->addText('JAWAB: A, C');
         $section->addTextBreak(1);
 
+        $section->addText('TIPE: LS');
+        $section->addText('S:3) Ini contoh soal Listening (file audio dapat diunggah melalui tombol Edit Soal setelah import).');
+        $section->addText('A:) Pilihan A');
+        $section->addText('B:) Pilihan B');
+        $section->addText('C:) Pilihan C');
+        $section->addText('D:) Pilihan D');
+        $section->addText('JAWAB: A');
+        $section->addTextBreak(1);
+
         $section->addText('TIPE: MJ');
-        $section->addText('S:3) Ini contoh soal Menjodohkan.');
+        $section->addText('S:4) Ini contoh soal Menjodohkan.');
         $section->addText('KIRI:) Indonesia');
         $section->addText('KANAN:) Jakarta');
         $section->addText('KIRI:) Malaysia');
         $section->addText('KANAN:) Kuala Lumpur');
         $section->addTextBreak(1);
 
+        $section->addText('TIPE: IS');
+        $section->addText('S:5) Ini contoh soal Isian Singkat.');
+        $section->addText('JAWAB: KataKunci');
+        $section->addTextBreak(1);
+
+        $section->addText('TIPE: UR');
+        $section->addText('S:6) Ini contoh soal Uraian / Essay.');
+        $section->addText('JAWAB: Referensi cara menjawab untuk guru (opsional)');
+        $section->addTextBreak(1);
+
         $section->addText('TIPE: MT');
-        $section->addText('S:4) Ini contoh soal Mengurutkan. Tulis dari urutan pertama ke terakhir.');
+        $section->addText('S:7) Ini contoh soal Mengurutkan. Tulis dari urutan pertama ke terakhir.');
         $section->addText('ITEM:) Pertama');
         $section->addText('ITEM:) Kedua');
         $section->addText('ITEM:) Ketiga');
         $section->addTextBreak(1);
 
         $section->addText('TIPE: BS');
-        $section->addText('S:5) Ini contoh soal Benar / Salah. JAWAB diisi BENAR atau SALAH.');
+        $section->addText('S:8) Ini contoh soal Benar / Salah. JAWAB diisi BENAR atau SALAH.');
         $section->addText('JAWAB: BENAR');
         $section->addTextBreak(1);
-        
-        $section->addText('TIPE: IS');
-        $section->addText('S:6) Ini contoh soal Isian Singkat.');
-        $section->addText('JAWAB: KataKunci');
-        $section->addTextBreak(1);
 
-        $section->addText('TIPE: UR');
-        $section->addText('S:7) Ini contoh soal Uraian / Essay.');
-        $section->addText('JAWAB: Referensi cara menjawab untuk guru (opsional)');
+        $section->addText('TIPE: ST');
+        $section->addText('S:9) Ini contoh soal Setuju / Tidak. JAWAB diisi SETUJU atau TIDAK SETUJU.');
+        $section->addText('JAWAB: TIDAK SETUJU');
         $section->addTextBreak(1);
 
         $objWriter = IOFactory::createWriter($phpWord, 'Word2007');
