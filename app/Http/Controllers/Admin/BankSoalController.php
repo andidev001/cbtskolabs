@@ -353,13 +353,20 @@ class BankSoalController extends Controller
                 return $t;
             };
 
-            foreach ($questionBlocks as $block) {
+            foreach ($questionBlocks as $idx => $block) {
                 $block = trim($block);
                 if ($block == '') continue;
                 
                 if (preg_match('/^###TIPE:([^#]+)###$/', $block, $m)) {
                     $currentType = $normalizeWordType($m[1]);
                 } else {
+                    if ($idx === 0) {
+                        // Preamble text before the first S:1)
+                        if (preg_match('/###TIPE:([^#]+)###\s*$/s', $block, $endM)) {
+                            $currentType = $normalizeWordType($endM[1]);
+                        }
+                        continue;
+                    }
                     // Check if block also contains an inline ###TIPE:...### on a later line
                     if (preg_match('/###TIPE:([^#]+)###/', $block, $im)) {
                         // Do not consume next question's TIPE tag if it was at the very end of the block
