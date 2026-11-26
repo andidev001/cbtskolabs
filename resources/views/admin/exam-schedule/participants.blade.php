@@ -27,10 +27,13 @@
                     <span class="small text-muted"><i data-feather="clock" class="me-1" style="width:13px;height:13px;"></i>{{ $schedule->duration }} menit</span>
                 </div>
             </div>
-            <div class="col-auto">
+            <div class="col-auto d-flex gap-2 align-items-center">
                 <span class="badge px-3 py-2 {{ $schedule->is_active ? 'bg-success' : 'bg-danger' }}">
                     {{ $schedule->is_active ? 'Aktif' : 'Non-Aktif' }}
                 </span>
+                <a href="{{ route('admin.exam-schedule.index') }}" class="btn btn-sm btn-outline-secondary">
+                    <i data-feather="arrow-left" style="width:14px;height:14px;" class="me-1"></i> Kembali
+                </a>
             </div>
         </div>
     </div>
