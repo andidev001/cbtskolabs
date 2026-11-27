@@ -181,9 +181,9 @@ class ExamMonitoringController extends Controller
                 ->addColumn('action', function($row) use ($results, $schedule) {
                     $result = $results->get($row->id);
                     $btn = '<div class="d-flex gap-1 justify-content-center">';
-                    if ($result && !$result->finished_at && $result->status !== 'blocked') {
+                    if ($result && $result->status !== 'finished') {
                         $url = route('admin.monitoring.force-finish', [$schedule->id, $row->id]);
-                        $btn .= '<form action="'.$url.'" method="POST" class="form-force-finish">'.csrf_field().'<button type="button" class="btn btn-sm btn-warning text-white py-0 px-2 btn-force-finish" title="Paksa Selesai"><i data-feather="terminal" style="width: 12px; height: 12px;"></i> Selesai</button></form>';
+                        $btn .= '<form action="'.$url.'" method="POST" class="form-force-finish">'.csrf_field().'<button type="button" class="btn btn-sm btn-warning text-white py-0 px-2 btn-force-finish" title="Paksa Selesai Ujian"><i data-feather="check-circle" style="width: 12px; height: 12px;"></i> Selesaikan</button></form>';
                     }
                     if ($result && $result->status === 'blocked') {
                         $url = route('admin.monitoring.unblock', [$schedule->id, $row->id]);
@@ -215,13 +215,13 @@ class ExamMonitoringController extends Controller
             ->where('siswa_id', $siswaId)
             ->first();
 
-        if ($result && !$result->finished_at) {
+        if ($result && ($result->status !== 'finished' || !$result->finished_at)) {
             ExamResult::calculateScoreAndFinish($scheduleId, $siswaId);
 
-            return redirect()->back()->with('success', 'Siswa berhasil dipaksa selesai.');
+            return redirect()->back()->with('success', 'Ujian siswa berhasil dipaksa selesai dan nilai telah dikalkulasi.');
         }
 
-        return redirect()->back()->with('error', 'Siswa sudah selesai atau belum memulai.');
+        return redirect()->back()->with('error', 'Siswa sudah selesai atau belum memulai ujian.');
     }
 
     public function resetExam($scheduleId, $siswaId)

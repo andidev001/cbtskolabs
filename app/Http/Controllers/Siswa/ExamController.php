@@ -112,12 +112,12 @@ class ExamController extends Controller
 
         if ($result) {
             if ($result->status === 'blocked') {
-                if ($request->ajax()) return response()->json(['error' => 'Ujian diblokir.'], 403);
+                if ($request->ajax()) return response()->json(['error' => 'Ujian diblokir.', 'force_redirect' => route('siswa.dashboard')], 403);
                 return redirect()->route('siswa.dashboard')->with('error', 'Akses ditolak. Ujian Anda telah diblokir.');
             }
-            if ($result->finished_at) {
-                if ($request->ajax()) return response()->json(['error' => 'Sudah selesai.'], 403);
-                return redirect()->route('siswa.dashboard')->with('error', 'Anda sudah menyelesaikan ujian ini.');
+            if ($result->finished_at || $result->status === 'finished') {
+                if ($request->ajax()) return response()->json(['error' => 'Sudah selesai.', 'force_finished' => true, 'force_redirect' => route('siswa.exam.finish', $scheduleId)], 403);
+                return redirect()->route('siswa.exam.finish', $scheduleId);
             }
         }
 
@@ -282,9 +282,30 @@ class ExamController extends Controller
     }
 
     /** Simpan jawaban (AJAX) */
-        public function answer(Request $request, $scheduleId)
+    public function answer(Request $request, $scheduleId)
     {
         $siswa = Auth::guard('siswa')->user();
+
+        $result = ExamResult::where('exam_schedule_id', $scheduleId)
+            ->where('siswa_id', $siswa->id)
+            ->first();
+
+        if ($result) {
+            if ($result->status === 'blocked') {
+                return response()->json([
+                    'error' => 'Ujian diblokir.',
+                    'force_redirect' => route('siswa.dashboard')
+                ], 403);
+            }
+            if ($result->finished_at || $result->status === 'finished') {
+                return response()->json([
+                    'error' => 'Ujian telah diselesaikan oleh Pengawas.',
+                    'force_finished' => true,
+                    'force_redirect' => route('siswa.exam.finish', $scheduleId)
+                ], 403);
+            }
+        }
+
         $ans = $request->answer;
         if (is_array($ans)) {
             $ans = json_encode($ans);
@@ -299,6 +320,35 @@ class ExamController extends Controller
             return response()->json(['success' => true, 'answered' => !empty($ans), 'flagged' => $request->boolean('is_flagged')]);
         }
         return redirect()->back();
+    }
+
+    /** Cek status aktif ujian siswa secara berkala (Heartbeat) */
+    public function checkStatus(Request $request, $scheduleId)
+    {
+        $siswa = Auth::guard('siswa')->user();
+        if (!$siswa) {
+            return response()->json(['force_redirect' => route('siswa.login')], 401);
+        }
+
+        $result = ExamResult::where('exam_schedule_id', $scheduleId)
+            ->where('siswa_id', $siswa->id)
+            ->select('id', 'status', 'finished_at')
+            ->first();
+
+        if (!$result) {
+            return response()->json(['force_redirect' => route('siswa.dashboard')]);
+        }
+        if ($result->status === 'blocked') {
+            return response()->json(['force_redirect' => route('siswa.dashboard')]);
+        }
+        if ($result->finished_at || $result->status === 'finished') {
+            return response()->json([
+                'force_finished' => true,
+                'force_redirect' => route('siswa.exam.finish', $scheduleId)
+            ]);
+        }
+
+        return response()->json(['status' => 'ongoing']);
     }
 
     /** Selesai ujian */

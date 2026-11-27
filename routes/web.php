@@ -319,6 +319,7 @@ Route::prefix('siswa')->group(function () {
             Route::get('/dashboard', [SiswaDashboardController::class , 'index'])->name('siswa.dashboard');
             Route::post('/exam/{schedule}/start', [SiswaExamController::class , 'start'])->name('siswa.exam.start');
             Route::get('/exam/{schedule}/soal/{no}', [SiswaExamController::class , 'show'])->name('siswa.exam.show');
+            Route::get('/exam/{schedule}/check-status', [SiswaExamController::class , 'checkStatus'])->name('siswa.exam.check-status');
             Route::post('/exam/{schedule}/answer', [SiswaExamController::class , 'answer'])->name('siswa.exam.answer');
             Route::match(['get', 'post'], '/exam/{schedule}/finish', [SiswaExamController::class , 'finish'])->name('siswa.exam.finish');
             Route::match(['get', 'post'], '/exam/{schedule}/block', [SiswaExamController::class , 'block'])->name('siswa.exam.block');

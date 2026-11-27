@@ -778,6 +778,27 @@
     }, 1000);
     timerDisplay.textContent = formatTime(remaining);
 
+    // Heartbeat setiap 10 detik untuk mengecek apakah ujian siswa dipaksa selesai / direset oleh Pengawas
+    setInterval(() => {
+        if (!navigator.onLine || isSubmittingFinish) return;
+        fetch(`{{ url('siswa/exam') }}/${scheduleId}/check-status?_t=${Date.now()}`, {
+            method: 'GET',
+            cache: 'no-store',
+            headers: { 'X-Requested-With': 'XMLHttpRequest' }
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data && data.force_redirect) {
+                if (typeof cheatDetectorActive !== 'undefined') {
+                    cheatDetectorActive = false;
+                }
+                isSubmittingFinish = true;
+                window.location.href = data.force_redirect;
+            }
+        })
+        .catch(() => {});
+    }, 10000);
+
     // ── Sidebar Logic ──
     function toggleSidebar() {
         document.getElementById('sidebar').classList.toggle('active');
@@ -825,6 +846,13 @@
         })
         .then(async res => {
             const text = await res.text();
+            let parsed = null;
+            try { parsed = JSON.parse(text); } catch(e) {}
+            if (parsed && parsed.force_redirect) {
+                if (typeof cheatDetectorActive !== 'undefined') cheatDetectorActive = false;
+                window.location.href = parsed.force_redirect;
+                return null;
+            }
             if (!res.ok) {
                 console.group("Error Response");
                 console.error("Status:", res.status);
@@ -832,14 +860,12 @@
                 console.groupEnd();
                 throw new Error(`HTTP ${res.status}: ${text.substring(0, 100)}`);
             }
-            try {
-                return JSON.parse(text);
-            } catch(e) {
-                console.error("JSON Parse Error. Raw body:", text);
-                throw new Error("Invalid server response format");
-            }
+            if (parsed) return parsed;
+            console.error("JSON Parse Error. Raw body:", text);
+            throw new Error("Invalid server response format");
         })
         .then(data => {
+            if (!data) return;
             pendingQuestionNo = null;
             renderQuestion(data);
             if (document.getElementById('sidebar').classList.contains('active')) toggleSidebar();
@@ -1197,8 +1223,18 @@
                 is_flagged: isFlagged == '1'
             })
         })
-        .then(res => res.json())
+        .then(async res => {
+            const data = await res.json();
+            if (data && data.force_redirect) {
+                if (typeof cheatDetectorActive !== 'undefined') cheatDetectorActive = false;
+                window.location.href = data.force_redirect;
+                return null;
+            }
+            if (!res.ok) throw new Error(data.error || 'Gagal menyimpan jawaban');
+            return data;
+        })
         .then(data => {
+            if (!data) return;
             lastSavedForQuestion[qid] = currentPayload;
             pendingSavePayload = null;
             const gridBtn = document.getElementById(`grid-${currentNo}`);
