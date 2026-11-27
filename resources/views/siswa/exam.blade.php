@@ -1552,31 +1552,75 @@
 document.addEventListener("DOMContentLoaded", function() {
     const btnFullscreen = document.getElementById('btn-fullscreen');
     const docElm = document.documentElement;
-    const isFullscreenSupported = docElm.requestFullscreen || docElm.webkitRequestFullscreen || docElm.msRequestFullscreen;
+    const isFullscreenEnabled = document.fullscreenEnabled !== false && document.webkitFullscreenEnabled !== false;
+    const isFullscreenSupported = isFullscreenEnabled && (docElm.requestFullscreen || docElm.webkitRequestFullscreen || docElm.msRequestFullscreen);
 
     let hasEnteredFullscreen = false;
+    let fullscreenFallbackBypassed = false;
+
+    function allowExamEntryFallback() {
+        fullscreenFallbackBypassed = true;
+        document.body.classList.add('is-fullscreen');
+        const fsOverlay = document.getElementById('fullscreen-overlay');
+        if (fsOverlay) {
+            fsOverlay.style.display = 'none';
+        }
+    }
 
     if (!isFullscreenSupported) {
-        document.body.classList.add('is-fullscreen');
+        allowExamEntryFallback();
     } else {
-        btnFullscreen.addEventListener('click', function() {
-            if (docElm.requestFullscreen) {
-                docElm.requestFullscreen();
-            } else if (docElm.webkitRequestFullscreen) {
-                docElm.webkitRequestFullscreen();
-            } else if (docElm.msRequestFullscreen) {
-                docElm.msRequestFullscreen();
+        function triggerFullscreenAndProceed(e) {
+            if (e) {
+                e.stopPropagation();
             }
-        });
+            let fsPromise = null;
+            try {
+                if (docElm.requestFullscreen) {
+                    fsPromise = docElm.requestFullscreen();
+                } else if (docElm.webkitRequestFullscreen) {
+                    fsPromise = docElm.webkitRequestFullscreen();
+                } else if (docElm.msRequestFullscreen) {
+                    fsPromise = docElm.msRequestFullscreen();
+                }
+            } catch (err) {
+                allowExamEntryFallback();
+                return;
+            }
+
+            if (fsPromise && typeof fsPromise.then === 'function') {
+                fsPromise.then(function() {
+                    document.body.classList.add('is-fullscreen');
+                    hasEnteredFullscreen = true;
+                }).catch(function() {
+                    // Jika browser HP Android menolak Fullscreen API (WebView/Mi Browser/Vivo/Oppo), tetap izinkan masuk ujian
+                    allowExamEntryFallback();
+                });
+            }
+
+            // Fallback pengaman 350ms jika browser tidak memicu fullscreenchange maupun reject Promise
+            setTimeout(function() {
+                let isFullScreen = document.fullscreenElement || document.webkitFullscreenElement || document.msFullscreenElement;
+                if (!isFullScreen) {
+                    allowExamEntryFallback();
+                }
+            }, 350);
+        }
+
+        if (btnFullscreen) {
+            btnFullscreen.addEventListener('click', triggerFullscreenAndProceed);
+        }
         
         function onFullScreenChange() {
             let isFullScreen = document.fullscreenElement || document.webkitFullscreenElement || document.msFullscreenElement;
             let isPwaMode = window.matchMedia('(display-mode: standalone)').matches 
                 || window.matchMedia('(display-mode: fullscreen)').matches 
                 || window.navigator.standalone === true;
-            if (isFullScreen || isPwaMode) {
+            if (isFullScreen || isPwaMode || fullscreenFallbackBypassed) {
                 document.body.classList.add('is-fullscreen');
-                hasEnteredFullscreen = true;
+                if (isFullScreen || isPwaMode) {
+                    hasEnteredFullscreen = true;
+                }
             } else {
                 document.body.classList.remove('is-fullscreen');
                 @if($schedule->enforce_focus)
@@ -1595,14 +1639,6 @@ document.addEventListener("DOMContentLoaded", function() {
         document.addEventListener("webkitfullscreenchange", onFullScreenChange);
         document.addEventListener("msfullscreenchange", onFullScreenChange);
         onFullScreenChange();
-
-        // Minta layar penuh otomatis pada sentuhan pertama jika belum penuh
-        document.addEventListener('touchstart', function autoFs() {
-            let isFs = document.fullscreenElement || document.webkitFullscreenElement || document.msFullscreenElement;
-            if (!isFs && docElm.requestFullscreen) {
-                docElm.requestFullscreen().catch(() => {});
-            }
-        }, { once: true });
     }
 
     // Hubungkan tombol coba lagi koneksi manual
