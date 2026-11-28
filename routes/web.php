@@ -153,6 +153,7 @@ Route::prefix('admin')->group(function () {
                 'destroy' => 'admin.bank-soal.destroy',
             ]);
             Route::get('bank-soal/{id}/show', [BankSoalController::class , 'show'])->name('admin.bank-soal.show');
+            Route::post('bank-soal/{id}/duplicate', [BankSoalController::class , 'duplicate'])->name('admin.bank-soal.duplicate');
             Route::patch('bank-soal/{id}/toggle-status', [BankSoalController::class , 'toggleStatus'])->name('admin.bank-soal.toggle-status');
             Route::get('bank-soal/{bankSoal}/import-word', [BankSoalController::class , 'importWord'])->name('admin.bank-soal.import-word');
             Route::post('bank-soal/{bankSoal}/process-import-word', [BankSoalController::class , 'processImportWord'])->name('admin.bank-soal.process-import-word');

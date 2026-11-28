@@ -34,8 +34,15 @@ class BankSoalController extends Controller
                             </div>';
             })
                 ->addColumn('action', function ($row) {
-                $btn = '<div class="text-center">';
+                $btn = '<div class="text-center text-nowrap">';
                 $btn .= '<a href="' . route('admin.bank-soal.show', $row->id) . '" class="btn btn-sm btn-info text-white me-1"><i class="align-middle" data-feather="plus"></i> Soal</a>';
+                $btn .= '<button type="button" class="btn btn-sm btn-warning text-white me-1 btn-copy-bank" title="Salin ke Guru Lain" data-bs-toggle="tooltip" '
+                    . 'data-id="' . $row->id . '" '
+                    . 'data-code="' . htmlspecialchars($row->code, ENT_QUOTES) . '" '
+                    . 'data-name="' . htmlspecialchars($row->name, ENT_QUOTES) . '" '
+                    . 'data-subject="' . htmlspecialchars($row->subject->name ?? '-', ENT_QUOTES) . '" '
+                    . 'data-questions="' . (int) $row->questions_count . '">'
+                    . '<i class="align-middle" data-feather="copy"></i></button>';
                 $btn .= '<a href="' . route('admin.bank-soal.edit', $row->id) . '" class="btn btn-sm btn-primary me-1" title="Edit" data-bs-toggle="tooltip"><i class="align-middle" data-feather="edit-2"></i></a>';
                 $btn .= '<form action="' . route('admin.bank-soal.destroy', $row->id) . '" method="POST" class="d-inline">
                                     ' . csrf_field() . '
@@ -48,7 +55,8 @@ class BankSoalController extends Controller
                 ->rawColumns(['guru_name', 'status_label', 'action'])
                 ->make(true);
         }
-        return view('admin.bank-soal.index');
+        $gurus = Guru::where('is_active', true)->with('subjects')->orderBy('name')->get();
+        return view('admin.bank-soal.index', compact('gurus'));
     }
 
     public function create()
@@ -151,6 +159,44 @@ class BankSoalController extends Controller
         }
 
         return redirect()->back()->with('success', 'Status Bank Soal berhasil diubah.');
+    }
+
+    public function duplicate(Request $request, string $id)
+    {
+        $source = BankSoal::with('questions')->findOrFail($id);
+
+        $request->validate([
+            'guru_id' => 'nullable|exists:gurus,id',
+            'code' => 'required|string|max:255|unique:bank_soals,code',
+            'name' => 'required|string|max:255',
+        ], [
+            'code.unique' => 'Kode Bank Soal sudah digunakan. Silakan gunakan kode lain.',
+        ]);
+
+        return \Illuminate\Support\Facades\DB::transaction(function () use ($source, $request) {
+            $newBank = $source->replicate();
+            $newBank->code = trim($request->code);
+            $newBank->name = trim($request->name);
+            $newBank->guru_id = $request->input('guru_id') ?: null;
+            $newBank->save();
+
+            // Pastikan jika disalin ke guru tertentu, mata pelajaran pada bank soal tersebut otomatis terhubung ke guru tujuan
+            if ($newBank->guru_id && $newBank->subject_id) {
+                $targetGuru = Guru::find($newBank->guru_id);
+                if ($targetGuru) {
+                    $targetGuru->subjects()->syncWithoutDetaching([$newBank->subject_id]);
+                }
+            }
+
+            foreach ($source->questions as $q) {
+                $newQ = $q->replicate();
+                $newQ->bank_soal_id = $newBank->id;
+                $newQ->save();
+            }
+
+            return redirect()->route('admin.bank-soal.index')
+                ->with('success', 'Bank Soal "' . $source->name . '" (' . $source->questions->count() . ' soal) berhasil disalin menjadi "' . $newBank->name . '".');
+        });
     }
 
     public function importWord(string $bankSoalId)

@@ -28,7 +28,7 @@
                         <th>Nama Bank Soal</th>
                         <th class="text-center">Jumlah Soal</th>
                         <th class="text-center">Status</th>
-                        <th class="text-center" width="150">Aksi</th>
+                        <th class="text-center" width="185">Aksi</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -38,9 +38,95 @@
     </div>
 </div>
 
+<!-- Modal Salin / Copy Bank Soal -->
+<div class="modal fade" id="copyBankModal" tabindex="-1" aria-labelledby="copyBankModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="copyBankModalLabel">
+                    <i class="align-middle me-1" data-feather="copy"></i> Salin Bank Soal ke Guru Lain
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="copyBankForm" method="POST" action="">
+                @csrf
+                <div class="modal-body">
+                    <div class="alert alert-info py-2 px-3 small mb-3 border-0" style="background-color: #eef5ff; color: #1967d2;">
+                        <div><strong>Sumber:</strong> <span id="copySourceInfo">-</span></div>
+                        <div><strong>Mata Pelajaran:</strong> <span id="copySubjectInfo">-</span> (<span id="copyQuestionCount">0</span> butir soal akan ikut disalin)</div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label text-muted small fw-bold">Salin untuk Guru Pengampu</label>
+                        <select name="guru_id" id="copy-guru-select" class="form-select">
+                            <option value="">-- Semua Guru Mapel Ini (Umum / Admin) --</option>
+                            @foreach($gurus ?? [] as $guru)
+                                <option value="{{ $guru->id }}">
+                                    {{ $guru->name }} @if($guru->nip) ({{ $guru->nip }}) @endif
+                                </option>
+                            @endforeach
+                        </select>
+                        <small class="text-muted" style="font-size: 0.74rem;">Pilih guru tujuan yang akan menerima salinan Bank Soal ini.</small>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label text-muted small fw-bold">Kode Bank Soal Baru</label>
+                        <input type="text" name="code" id="copy_code" class="form-control" required>
+                    </div>
+
+                    <div class="mb-2">
+                        <label class="form-label text-muted small fw-bold">Nama Bank Soal Baru</label>
+                        <input type="text" name="name" id="copy_name" class="form-control" required>
+                    </div>
+                </div>
+                <div class="modal-footer bg-light py-2">
+                    <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Batal</button>
+                    <button type="submit" class="btn btn-primary btn-sm px-3" style="background-color: #3b31c1; border: none;">
+                        <i class="align-middle me-1" data-feather="copy" style="width: 14px; height: 14px;"></i> Salin Bank Soal
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 @push('scripts')
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<link href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" rel="stylesheet" />
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 <script>
 $(function() {
+    document.body.appendChild(document.getElementById('copyBankModal'));
+
+    $('#copy-guru-select').select2({
+        theme: 'bootstrap-5',
+        width: '100%',
+        dropdownParent: $('#copyBankModal'),
+        placeholder: '-- Semua Guru Mapel Ini (Umum / Admin) --',
+        allowClear: true
+    }).on('select2:open', function() {
+        document.querySelector('.select2-container--open .select2-search__field')?.setAttribute('placeholder', 'Ketik nama atau NIP guru...');
+    });
+
+    $(document).on('click', '.btn-copy-bank', function() {
+        var id = $(this).data('id');
+        var code = $(this).data('code');
+        var name = $(this).data('name');
+        var subject = $(this).data('subject');
+        var qCount = $(this).data('questions');
+
+        var randSuffix = Math.floor(100 + Math.random() * 900);
+        $('#copyBankForm').attr('action', "{{ url('admin/bank-soal') }}/" + id + "/duplicate");
+        $('#copySourceInfo').text(name + ' (' + code + ')');
+        $('#copySubjectInfo').text(subject);
+        $('#copyQuestionCount').text(qCount);
+        $('#copy_code').val(code + '-CP' + randSuffix);
+        $('#copy_name').val(name + ' (Salinan)');
+        $('#copy-guru-select').val('').trigger('change');
+
+        var modal = new bootstrap.Modal(document.getElementById('copyBankModal'));
+        modal.show();
+    });
     $('#bank-soal-table').DataTable({
         processing: true,
         serverSide: true,
@@ -130,5 +216,28 @@ $(function() {
     .card-body { padding: 0.75rem !important; }
     .table > :not(caption) > * > * { padding: 0.4rem 0.5rem !important; }
     .btn-sm { padding: 0.2rem 0.4rem; font-size: 0.8rem; }
+    .select2-container--bootstrap-5 .select2-selection {
+        min-height: 33px !important;
+        padding: 0.25rem 0.65rem !important;
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+        font-size: 0.82rem !important;
+        color: #495057 !important;
+        border: 1px solid #dee2e6 !important;
+        border-radius: 5px !important;
+    }
+    .select2-container--bootstrap-5 .select2-dropdown {
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+        font-size: 0.82rem !important;
+        color: #495057 !important;
+    }
+    .select2-container--bootstrap-5 .select2-dropdown .select2-results__options .select2-results__option {
+        padding: 0.28rem 0.65rem !important;
+        font-size: 0.82rem !important;
+    }
+    .select2-container--bootstrap-5 .select2-dropdown .select2-results__options .select2-results__option--highlighted,
+    .select2-container--bootstrap-5 .select2-dropdown .select2-results__options .select2-results__option--selected {
+        background-color: #1967d2 !important;
+        color: #ffffff !important;
+    }
 </style>
 @endsection
