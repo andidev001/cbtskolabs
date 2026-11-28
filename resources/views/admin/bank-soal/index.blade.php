@@ -101,7 +101,7 @@ $(function() {
     $('#copy-guru-select').select2({
         theme: 'bootstrap-5',
         width: '100%',
-        dropdownParent: $('#copyBankModal'),
+        dropdownParent: $('#copyBankModal .modal-body'),
         placeholder: '-- Semua Guru Mapel Ini (Umum / Admin) --',
         allowClear: true
     }).on('select2:open', function() {
@@ -216,6 +216,13 @@ $(function() {
     .card-body { padding: 0.75rem !important; }
     .table > :not(caption) > * > * { padding: 0.4rem 0.5rem !important; }
     .btn-sm { padding: 0.2rem 0.4rem; font-size: 0.8rem; }
+    body > #copyBankModal .modal-content,
+    body > #copyBankModal .modal-body {
+        overflow: visible !important;
+    }
+    .select2-container--bootstrap-5.select2-container--open {
+        z-index: 10080 !important;
+    }
     .select2-container--bootstrap-5 .select2-selection {
         min-height: 33px !important;
         padding: 0.25rem 0.65rem !important;
@@ -229,6 +236,12 @@ $(function() {
         font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
         font-size: 0.82rem !important;
         color: #495057 !important;
+        z-index: 10080 !important;
+        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12) !important;
+    }
+    .select2-container--bootstrap-5 .select2-dropdown .select2-results__options {
+        max-height: 200px !important;
+        overflow-y: auto !important;
     }
     .select2-container--bootstrap-5 .select2-dropdown .select2-results__options .select2-results__option {
         padding: 0.28rem 0.65rem !important;
